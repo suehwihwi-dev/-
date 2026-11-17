@@ -3748,6 +3748,7 @@
         .filter(Boolean)
         .map(s => `<div class="text-[11px] text-stone-500">${s}</div>`)
         .join('');
+      const noteHtml = cfg.note ? `<div class="text-[11px] font-semibold text-stone-400">${cfg.note}</div>` : '';
       return `
         <div class="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs">
           <div class="flex items-center gap-2 mb-2">
@@ -3755,7 +3756,7 @@
             <h3 class="text-sm font-bold text-stone-800">${cfg.title}</h3>
           </div>
           <div class="text-2xl font-bold ${cfg.valueCls || 'text-stone-800'}">${cfg.main}</div>
-          <div class="mt-1.5 space-y-0.5">${deltas}${subs}</div>
+          <div class="mt-1.5 space-y-0.5">${noteHtml}${deltas}${subs}</div>
         </div>`;
     }
 
@@ -3963,6 +3964,8 @@
       };
       const curCmp = cur.recordedDays > 0 ? cur : EMPTY_METRICS;
       const prevCmp = prev.recordedDays > 0 ? prev : EMPTY_METRICS;
+      const prevHasData = prev.recordedDays > 0;
+      const noPrevNote = prevHasData ? '' : '전월 기록 없음 · 다음 달부터 비교돼요';
 
       if (rangeLabel) {
         rangeLabel.textContent = `${formatMonthLabel(curKey)} (기록 ${cur.recordedDays}일) vs ${formatMonthLabel(prevKey)} (기록 ${prev.recordedDays}일) — 월 선택으로 다른 달도 비교할 수 있어요`;
@@ -3990,7 +3993,8 @@
             iconBg: 'bg-indigo-100 text-indigo-700',
             valueCls: 'text-indigo-700',
             main: cur.sleepAvg !== null ? `${formatFixed(cur.sleepAvg, 1)}시간` : '기록 없음',
-            deltas: [sleepDelta, greatDelta],
+            deltas: prevHasData ? [sleepDelta, greatDelta] : [],
+            note: noPrevNote,
             subs: [
               `꿀잠·개운함 ${cur.greatSleepRatio !== null ? formatFixed(cur.greatSleepRatio, 0) + '%' : '-'} (${cur.greatSleepDays}/${cur.sleepDays}일)`,
               `수면 기록한 날 ${cur.sleepDays}일`
@@ -4002,7 +4006,8 @@
             iconBg: 'bg-sky-100 text-sky-700',
             valueCls: 'text-sky-700',
             main: cur.medRate !== null ? `${formatFixed(cur.medRate, 0)}%` : '기록 없음',
-            deltas: [medDelta],
+            deltas: prevHasData ? [medDelta] : [],
+            note: noPrevNote,
             subs: [
               `둘 다 챙긴 날 ${cur.medFullDays}일 · 기록 ${cur.medDays}일 기준`,
               cur.recordedDays ? `이번 달 기록일 ${cur.recordedDays}일` : ''
@@ -4014,7 +4019,8 @@
             iconBg: 'bg-teal-100 text-teal-700',
             valueCls: 'text-teal-700',
             main: `${cur.workoutMin}분 · ${cur.workoutSessions}회`,
-            deltas: [workoutDelta, stretchDelta],
+            deltas: prevHasData ? [workoutDelta, stretchDelta] : [],
+            note: noPrevNote,
             subs: [
               avgWorkoutPerDay !== null ? `기록일 기준 하루 평균 ${formatFixed(avgWorkoutPerDay, 0)}분` : '',
               `상·하체 스트레칭 완료 ${cur.stretchFullDays}일 (달성률 ${cur.stretchRate !== null ? formatFixed(cur.stretchRate, 0) + '%' : '-'})`
@@ -4026,7 +4032,8 @@
             iconBg: 'bg-amber-100 text-amber-700',
             valueCls: 'text-amber-700',
             main: cur.avgKcal !== null ? `${formatFixed(cur.avgKcal, 0)} kcal` : '기록 없음',
-            deltas: [kcalDelta, proteinDelta],
+            deltas: prevHasData ? [kcalDelta, proteinDelta] : [],
+            note: noPrevNote,
             subs: [
               `단백질 ${cur.avgProtein !== null ? formatFixed(cur.avgProtein, 0) : '-'}g · 탄수·지방 포함 총합 평균`,
               `식사 기록한 날 ${cur.mealDays}일`
@@ -4038,7 +4045,8 @@
             iconBg: 'bg-purple-100 text-purple-700',
             valueCls: 'text-purple-700',
             main: moodDominant ? `${MOOD_META[moodDominant.key].emoji} ${MOOD_META[moodDominant.key].label}` : '기록 없음',
-            deltas: [posDelta, moodDelta],
+            deltas: prevHasData ? [posDelta, moodDelta] : [],
+            note: noPrevNote,
             subs: [
               `긍정 ${cur.posRatio !== null ? formatFixed(cur.posRatio, 0) + '%' : '-'} · 보통 ${cur.moodDays ? formatFixed(ratioPercent(cur.moodCounts[3], cur.moodDays), 0) + '%' : '-'} · 지침 ${cur.negRatio !== null ? formatFixed(cur.negRatio, 0) + '%' : '-'}`,
               `기분 기록한 날 ${cur.moodDays}일`
