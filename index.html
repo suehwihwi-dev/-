@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나만의 데일리 케어 로그 · My Daily Care</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -453,12 +453,15 @@
               </div>
 
               <!-- Menu Input + Auto-Estimate Trigger -->
-              <div class="flex gap-1.5">
-                <input type="text" id="mealMenuInput" placeholder="메뉴 입력 시 칼로리·탄단지 자동 계산 (예: 부채살 구이, 삶은 달걀 2개)" oninput="onMealMenuInputType(this.value)" onkeydown="if(event.key==='Enter'){addMealEntry();}" class="flex-1 px-3 py-2 rounded-lg border border-stone-200 bg-white text-xs md:text-sm text-stone-800 focus:outline-none focus:border-amber-500" />
+              <div class="flex gap-1.5 items-stretch">
+                <textarea id="mealMenuInput" rows="2" placeholder="먹은 메뉴를 자유롭게 (예: 간장게장 3개, 밥 세숟갈 / 라면 1봉+삶은달걀 2개)" oninput="onMealMenuInputType(this.value)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addMealEntry();}" class="flex-1 px-3 py-2 rounded-lg border border-stone-200 bg-white text-xs md:text-sm text-stone-800 focus:outline-none focus:border-amber-500 resize-none leading-snug"></textarea>
                 <button type="button" onclick="triggerManualNutritionEstimate()" class="px-2.5 py-2 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-bold shrink-0 transition" title="메뉴 이름으로 칼로리와 탄단지 다시 추정">
                   ✨ 영양 추정
                 </button>
               </div>
+
+              <!-- 항목별 세분화 영양 추정 내역 -->
+              <div id="mealBreakdown" class="hidden rounded-lg border border-amber-200 bg-amber-50/60 p-2.5 text-[11px] text-stone-700 space-y-1"></div>
 
               <!-- Editable Calorie & Macro Fields -->
               <div class="grid grid-cols-4 gap-2 pt-0.5">
@@ -481,7 +484,7 @@
               </div>
 
               <div class="flex items-center justify-between gap-2 pt-0.5">
-                <span id="mealEstimateHint" class="text-[11px] text-stone-500">메뉴명을 적으면 대략적인 영양성분이 자동으로 채워져요 (직접 수정 가능)</span>
+                <span id="mealEstimateHint" class="text-[11px] text-stone-500">메뉴명·수량을 적으면 영양성분이 자동 계산돼요 (직접 수정 가능)</span>
                 <button type="button" onclick="addMealEntry()" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shrink-0 transition">
                   + 기록 추가
                 </button>
@@ -783,13 +786,17 @@
               <span>📈 체내 혈중 약물 농도 변화 곡선 (28일 타임라인)</span>
               <span id="mjCurveModeLabel" class="px-2 py-0.5 rounded-full text-[11px] bg-emerald-100 text-emerald-800 font-semibold">내 투약 기록</span>
             </div>
-            <div class="text-[11px] text-stone-500">
-              흡수 피크(Tmax ~24-48h) · 반감기(t½ = 5일/120h) 1-컴파트먼트 약동학 모델
+            <div class="flex items-center gap-1">
+              <span class="text-[11px] text-stone-500">🔍 확대</span>
+              <button type="button" id="mjZoomBtn-1" onclick="setMounjaroChartZoom(1)" class="px-2 py-0.5 rounded-lg border text-[11px] font-bold transition" title="기본 크기">1x</button>
+              <button type="button" id="mjZoomBtn-1.5" onclick="setMounjaroChartZoom(1.5)" class="px-2 py-0.5 rounded-lg border text-[11px] font-bold transition" title="1.5배 확대">1.5x</button>
+              <button type="button" id="mjZoomBtn-2" onclick="setMounjaroChartZoom(2)" class="px-2 py-0.5 rounded-lg border text-[11px] font-bold transition" title="2배 확대">2x</button>
             </div>
           </div>
+          <div class="text-[11px] text-stone-500">흡수 피크(Tmax ~24-48h) · 반감기(t½ = 5일/120h) 1-컴파트먼트 약동학 모델 · 확대 후에는 그래프를 옆으로 밀어서 보세요</div>
 
-          <div class="w-full overflow-x-auto">
-            <svg id="mjPkCurveSvg" viewBox="0 0 760 220" class="w-full h-52 bg-white rounded-xl border border-stone-200/70"></svg>
+          <div id="mjChartScroll" class="w-full overflow-x-auto rounded-xl">
+            <svg id="mjPkCurveSvg" viewBox="0 0 760 260" class="bg-white rounded-xl border border-stone-200/70" style="width:100%;min-width:760px;height:260px;"></svg>
           </div>
 
           <p id="mjPkAdviceBanner" class="text-xs text-stone-600 pt-1 leading-relaxed"></p>
@@ -865,9 +872,11 @@
             </div>
 
             <div>
-              <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center justify-between mb-2 gap-2">
                 <span class="text-xs font-bold text-stone-700">나의 투약 히스토리</span>
-                <span class="text-[11px] text-stone-400">최근 순 정렬</span>
+                <button type="button" onclick="confirmClearAllMounjaroShots()" class="text-[11px] px-2 py-1 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 font-semibold hover:bg-rose-100 transition" title="예시 기록을 포함한 마운자로 기록 전체 삭제">
+                  🧹 전체 초기화
+                </button>
               </div>
               <div id="mjShotHistoryList" class="space-y-2 max-h-56 overflow-y-auto custom-scroll pr-1"></div>
             </div>
@@ -1187,35 +1196,191 @@
 
     const TODAY_DEFAULT = getTodayKey();
 
-    // Built-in Korean Food & Ingredient Nutrition Database (approximate per serving)
-    // Allows instant auto-estimation of kcal, carbs(g), protein(g), fat(g) from menu text
+    // Built-in Korean Food & Ingredient Nutrition Database (근사치)
+    // 각 항목은 '기본 1단위' 기준 영양성분이며, grams는 그 1단위의 무게(g)다.
+    // unit = 기본 단위, unitGrams = 단위별 실제 무게 예외값(없으면 NUTRITION_UNIT_GRAMS 사용)
     const FOOD_NUTRITION_DB = [
-      { keywords: ['방탄말차', '방탄 말차', '방탄커피'], kcal: 160, carb: 2, protein: 2, fat: 16, unitTriggers: ['잔', '컵'] },
-      { keywords: ['말차', '녹차'], kcal: 35, carb: 4, protein: 2, fat: 1, unitTriggers: ['잔', '컵'] },
-      { keywords: ['아메리카노', '블랙커피', '차'], kcal: 10, carb: 2, protein: 0, fat: 0, unitTriggers: ['잔', '컵'] },
-      { keywords: ['라떼', '카페라떼', '두유라떼'], kcal: 150, carb: 12, protein: 7, fat: 8, unitTriggers: ['잔', '컵'] },
-      { keywords: ['달걀', '계란', '구운계란', '삶은달걀', '삶은계란'], kcal: 75, carb: 1, protein: 6, fat: 5, perItem: true },
-      { keywords: ['부채살', '스테이크', '소고기구이', '소고기'], kcal: 360, carb: 2, protein: 38, fat: 22 },
-      { keywords: ['규동', '소고기덮밥'], kcal: 580, carb: 68, protein: 28, fat: 20 },
-      { keywords: ['오야코동', '닭고기덮밥'], kcal: 540, carb: 65, protein: 32, fat: 15 },
-      { keywords: ['타카나볶음밥', '타카나 볶음밥', '볶음밥'], kcal: 460, carb: 62, protein: 14, fat: 16 },
-      { keywords: ['알배추', '구운배추', '구운 알배추', '배추구이', '배추'], kcal: 70, carb: 12, protein: 3, fat: 2 },
-      { keywords: ['양배추', '샐러드', '야채', '채소'], kcal: 65, carb: 10, protein: 2, fat: 2 },
-      { keywords: ['그릭요거트', '요거트'], kcal: 130, carb: 6, protein: 12, fat: 6 },
-      { keywords: ['견과류', '호두', '아몬드'], kcal: 140, carb: 4, protein: 4, fat: 13 },
-      { keywords: ['닭가슴살', '닭안심'], kcal: 165, carb: 1, protein: 31, fat: 3.5 },
-      { keywords: ['삼겹살', '통삼겹', '오겹살', '목살'], kcal: 480, carb: 2, protein: 26, fat: 40 },
-      { keywords: ['연어', '연어구이', '연어회'], kcal: 310, carb: 1, protein: 30, fat: 20 },
-      { keywords: ['두부', '구운두부', '순두부'], kcal: 140, carb: 4, protein: 15, fat: 8 },
-      { keywords: ['미소시루', '된장국', '국'], kcal: 55, carb: 6, protein: 4, fat: 2 },
-      { keywords: ['단백질쉐이크', '프로틴', '단백질 쉐이크'], kcal: 150, carb: 5, protein: 25, fat: 3 },
-      { keywords: ['알룰로스', '저당 디저트', '저당디저트', '초코 무스'], kcal: 110, carb: 8, protein: 4, fat: 7 },
-      { keywords: ['고구마', '군고구마'], kcal: 160, carb: 36, protein: 2, fat: 0.5 },
-      { keywords: ['사과', '바나나', '과일'], kcal: 95, carb: 24, protein: 1, fat: 0.3 },
-      { keywords: ['부추전', '전'], kcal: 290, carb: 34, protein: 7, fat: 14 },
-      { keywords: ['김치찌개', '찌개'], kcal: 260, carb: 12, protein: 18, fat: 15 },
-      { keywords: ['막국수', '들기름막국수', '파스타', '면'], kcal: 510, carb: 72, protein: 14, fat: 18 },
-      { keywords: ['밥', '현미밥', '잡곡밥'], kcal: 300, carb: 65, protein: 6, fat: 1.5 }
+      // ── 밥 · 죽 · 덮밥 ──
+      { keywords: ['현미밥', '현미'], kcal: 310, carb: 64, protein: 7, fat: 2.5, grams: 210, unit: '공기', unitGrams: { '숟갈': 15 } },
+      { keywords: ['잡곡밥', '잡곡'], kcal: 305, carb: 64, protein: 7, fat: 2, grams: 210, unit: '공기' },
+      { keywords: ['귀리밥', '귀리'], kcal: 300, carb: 62, protein: 8, fat: 2.5, grams: 210, unit: '공기' },
+      { keywords: ['콩밥'], kcal: 320, carb: 62, protein: 9, fat: 2.5, grams: 210, unit: '공기' },
+      { keywords: ['김치볶음밥', '김치 볶음밥'], kcal: 480, carb: 66, protein: 14, fat: 17, grams: 300, unit: '그릇' },
+      { keywords: ['새우볶음밥'], kcal: 470, carb: 64, protein: 16, fat: 16, grams: 300, unit: '그릇' },
+      { keywords: ['볶음밥'], kcal: 460, carb: 62, protein: 14, fat: 16, grams: 300, unit: '그릇' },
+      { keywords: ['오므라이스'], kcal: 620, carb: 80, protein: 22, fat: 22, grams: 350, unit: '그릇' },
+      { keywords: ['카레라이스', '카레밥', '카레'], kcal: 570, carb: 88, protein: 16, fat: 16, grams: 350, unit: '그릇' },
+      { keywords: ['돌솥비빔밥'], kcal: 580, carb: 88, protein: 19, fat: 17, grams: 420, unit: '그릇' },
+      { keywords: ['비빔밥'], kcal: 560, carb: 85, protein: 18, fat: 16, grams: 400, unit: '그릇' },
+      { keywords: ['규동', '소고기덮밥'], kcal: 580, carb: 68, protein: 28, fat: 20, grams: 400, unit: '그릇' },
+      { keywords: ['오야코동', '닭고기덮밥'], kcal: 540, carb: 65, protein: 32, fat: 15, grams: 400, unit: '그릇' },
+      { keywords: ['타카나볶음밥', '타카나 볶음밥'], kcal: 460, carb: 62, protein: 14, fat: 16, grams: 300, unit: '그릇' },
+      { keywords: ['김밥'], kcal: 460, carb: 65, protein: 15, fat: 13, grams: 250, unit: '줄', unitGrams: { '줄': 250 } },
+      { keywords: ['삼각김밥'], kcal: 180, carb: 35, protein: 5, fat: 2.5, grams: 100, unit: '개' },
+      { keywords: ['주먹밥'], kcal: 110, carb: 22, protein: 3, fat: 2, grams: 80, unit: '개' },
+      { keywords: ['전복죽', '야채죽', '죽'], kcal: 250, carb: 45, protein: 8, fat: 4, grams: 300, unit: '그릇' },
+      { keywords: ['누룽지'], kcal: 200, carb: 42, protein: 4, fat: 1, grams: 200, unit: '그릇' },
+      { keywords: ['밥', '쌀밥', '흰밥', '공깃밥'], kcal: 300, carb: 65, protein: 6, fat: 1.5, grams: 210, unit: '공기', unitGrams: { '숟갈': 15 } },
+      // ── 면 · 분식 ──
+      { keywords: ['라면', '라멘'], kcal: 500, carb: 79, protein: 10, fat: 16, grams: 120, unit: '봉', unitGrams: { '봉': 120, '개': 120, '인분': 120 } },
+      { keywords: ['짜장면', '자장면'], kcal: 700, carb: 110, protein: 20, fat: 20, grams: 650, unit: '그릇' },
+      { keywords: ['짬뽕'], kcal: 680, carb: 95, protein: 28, fat: 20, grams: 700, unit: '그릇' },
+      { keywords: ['우동'], kcal: 430, carb: 75, protein: 13, fat: 7, grams: 600, unit: '그릇' },
+      { keywords: ['칼국수', '국수'], kcal: 550, carb: 90, protein: 18, fat: 10, grams: 700, unit: '그릇' },
+      { keywords: ['물냉면', '비빔냉면', '냉면'], kcal: 500, carb: 95, protein: 14, fat: 5, grams: 600, unit: '그릇' },
+      { keywords: ['막국수'], kcal: 510, carb: 72, protein: 14, fat: 18, grams: 500, unit: '그릇' },
+      { keywords: ['크림파스타', '까르보나라'], kcal: 750, carb: 70, protein: 18, fat: 45, grams: 350, unit: '인분' },
+      { keywords: ['알리오올리오'], kcal: 520, carb: 65, protein: 12, fat: 24, grams: 300, unit: '인분' },
+      { keywords: ['파스타', '스파게티', '토마토파스타'], kcal: 550, carb: 75, protein: 18, fat: 20, grams: 350, unit: '인분' },
+      { keywords: ['쫄면'], kcal: 520, carb: 95, protein: 12, fat: 8, grams: 450, unit: '그릇' },
+      { keywords: ['잔치국수'], kcal: 400, carb: 70, protein: 14, fat: 6, grams: 600, unit: '그릇' },
+      { keywords: ['비빔국수'], kcal: 480, carb: 85, protein: 13, fat: 8, grams: 450, unit: '그릇' },
+      { keywords: ['쌀국수', '포'], kcal: 450, carb: 70, protein: 18, fat: 8, grams: 600, unit: '그릇' },
+      { keywords: ['마라탕'], kcal: 600, carb: 60, protein: 25, fat: 28, grams: 500, unit: '그릇' },
+      { keywords: ['마라샹궈'], kcal: 650, carb: 45, protein: 30, fat: 38, grams: 400, unit: '인분' },
+      { keywords: ['라볶이'], kcal: 520, carb: 90, protein: 12, fat: 12, grams: 350, unit: '인분' },
+      { keywords: ['떡볶이'], kcal: 400, carb: 75, protein: 8, fat: 8, grams: 250, unit: '인분' },
+      { keywords: ['떡국'], kcal: 450, carb: 75, protein: 15, fat: 8, grams: 500, unit: '그릇' },
+      { keywords: ['순대'], kcal: 350, carb: 45, protein: 12, fat: 12, grams: 200, unit: '인분' },
+      { keywords: ['군만두', '찐만두', '만두'], kcal: 110, carb: 14, protein: 4, fat: 4, grams: 50, unit: '개' },
+      { keywords: ['김치전'], kcal: 300, carb: 35, protein: 7, fat: 15, grams: 200, unit: '인분', unitGrams: { '장': 100, '조각': 100 } },
+      { keywords: ['해물파전', '파전'], kcal: 320, carb: 36, protein: 8, fat: 16, grams: 200, unit: '인분', unitGrams: { '장': 100, '조각': 100 } },
+      { keywords: ['부추전'], kcal: 290, carb: 34, protein: 7, fat: 14, grams: 200, unit: '인분', unitGrams: { '장': 100, '조각': 100 } },
+      // ── 국 · 찌개 · 탕 ──
+      { keywords: ['김치찌개'], kcal: 260, carb: 12, protein: 18, fat: 15, grams: 300, unit: '그릇' },
+      { keywords: ['된장찌개', '된장국', '미소시루', '된장'], kcal: 200, carb: 15, protein: 14, fat: 10, grams: 300, unit: '그릇' },
+      { keywords: ['순두부찌개', '순두부'], kcal: 250, carb: 12, protein: 18, fat: 14, grams: 400, unit: '그릇' },
+      { keywords: ['청국장찌개', '청국장'], kcal: 230, carb: 16, protein: 16, fat: 11, grams: 300, unit: '그릇' },
+      { keywords: ['부대찌개'], kcal: 400, carb: 25, protein: 22, fat: 25, grams: 400, unit: '그릇' },
+      { keywords: ['동태찌개', '생선찌개'], kcal: 180, carb: 8, protein: 24, fat: 5, grams: 400, unit: '그릇' },
+      { keywords: ['육개장'], kcal: 300, carb: 12, protein: 24, fat: 16, grams: 500, unit: '그릇' },
+      { keywords: ['갈비탕'], kcal: 450, carb: 15, protein: 35, fat: 28, grams: 600, unit: '그릇' },
+      { keywords: ['설렁탕', '곰탕'], kcal: 400, carb: 10, protein: 30, fat: 25, grams: 600, unit: '그릇' },
+      { keywords: ['삼계탕'], kcal: 800, carb: 30, protein: 60, fat: 45, grams: 800, unit: '그릇' },
+      { keywords: ['감자탕', '뼈해장국'], kcal: 500, carb: 25, protein: 35, fat: 28, grams: 600, unit: '그릇' },
+      { keywords: ['순대국밥', '돼지국밥', '콩나물국밥', '국밥'], kcal: 700, carb: 80, protein: 35, fat: 28, grams: 700, unit: '그릇' },
+      { keywords: ['미역국'], kcal: 100, carb: 6, protein: 8, fat: 5, grams: 300, unit: '그릇' },
+      { keywords: ['소고기무국', '무국'], kcal: 180, carb: 8, protein: 15, fat: 9, grams: 300, unit: '그릇' },
+      { keywords: ['계란국', '달걀국'], kcal: 90, carb: 3, protein: 7, fat: 5, grams: 300, unit: '그릇' },
+      // ── 고기 · 생선 · 단백질 ──
+      { keywords: ['삼겹살', '오겹살', '통삼겹'], kcal: 480, carb: 2, protein: 26, fat: 40, grams: 200, unit: '인분' },
+      { keywords: ['목살'], kcal: 450, carb: 2, protein: 28, fat: 35, grams: 200, unit: '인분' },
+      { keywords: ['부채살', '스테이크', '등심', '소갈비살', '소고기'], kcal: 360, carb: 2, protein: 38, fat: 22, grams: 200, unit: '인분' },
+      { keywords: ['소안심', '안심'], kcal: 280, carb: 1, protein: 36, fat: 13, grams: 200, unit: '인분' },
+      { keywords: ['돼지갈비', '양념갈비', '갈비'], kcal: 420, carb: 15, protein: 30, fat: 25, grams: 200, unit: '인분' },
+      { keywords: ['불고기', '소불고기'], kcal: 250, carb: 12, protein: 25, fat: 12, grams: 150, unit: '인분' },
+      { keywords: ['제육볶음', '제육'], kcal: 350, carb: 15, protein: 28, fat: 20, grams: 200, unit: '인분' },
+      { keywords: ['닭갈비'], kcal: 400, carb: 20, protein: 30, fat: 22, grams: 250, unit: '인분' },
+      { keywords: ['안동찜닭', '찜닭'], kcal: 450, carb: 30, protein: 35, fat: 22, grams: 300, unit: '인분' },
+      { keywords: ['돈가스', '돈까스'], kcal: 550, carb: 45, protein: 28, fat: 28, grams: 200, unit: '인분' },
+      { keywords: ['탕수육'], kcal: 600, carb: 60, protein: 25, fat: 28, grams: 250, unit: '인분' },
+      { keywords: ['양념치킨', '양념 치킨'], kcal: 320, carb: 22, protein: 22, fat: 16, grams: 100, unit: '조각', unitGrams: { '조각': 100, '개': 100, '마리': 900 } },
+      { keywords: ['간장치킨'], kcal: 300, carb: 18, protein: 23, fat: 15, grams: 100, unit: '조각', unitGrams: { '조각': 100, '개': 100, '마리': 900 } },
+      { keywords: ['치킨', '후라이드', '프라이드치킨', '황금올리브', 'bbq'], kcal: 280, carb: 12, protein: 24, fat: 15, grams: 100, unit: '조각', unitGrams: { '조각': 100, '개': 100, '마리': 900 } },
+      { keywords: ['닭가슴살', '닭안심', '닭가슴'], kcal: 165, carb: 1, protein: 31, fat: 3.5, grams: 100, unit: '인분', unitGrams: { '팩': 100, '조각': 100, '개': 100 } },
+      { keywords: ['닭다리살', '닭다리'], kcal: 220, carb: 1, protein: 26, fat: 12, grams: 120, unit: '개' },
+      { keywords: ['연어'], kcal: 310, carb: 1, protein: 30, fat: 20, grams: 150, unit: '인분' },
+      { keywords: ['생선구이', '생선'], kcal: 250, carb: 1, protein: 30, fat: 13, grams: 150, unit: '인분' },
+      { keywords: ['고등어'], kcal: 320, carb: 0, protein: 28, fat: 22, grams: 150, unit: '마리' },
+      { keywords: ['참치', '참치캔'], kcal: 200, carb: 0, protein: 28, fat: 9, grams: 100, unit: '인분', unitGrams: { '캔': 150 } },
+      { keywords: ['오징어볶음', '오징어'], kcal: 150, carb: 5, protein: 26, fat: 2, grams: 200, unit: '마리' },
+      { keywords: ['새우'], kcal: 100, carb: 1, protein: 20, fat: 1.5, grams: 100, unit: '인분' },
+      { keywords: ['두부', '구운두부', '두부구이', '두부조림'], kcal: 140, carb: 4, protein: 15, fat: 8, grams: 150, unit: '인분', unitGrams: { '모': 300 } },
+      { keywords: ['계란후라이', '달걀후라이'], kcal: 105, carb: 0.5, protein: 7, fat: 8, grams: 50, unit: '개' },
+      { keywords: ['계란', '달걀', '삶은계란', '삶은달걀', '구운계란'], kcal: 75, carb: 0.6, protein: 6, fat: 5, grams: 50, unit: '개', unitGrams: { '알': 50, '개': 50 } },
+      { keywords: ['계란말이', '달걀말이'], kcal: 200, carb: 4, protein: 14, fat: 14, grams: 120, unit: '인분' },
+      { keywords: ['계란찜', '달걀찜'], kcal: 150, carb: 6, protein: 12, fat: 9, grams: 150, unit: '그릇' },
+      { keywords: ['간장게장', '간장 게장'], kcal: 90, carb: 1, protein: 9, fat: 2, grams: 80, unit: '마리', unitGrams: { '마리': 80, '개': 80, '그릇': 200 } },
+      { keywords: ['양념게장', '양념 게장'], kcal: 120, carb: 8, protein: 8, fat: 4, grams: 80, unit: '마리', unitGrams: { '마리': 80, '개': 80 } },
+      { keywords: ['어묵볶음', '오뎅볶음', '어묵', '오뎅'], kcal: 150, carb: 15, protein: 9, fat: 6, grams: 80, unit: '인분' },
+      { keywords: ['비엔나', '소시지'], kcal: 70, carb: 1, protein: 4, fat: 5, grams: 30, unit: '개' },
+      { keywords: ['햄', '스팸', '슬라이스햄'], kcal: 90, carb: 2, protein: 8, fat: 7, grams: 30, unit: '장' },
+      { keywords: ['베이컨'], kcal: 45, carb: 0.5, protein: 3, fat: 3.5, grams: 15, unit: '장' },
+      { keywords: ['김', '조미김', '김자반'], kcal: 10, carb: 0.5, protein: 1, fat: 0.2, grams: 2, unit: '장', unitGrams: { '장': 2, '봉': 5, '줄': 5 } },
+      { keywords: ['치즈', '슬라이스치즈', '모짜렐라'], kcal: 80, carb: 1, protein: 5, fat: 7, grams: 20, unit: '장' },
+      // ── 반찬 · 채소 ──
+      { keywords: ['김치', '배추김치', '포기김치'], kcal: 15, carb: 2, protein: 1, fat: 0.1, grams: 30, unit: '인분', unitGrams: { '접시': 50 } },
+      { keywords: ['깍두기'], kcal: 20, carb: 4, protein: 1, fat: 0.1, grams: 40, unit: '인분' },
+      { keywords: ['콩나물무침', '콩나물'], kcal: 50, carb: 5, protein: 4, fat: 2, grams: 70, unit: '인분' },
+      { keywords: ['시금치나물', '시금치', '나물'], kcal: 45, carb: 4, protein: 4, fat: 2.5, grams: 70, unit: '인분' },
+      { keywords: ['고사리나물', '고사리'], kcal: 60, carb: 5, protein: 3, fat: 3.5, grams: 70, unit: '인분' },
+      { keywords: ['잡채'], kcal: 180, carb: 28, protein: 6, fat: 5, grams: 100, unit: '인분' },
+      { keywords: ['멸치볶음', '멸치'], kcal: 100, carb: 8, protein: 10, fat: 4, grams: 30, unit: '인분' },
+      { keywords: ['장조림'], kcal: 90, carb: 4, protein: 12, fat: 3, grams: 40, unit: '인분' },
+      { keywords: ['감자조림'], kcal: 100, carb: 18, protein: 3, fat: 3, grams: 80, unit: '인분' },
+      { keywords: ['오이무침', '오이'], kcal: 20, carb: 3, protein: 1, fat: 0.2, grams: 70, unit: '인분' },
+      { keywords: ['무생채', '무침'], kcal: 25, carb: 4, protein: 1, fat: 0.2, grams: 70, unit: '인분' },
+      { keywords: ['알배추', '구운알배추', '배추구이', '배추'], kcal: 70, carb: 12, protein: 3, fat: 2, grams: 150, unit: '인분' },
+      { keywords: ['양배추', '야채', '채소'], kcal: 65, carb: 10, protein: 2, fat: 2, grams: 150, unit: '인분' },
+      { keywords: ['단호박'], kcal: 90, carb: 20, protein: 2, fat: 0.3, grams: 150, unit: '인분' },
+      { keywords: ['군고구마', '고구마'], kcal: 160, carb: 36, protein: 2, fat: 0.5, grams: 150, unit: '개' },
+      { keywords: ['삶은감자', '감자'], kcal: 160, carb: 36, protein: 4, fat: 0.2, grams: 150, unit: '개' },
+      { keywords: ['찐옥수수', '옥수수'], kcal: 130, carb: 30, protein: 5, fat: 2, grams: 150, unit: '개' },
+      // ── 샐러드 · 포케 · 유제품 ──
+      { keywords: ['닭가슴살샐러드', '닭가슴살 샐러드'], kcal: 280, carb: 12, protein: 30, fat: 10, grams: 250, unit: '인분' },
+      { keywords: ['샐러드'], kcal: 120, carb: 10, protein: 4, fat: 7, grams: 150, unit: '인분' },
+      { keywords: ['포케', '연어포케'], kcal: 550, carb: 60, protein: 28, fat: 22, grams: 400, unit: '그릇' },
+      { keywords: ['그릭요거트', '그리스요거트'], kcal: 130, carb: 6, protein: 12, fat: 6, grams: 150, unit: '인분' },
+      { keywords: ['요거트', '요구르트'], kcal: 100, carb: 15, protein: 4, fat: 2.5, grams: 100, unit: '개' },
+      { keywords: ['단백질쉐이크', '프로틴쉐이크', '단백질 쉐이크', '프로틴'], kcal: 150, carb: 5, protein: 25, fat: 3, grams: 300, unit: '잔' },
+      { keywords: ['우유'], kcal: 130, carb: 10, protein: 7, fat: 7, grams: 200, unit: '컵' },
+      { keywords: ['두유'], kcal: 100, carb: 8, protein: 6, fat: 4, grams: 200, unit: '컵' },
+      // ── 과일 ──
+      { keywords: ['사과'], kcal: 95, carb: 25, protein: 0.5, fat: 0.3, grams: 200, unit: '개' },
+      { keywords: ['바나나'], kcal: 105, carb: 27, protein: 1, fat: 0.3, grams: 120, unit: '개' },
+      { keywords: ['귤'], kcal: 40, carb: 10, protein: 0.7, fat: 0.2, grams: 80, unit: '개' },
+      { keywords: ['오렌지'], kcal: 60, carb: 15, protein: 1, fat: 0.2, grams: 130, unit: '개' },
+      { keywords: ['딸기'], kcal: 50, carb: 12, protein: 1, fat: 0.5, grams: 150, unit: '인분' },
+      { keywords: ['포도'], kcal: 90, carb: 23, protein: 1, fat: 0.2, grams: 150, unit: '인분' },
+      { keywords: ['수박'], kcal: 60, carb: 15, protein: 1, fat: 0.3, grams: 200, unit: '인분' },
+      { keywords: ['블루베리'], kcal: 60, carb: 14, protein: 1, fat: 0.3, grams: 100, unit: '인분' },
+      { keywords: ['키위'], kcal: 45, carb: 11, protein: 0.8, fat: 0.4, grams: 90, unit: '개' },
+      { keywords: ['방울토마토', '토마토'], kcal: 30, carb: 6, protein: 1, fat: 0.3, grams: 100, unit: '인분' },
+      { keywords: ['아보카도'], kcal: 240, carb: 12, protein: 3, fat: 22, grams: 150, unit: '개' },
+      // ── 빵 · 간식 · 디저트 ──
+      { keywords: ['식빵', '빵'], kcal: 70, carb: 13, protein: 2, fat: 1, grams: 30, unit: '장' },
+      { keywords: ['크루아상', '크로아상'], kcal: 230, carb: 26, protein: 5, fat: 12, grams: 60, unit: '개' },
+      { keywords: ['베이글'], kcal: 270, carb: 53, protein: 10, fat: 2, grams: 100, unit: '개' },
+      { keywords: ['샌드위치'], kcal: 350, carb: 40, protein: 15, fat: 14, grams: 180, unit: '개' },
+      { keywords: ['도넛', '도너츠'], kcal: 280, carb: 32, protein: 4, fat: 16, grams: 70, unit: '개' },
+      { keywords: ['쿠키'], kcal: 120, carb: 16, protein: 1.5, fat: 6, grams: 30, unit: '개' },
+      { keywords: ['붕어빵'], kcal: 180, carb: 34, protein: 4, fat: 3, grams: 80, unit: '개' },
+      { keywords: ['호떡'], kcal: 250, carb: 40, protein: 5, fat: 8, grams: 100, unit: '개' },
+      { keywords: ['약과'], kcal: 120, carb: 20, protein: 2, fat: 4, grams: 30, unit: '개' },
+      { keywords: ['찹쌀떡', '떡'], kcal: 150, carb: 32, protein: 3, fat: 1, grams: 70, unit: '개' },
+      { keywords: ['케이크'], kcal: 350, carb: 45, protein: 5, fat: 17, grams: 100, unit: '조각' },
+      { keywords: ['아이스크림'], kcal: 200, carb: 24, protein: 3, fat: 11, grams: 100, unit: '개' },
+      { keywords: ['초콜릿', '초콜렛', '초코'], kcal: 250, carb: 25, protein: 3, fat: 16, grams: 50, unit: '인분' },
+      { keywords: ['감자칩', '포테이토칩', '칩'], kcal: 280, carb: 30, protein: 3, fat: 17, grams: 50, unit: '봉' },
+      { keywords: ['견과류', '아몬드', '호두', '캐슈넛'], kcal: 140, carb: 4, protein: 4, fat: 13, grams: 25, unit: '인분' },
+      { keywords: ['프로틴바', '단백질바'], kcal: 200, carb: 20, protein: 15, fat: 7, grams: 60, unit: '개' },
+      { keywords: ['그래놀라'], kcal: 200, carb: 30, protein: 5, fat: 8, grams: 50, unit: '인분' },
+      { keywords: ['알룰로스', '저당디저트', '저당 디저트', '초코무스', '초코 무스'], kcal: 110, carb: 8, protein: 4, fat: 7, grams: 100, unit: '인분' },
+      { keywords: ['약밥', '인절미'], kcal: 180, carb: 38, protein: 4, fat: 1.5, grams: 80, unit: '개' },
+      // ── 패스트푸드 ──
+      { keywords: ['피자'], kcal: 280, carb: 30, protein: 12, fat: 12, grams: 100, unit: '조각', unitGrams: { '조각': 100, '판': 1000 } },
+      { keywords: ['불고기버거'], kcal: 400, carb: 45, protein: 20, fat: 16, grams: 200, unit: '개' },
+      { keywords: ['치즈버거'], kcal: 450, carb: 35, protein: 24, fat: 25, grams: 200, unit: '개' },
+      { keywords: ['햄버거', '버거'], kcal: 500, carb: 40, protein: 25, fat: 28, grams: 200, unit: '개' },
+      { keywords: ['감자튀김', '후렌치후라이', '감튀'], kcal: 380, carb: 48, protein: 4, fat: 18, grams: 120, unit: '인분' },
+      { keywords: ['핫도그'], kcal: 320, carb: 30, protein: 12, fat: 17, grams: 120, unit: '개' },
+      { keywords: ['치킨너겟', '너겟'], kcal: 250, carb: 15, protein: 13, fat: 16, grams: 100, unit: '인분' },
+      { keywords: ['타코야끼'], kcal: 200, carb: 30, protein: 6, fat: 6, grams: 100, unit: '인분' },
+      // ── 음료 ──
+      { keywords: ['방탄말차', '방탄 말차', '방탄커피'], kcal: 160, carb: 2, protein: 2, fat: 16, grams: 355, unit: '잔' },
+      { keywords: ['바닐라라떼'], kcal: 250, carb: 30, protein: 7, fat: 9, grams: 355, unit: '잔' },
+      { keywords: ['카페라떼', '두유라떼', '라떼'], kcal: 150, carb: 12, protein: 7, fat: 8, grams: 355, unit: '잔' },
+      { keywords: ['아메리카노', '블랙커피', '에스프레소'], kcal: 10, carb: 2, protein: 0, fat: 0, grams: 355, unit: '잔' },
+      { keywords: ['커피믹스', '믹스커피'], kcal: 60, carb: 9, protein: 0.5, fat: 2, grams: 100, unit: '잔' },
+      { keywords: ['말차', '녹차'], kcal: 35, carb: 4, protein: 2, fat: 1, grams: 355, unit: '잔' },
+      { keywords: ['제로콜라', '제로 콜라', '코카콜라제로'], kcal: 0, carb: 0, protein: 0, fat: 0, grams: 355, unit: '캔' },
+      { keywords: ['콜라', '코카콜라'], kcal: 140, carb: 35, protein: 0, fat: 0, grams: 355, unit: '캔' },
+      { keywords: ['사이다', '스프라이트'], kcal: 150, carb: 38, protein: 0, fat: 0, grams: 355, unit: '캔' },
+      { keywords: ['오렌지주스', '주스'], kcal: 110, carb: 26, protein: 1, fat: 0, grams: 250, unit: '컵' },
+      { keywords: ['이온음료', '포카리', '게토레이'], kcal: 60, carb: 15, protein: 0, fat: 0, grams: 500, unit: '병' },
+      { keywords: ['맥주', '생맥주'], kcal: 150, carb: 11, protein: 1, fat: 0, grams: 355, unit: '캔' },
+      { keywords: ['소주'], kcal: 400, carb: 0, protein: 0, fat: 0, grams: 360, unit: '병' },
+      { keywords: ['와인'], kcal: 120, carb: 4, protein: 0, fat: 0, grams: 150, unit: '잔' }
     ];
 
     // Mounjaro (Tirzepatide) Pharmacokinetic Constants (FDA Label & PopPK PMC10962491)
@@ -1346,6 +1511,7 @@
       calendarMonth: 11,
       selectedBristol: 4,
       mounjaroCurveMode: 'actual',
+      mjChartZoom: 1,
       mounjaroShots: [],
       cycleConfig: {
         lastStartDate: '2026-10-26',
@@ -1441,63 +1607,282 @@
       return d;
     }
 
-    // --- Automatic Nutrition Estimation Engine ---
-    function estimateNutritionFromMenuText(menuText) {
-      const text = (menuText || '').trim();
-      if (!text) return null;
+    // ── 스마트 식단 파서: 한글 수사·단위 환산 테이블 ──
+    const NUTRITION_UNIT_ALIASES = {
+      '개': '개', '개비': '개', '알': '알', '마리': '마리', '조각': '조각', '장': '장', '쪽': '쪽', '덩이': '덩이',
+      '모': '모', '판': '판', '미': '미', '접시': '접시', '사발': '사발', '대접': '그릇',
+      '숟갈': '숟갈', '숟가락': '숟갈', '스푼': '숟갈', '큰술': '숟갈', '큰스푼': '숟갈',
+      '작은술': '작은술', '티스푼': '작은술', '작은스푼': '작은술',
+      '공기': '공기', '그릇': '그릇', '컵': '컵', '잔': '잔', '봉': '봉', '봉지': '봉', '팩': '팩',
+      '캔': '캔', '병': '병', '줄': '줄', '인분': '인분', '인': '인분', '근': '근',
+      'g': 'g', '그램': 'g', '그람': 'g', 'kg': 'kg', 'ml': 'ml', '밀리리터': 'ml'
+    };
 
-      let totalKcal = 0;
-      let totalCarb = 0;
-      let totalProtein = 0;
-      let totalFat = 0;
-      let matchedCount = 0;
+    // 단위 1개당 대략 무게(g). '인분'은 해당 음식의 기본 1회 제공량을 뜻한다.
+    const NUTRITION_UNIT_GRAMS = {
+      '개': 60, '알': 50, '마리': 150, '조각': 30, '장': 15, '쪽': 20, '덩이': 50, '모': 150, '판': 200, '미': 3,
+      '접시': 150, '사발': 400, '숟갈': 15, '작은술': 5, '공기': 210, '그릇': 300, '컵': 200, '잔': 150,
+      '봉': 60, '팩': 200, '캔': 355, '병': 500, '줄': 250, '근': 600,
+      'g': 1, 'ml': 1, 'kg': 1000
+    };
 
-      // Portion modifier detection
-      let portionScale = 1.0;
-      if (text.includes('소량') || text.includes('반공기') || text.includes('절반') || text.includes('조금')) {
-        portionScale = 0.65;
-      } else if (text.includes('곱빼기') || text.includes('많이') || text.includes('대짜')) {
-        portionScale = 1.35;
+    const KOREAN_NUMERAL_MAP = {
+      '하나': 1, '한': 1, '둘': 2, '두': 2, '셋': 3, '세': 3, '넷': 4, '네': 4,
+      '다섯': 5, '여섯': 6, '일곱': 7, '여덟': 8, '아홉': 9, '열': 10,
+      '스물': 20, '스무': 20, '반': 0.5
+    };
+
+    const NUTRITION_UNIT_REGEX = Object.keys(NUTRITION_UNIT_ALIASES)
+      .sort((a, b) => b.length - a.length)
+      .map(u => u.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+
+    const KOREAN_NUMERAL_REGEX = Object.keys(KOREAN_NUMERAL_MAP)
+      .sort((a, b) => b.length - a.length)
+      .join('|');
+
+    const NUTRITION_QUANTITY_REGEX = new RegExp(
+      '(\\d+\\s*\\/\\s*\\d+|\\d+(?:\\.\\d+)?|' + KOREAN_NUMERAL_REGEX + ')\\s*(' + NUTRITION_UNIT_REGEX + ')?',
+      'g'
+    );
+
+    function formatNutritionNumber(n) {
+      const v = Math.round((Number(n) || 0) * 10) / 10;
+      return Number.isInteger(v) ? String(v) : String(v);
+    }
+
+    // "밥 세숟갈" → [{ qty: 3, unit: '숟갈' }] 처럼 수량·단위 후보를 모두 뽑아낸다
+    function collectMealQuantities(text) {
+      const found = [];
+      const src = String(text || '');
+      if (!src.trim()) return found;
+      const re = new RegExp(NUTRITION_QUANTITY_REGEX.source, 'g');
+      let m;
+      while ((m = re.exec(src)) !== null) {
+        if (!m[0]) { re.lastIndex += 1; continue; }
+        const numText = (m[1] || '').trim();
+        let qty = null;
+        if (numText.indexOf('/') >= 0) {
+          const pair = numText.split('/').map(s => Number(s.trim()));
+          if (pair.length === 2 && pair[0] > 0 && pair[1] > 0) qty = pair[0] / pair[1];
+        } else if (/^\d/.test(numText)) {
+          qty = Number(numText);
+        } else {
+          qty = KOREAN_NUMERAL_MAP[numText];
+        }
+        if (qty == null || !isFinite(qty) || qty <= 0) continue;
+        const rawUnit = m[2] || '';
+        if (!rawUnit && /[가-힣]/.test(numText)) {
+          // "한식"처럼 수사 뒤에 단위 없이 바로 글자가 붙은 경우는 수량이 아니다
+          const after = src.slice(m.index + m[0].length);
+          if (/^[가-힣]/.test(after)) continue;
+        }
+        found.push({
+          qty: qty,
+          unit: rawUnit ? (NUTRITION_UNIT_ALIASES[rawUnit] || null) : null,
+          unitText: rawUnit
+        });
       }
+      return found;
+    }
 
+    // 쉼표·+·줄바꿈·접속 조사 등으로 문장을 나눈다
+    function splitMealTextIntoSegments(text) {
+      const normalized = String(text || '')
+        .replace(/[　]/g, ' ')
+        .replace(/[，、；;·•|\\]/g, ',')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (!normalized) return [];
+      return normalized
+        .split(/\s*[,+&\n]\s*|\s*(?:이랑|하고|그리고)\s+|\s+(?:랑|와|과|및)\s+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    // 한 문장 안에서 DB 키워드를 찾고, 겹치는 짧은 키워드는 버린다(가장 구체적인 이름 우선)
+    function findFoodMatchesInSegment(segment) {
+      const hits = [];
       FOOD_NUTRITION_DB.forEach(entry => {
-        const hit = entry.keywords.some(kw => text.includes(kw));
-        if (hit) {
-          matchedCount += 1;
-          let countMult = 1;
-          if (entry.perItem) {
-            const m = text.match(/(\d+)\s*(?:개|알)/);
-            if (m && m[1]) {
-              countMult = Math.min(10, Math.max(1, parseInt(m[1], 10)));
-            }
+        (entry.keywords || []).forEach(kw => {
+          if (!kw) return;
+          let from = 0;
+          while (from <= segment.length) {
+            const pos = segment.indexOf(kw, from);
+            if (pos === -1) break;
+            hits.push({ entry: entry, kw: kw, start: pos, end: pos + kw.length });
+            from = pos + 1;
           }
-          totalKcal += entry.kcal * countMult;
-          totalCarb += entry.carb * countMult;
-          totalProtein += entry.protein * countMult;
-          totalFat += entry.fat * countMult;
-        }
+        });
       });
+      hits.sort((a, b) => (b.kw.length - a.kw.length) || (a.start - b.start));
+      const accepted = [];
+      hits.forEach(h => {
+        const overlaps = accepted.some(a => !(h.end <= a.start || h.start >= a.end));
+        const sameFood = accepted.some(a => a.entry === h.entry);
+        if (!overlaps && !sameFood) accepted.push(h);
+      });
+      accepted.sort((a, b) => a.start - b.start);
+      return accepted;
+    }
 
-      if (matchedCount === 0) {
-        // Fallback heuristic based on meal type so any custom menu gets a reasonable starting estimate
-        const typeEl = document.getElementById('mealTypeSelect');
-        const mType = typeEl ? typeEl.value : '점심';
-        if (mType === '음료/차') {
-          return { kcal: 45, carb: 6, protein: 1, fat: 1.5, matched: false };
+    function buildNutritionItem(entry, qtyInfo, extraScale) {
+      let count = 1;
+      let qtyText = '1' + (entry.unit || '인분');
+      const scale = extraScale || 1;
+
+      if (qtyInfo && isFinite(qtyInfo.qty) && qtyInfo.qty > 0) {
+        const unit = qtyInfo.unit;
+        const q = qtyInfo.qty;
+        if (!unit) {
+          count = q;
+          qtyText = formatNutritionNumber(q) + '인분';
+        } else if (unit === 'g' || unit === 'ml' || unit === 'kg') {
+          const grams = q * (NUTRITION_UNIT_GRAMS[unit] || 1);
+          count = grams / (entry.grams || grams);
+          qtyText = formatNutritionNumber(q) + unit;
+        } else {
+          let perUnit = null;
+          if (entry.unitGrams && entry.unitGrams[unit] != null) perUnit = entry.unitGrams[unit];
+          else if (entry.unit === unit) perUnit = entry.grams;
+          else if (NUTRITION_UNIT_GRAMS[unit] != null) perUnit = NUTRITION_UNIT_GRAMS[unit];
+          count = (perUnit != null && entry.grams) ? (q * perUnit) / entry.grams : q;
+          qtyText = formatNutritionNumber(q) + unit;
         }
-        if (mType === '간식') {
-          return { kcal: 150, carb: 15, protein: 6, fat: 7, matched: false };
-        }
-        return { kcal: 380, carb: 38, protein: 22, fat: 15, matched: false };
       }
 
+      count = Math.min(20, Math.max(0.05, count * scale));
+      const kcalRaw = entry.kcal * count;
       return {
-        kcal: Math.round((totalKcal * portionScale) / 5) * 5,
-        carb: Math.round(totalCarb * portionScale),
-        protein: Math.round(totalProtein * portionScale),
-        fat: Math.round(totalFat * portionScale),
+        name: entry.keywords && entry.keywords[0] ? entry.keywords[0] : '음식',
+        label: (entry.keywords && entry.keywords[0] ? entry.keywords[0] : '음식') + '(' + qtyText + ')',
+        qtyText: qtyText,
+        kcal: Math.max(0, Math.round(kcalRaw / 5) * 5),
+        carb: Math.max(0, Math.round(entry.carb * count)),
+        protein: Math.max(0, Math.round(entry.protein * count)),
+        fat: Math.max(0, Math.round(entry.fat * count)),
         matched: true
       };
+    }
+
+    function estimateNutritionFromMenuText(menuText) {
+      const rawText = String(menuText || '').trim();
+      if (!rawText) return null;
+
+      const segments = splitMealTextIntoSegments(rawText);
+      const items = [];
+      const unmatched = [];
+
+      segments.forEach(segment => {
+        const matches = findFoodMatchesInSegment(segment);
+        if (matches.length === 0) {
+          unmatched.push(segment);
+          return;
+        }
+        matches.forEach((hit, idx) => {
+          const prevEnd = idx === 0 ? 0 : matches[idx - 1].end;
+          const nextStart = idx === matches.length - 1 ? segment.length : matches[idx + 1].start;
+          const afterText = segment.slice(hit.end, nextStart);
+          const beforeText = segment.slice(prevEnd, hit.start);
+
+          const afterQty = collectMealQuantities(afterText);
+          // 키워드 앞쪽 수량은 문장의 첫 항목일 때만 인정한다(앞 음식의 수량을 가로채지 않도록)
+          const beforeQty = idx === 0 ? collectMealQuantities(beforeText) : [];
+          let qtyInfo = afterQty.length ? afterQty[0] : (beforeQty.length ? beforeQty[beforeQty.length - 1] : null);
+
+          // 소량/조금/곱빼기 같은 분량 표현
+          const localText = beforeText + ' ' + hit.kw + ' ' + afterText;
+          let extraScale = 1;
+          if (/소량|조금|약간|반찬만|맛만/.test(localText)) extraScale = 0.7;
+          if (/곱빼기|곱배기|대짜|많이|든든히/.test(localText)) extraScale = 1.4;
+
+          items.push(buildNutritionItem(hit.entry, qtyInfo, extraScale));
+        });
+
+        // 매칭되지 않은 나머지(모르는 메뉴·브랜드명)도 잃지 않고 힌트로 남긴다
+        let residual = segment;
+        matches.slice().reverse().forEach(h => {
+          residual = residual.slice(0, h.start) + ' ' + residual.slice(h.end);
+        });
+        residual = residual
+          .replace(/(\d+\s*\/\s*\d+|\d+(?:\.\d+)?)/g, ' ')
+          .replace(new RegExp('(' + NUTRITION_UNIT_REGEX + ')', 'g'), ' ')
+          .replace(/(공깃|이랑|랑|하고|그리고|및|정도|쯤|소량|조금|약간|곱배기|곱배기|많이|든든히|먹음|먹었어)/g, ' ')
+          .replace(/(다섯|여섯|일곱|여덟|아홉|스물|스무|하나|둘|셋|넷|한|두|세|네|열|반)/g, ' ')
+          .replace(/(에서|으로|부터|까지|처럼|보다|에|은|는|이|가|을|를|도|만|의|로)/g, ' ')
+          .replace(/[(){}\[\],.·~!?'"]/g, ' ')
+          .replace(/\s+/g, '')
+          .trim();
+        if (residual.length >= 2) unmatched.push(residual);
+      });
+
+      if (items.length === 0) {
+        // 아는 메뉴가 하나도 없으면 식사 분류에 맞는 기본 1인분 추정치
+        const typeEl = document.getElementById('mealTypeSelect');
+        const mType = typeEl ? typeEl.value : '점심';
+        let base = { kcal: 380, carb: 38, protein: 22, fat: 15 };
+        if (mType === '음료/차') base = { kcal: 45, carb: 6, protein: 1, fat: 1.5 };
+        else if (mType === '간식') base = { kcal: 150, carb: 15, protein: 6, fat: 7 };
+        return {
+          kcal: base.kcal, carb: base.carb, protein: base.protein, fat: base.fat,
+          matched: false, items: [], unmatched: unmatched
+        };
+      }
+
+      const total = items.reduce((acc, it) => {
+        acc.kcal += it.kcal;
+        acc.carb += it.carb;
+        acc.protein += it.protein;
+        acc.fat += it.fat;
+        return acc;
+      }, { kcal: 0, carb: 0, protein: 0, fat: 0 });
+
+      return {
+        kcal: Math.round(total.kcal / 5) * 5,
+        carb: Math.round(total.carb),
+        protein: Math.round(total.protein),
+        fat: Math.round(total.fat),
+        matched: true,
+        items: items,
+        unmatched: unmatched
+      };
+    }
+
+    function renderMealBreakdown(est) {
+      const box = document.getElementById('mealBreakdown');
+      if (!box) return;
+      if (!est || (!est.items || est.items.length === 0) && (!est.unmatched || est.unmatched.length === 0)) {
+        box.classList.add('hidden');
+        box.innerHTML = '';
+        return;
+      }
+
+      const rows = (est.items || []).map(it => `
+        <div class="flex items-start justify-between gap-2">
+          <span class="min-w-0 truncate text-stone-700">• ${escapeHtml(it.label)}</span>
+          <span class="shrink-0 font-semibold text-amber-800">${it.kcal}kcal · 탄${it.carb}/단${it.protein}/지${it.fat}</span>
+        </div>
+      `).join('');
+
+      const totalRow = (est.items && est.items.length > 1) ? `
+        <div class="flex items-center justify-between gap-2 pt-1 mt-1 border-t border-amber-200/70 font-bold text-amber-900">
+          <span>합계</span>
+          <span>${est.kcal}kcal · 탄${est.carb}/단${est.protein}/지${est.fat}</span>
+        </div>
+      ` : '';
+
+      const unknownRow = (est.unmatched && est.unmatched.length) ? `
+        <div class="pt-1 mt-1 border-t border-amber-200/70 text-[10.5px] text-rose-700">
+          ❓ 인식 못 한 항목: ${escapeHtml(est.unmatched.join(' / '))} — 위 칼로리·탄단지 칸에 직접 더해 주세요
+        </div>
+      ` : '';
+
+      const emptyNote = (!est.items || est.items.length === 0) ? `
+        <div class="text-[10.5px] text-stone-500">아는 메뉴를 찾지 못해 ${escapeHtml(String(est.kcal))}kcal 기본값으로 채웠어요. 직접 수정해 주세요.</div>
+      ` : '';
+
+      box.innerHTML = rows + totalRow + unknownRow + emptyNote;
+      box.classList.remove('hidden');
     }
 
     function onMealMenuInputType(val) {
@@ -1513,7 +1898,8 @@
         if (carbEl) carbEl.value = '';
         if (proEl) proEl.value = '';
         if (fatEl) fatEl.value = '';
-        if (hintEl) hintEl.textContent = '메뉴명을 적으면 대략적인 영양성분이 자동으로 채워져요 (직접 수정 가능)';
+        if (hintEl) hintEl.textContent = '메뉴명·수량을 적으면 영양성분이 자동 계산돼요 (직접 수정 가능)';
+        renderMealBreakdown(null);
         return;
       }
 
@@ -1522,10 +1908,14 @@
       if (proEl) proEl.value = est.protein;
       if (fatEl) fatEl.value = est.fat;
       if (hintEl) {
-        hintEl.textContent = est.matched
-          ? `✨ 메뉴 키워드 분석: 약 ${est.kcal}kcal (탄 ${est.carb}g · 단 ${est.protein}g · 지 ${est.fat}g) 자동 입력됨`
-          : `✨ 기본 1인분 추정치 입력됨 (실제 양에 맞게 숫자를 자유롭게 수정하세요)`;
+        if (est.matched) {
+          const names = (est.items || []).map(it => it.label).join(' + ');
+          hintEl.textContent = `✨ ${names} → 약 ${est.kcal}kcal (탄 ${est.carb}g · 단 ${est.protein}g · 지 ${est.fat}g)`;
+        } else {
+          hintEl.textContent = '✨ 기본 1인분 추정치 입력됨 (실제 양에 맞게 숫자를 자유롭게 수정하세요)';
+        }
       }
+      renderMealBreakdown(est);
     }
 
     function triggerManualNutritionEstimate() {
@@ -1894,7 +2284,8 @@
       }
 
       // If nutrition fields are blank, auto-estimate once before saving
-      const autoEst = estimateNutritionFromMenuText(menu) || { kcal: 0, carb: 0, protein: 0, fat: 0 };
+      const autoEst = estimateNutritionFromMenuText(menu) || { kcal: 0, carb: 0, protein: 0, fat: 0, items: [] };
+      const itemDetail = (autoEst.items || []).map(it => it.label + ' ' + it.kcal + 'kcal');
       const kcal = kcalInput && kcalInput.value !== '' ? Math.max(0, Number(kcalInput.value) || 0) : autoEst.kcal;
       const carb = carbInput && carbInput.value !== '' ? Math.max(0, Number(carbInput.value) || 0) : autoEst.carb;
       const protein = proInput && proInput.value !== '' ? Math.max(0, Number(proInput.value) || 0) : autoEst.protein;
@@ -1907,6 +2298,7 @@
         time: timeInput && timeInput.value ? timeInput.value : '12:00',
         fullness: fullnessSelect ? fullnessSelect.value : '딱 좋음 (80%)',
         menu: menu,
+        items: itemDetail,
         kcal: Math.round(kcal),
         carb: Math.round(carb),
         protein: Math.round(protein),
@@ -1920,7 +2312,8 @@
       if (proInput) proInput.value = '';
       if (fatInput) fatInput.value = '';
       const hintEl = document.getElementById('mealEstimateHint');
-      if (hintEl) hintEl.textContent = '메뉴명을 적으면 대략적인 영양성분이 자동으로 채워져요 (직접 수정 가능)';
+      if (hintEl) hintEl.textContent = '메뉴명·수량을 적으면 영양성분이 자동 계산돼요 (직접 수정 가능)';
+      renderMealBreakdown(null);
 
       saveStateToStorage();
       renderAll();
@@ -2477,12 +2870,16 @@
     function confirmClearCurrentDay() {
       openAppModal(
         '선택한 날짜 기록 초기화',
-        `${state.selectedDate}일의 약·수면·식사·배변·운동·기분·분비물·마운자로 부작용 기록을 비우시겠어요?`,
+        `${state.selectedDate}일의 약·수면·식사·배변·운동·기분·분비물 기록과 이 날짜의 마운자로 투약·부작용 기록을 비우시겠어요?`,
         function () {
           delete state.days[state.selectedDate];
+          const removed = (state.mounjaroShots || []).filter(s => s.date === state.selectedDate).length;
+          state.mounjaroShots = (state.mounjaroShots || []).filter(s => s.date !== state.selectedDate);
           saveStateToStorage();
           renderAll();
-          showToast('선택한 날짜의 기록을 초기화했어요.');
+          showToast(removed > 0
+            ? `선택한 날짜의 기록과 마운자로 투약 ${removed}건을 초기화했어요.`
+            : '선택한 날짜의 기록을 초기화했어요.');
         }
       );
     }
@@ -2762,6 +3159,7 @@
                       ${hasNut ? `<span class="text-[10px] text-stone-600 bg-white border border-stone-200 px-1.5 py-0.5 rounded">탄 ${Number(m.carb || 0)}g · 단 ${Number(m.protein || 0)}g · 지 ${Number(m.fat || 0)}g</span>` : ''}
                       <span class="text-[11px] text-stone-500">${escapeHtml(m.fullness)}</span>
                     </div>
+                    ${Array.isArray(m.items) && m.items.length ? `<div class="text-[10px] text-amber-700/80 mt-0.5 truncate">${escapeHtml(m.items.join(' · '))}</div>` : ''}
                   </div>
                 </div>
                 <button type="button" onclick="deleteMealEntry('${m.id}')" class="text-xs text-stone-400 hover:text-rose-600 px-2 py-1 shrink-0 transition" title="삭제">✕</button>
@@ -3049,11 +3447,11 @@
       const numSteps = Math.floor(totalHours / stepHours);
 
       const width = 760;
-      const height = 220;
-      const padLeft = 46;
+      const height = 260;
+      const padLeft = 52;
       const padRight = 20;
-      const padTop = 22;
-      const padBottom = 34;
+      const padTop = 26;
+      const padBottom = 40;
       const plotW = width - padLeft - padRight;
       const plotH = height - padTop - padBottom;
 
@@ -3077,7 +3475,7 @@
         const y = yOfMg(val);
         gridHtml += `
           <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${width - padRight}" y2="${y.toFixed(1)}" stroke="#e7e5e4" stroke-dasharray="3 3" />
-          <text x="${padLeft - 6}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#78716c">${val.toFixed(1)}mg</text>
+          <text x="${padLeft - 6}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="13" font-weight="600" fill="#57534e">${val.toFixed(1)}mg</text>
         `;
       });
 
@@ -3086,7 +3484,7 @@
         const labelDate = addDays(startDateStr, d).slice(5);
         gridHtml += `
           <line x1="${x.toFixed(1)}" y1="${padTop}" x2="${x.toFixed(1)}" y2="${padTop + plotH}" stroke="#f5f5f4" />
-          <text x="${x.toFixed(1)}" y="${height - 10}" text-anchor="middle" font-size="10" fill="#78716c">${labelDate}</text>
+          <text x="${x.toFixed(1)}" y="${height - 12}" text-anchor="middle" font-size="12" font-weight="600" fill="#57534e">${labelDate}</text>
         `;
       }
 
@@ -3106,7 +3504,7 @@
           const sx = xOfH(h);
           shotMarkersHtml += `
             <line x1="${sx.toFixed(1)}" y1="${padTop}" x2="${sx.toFixed(1)}" y2="${padTop + plotH}" stroke="#10b981" stroke-width="1" stroke-dasharray="2 2" />
-            <text x="${sx.toFixed(1)}" y="${padTop - 6}" text-anchor="middle" font-size="9" font-weight="bold" fill="#047857">💉${s.dose}mg</text>
+            <text x="${sx.toFixed(1)}" y="${padTop - 8}" text-anchor="middle" font-size="11" font-weight="bold" fill="#047857">💉${s.dose}mg</text>
           `;
         }
       });
@@ -3120,12 +3518,76 @@
         </defs>
         ${gridHtml}
         <path d="${areaD}" fill="url(#mjAreaGrad)" />
-        <path d="${pathD}" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" />
+        <path d="${pathD}" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" />
         ${shotMarkersHtml}
-        <line x1="${selX.toFixed(1)}" y1="${padTop}" x2="${selX.toFixed(1)}" y2="${padTop + plotH}" stroke="#e11d48" stroke-width="1.5" />
-        <circle cx="${selX.toFixed(1)}" cy="${selY.toFixed(1)}" r="4.5" fill="#e11d48" stroke="#ffffff" stroke-width="1.5" />
-        <text x="${(selX + 6).toFixed(1)}" y="${Math.max(padTop + 12, selY - 6).toFixed(1)}" font-size="10" font-weight="bold" fill="#be123c">선택일 (${selMg.toFixed(2)}mg)</text>
+        <line x1="${selX.toFixed(1)}" y1="${padTop}" x2="${selX.toFixed(1)}" y2="${padTop + plotH}" stroke="#e11d48" stroke-width="2" />
+        <circle cx="${selX.toFixed(1)}" cy="${selY.toFixed(1)}" r="5" fill="#e11d48" stroke="#ffffff" stroke-width="1.5" />
+        <text x="${(selX + 8).toFixed(1)}" y="${Math.max(padTop + 14, selY - 8).toFixed(1)}" font-size="12" font-weight="bold" fill="#be123c">선택일 (${selMg.toFixed(2)}mg)</text>
       `;
+
+      applyMounjaroChartZoom();
+    }
+
+    function setMounjaroChartZoom(zoom) {
+      state.mjChartZoom = Number(zoom) || 1;
+      saveStateToStorage();
+      applyMounjaroChartZoom();
+    }
+
+    function applyMounjaroChartZoom() {
+      const svg = document.getElementById('mjPkCurveSvg');
+      const box = document.getElementById('mjChartScroll');
+      if (svg) {
+        const zoom = Number(state.mjChartZoom) || 1;
+        const boxW = box ? box.clientWidth : 0;
+        const baseW = Math.max(boxW || 0, 760);
+        const renderW = Math.round(baseW * zoom);
+        const renderH = Math.round(renderW * (260 / 760));
+        svg.setAttribute('viewBox', '0 0 760 260');
+        svg.style.width = renderW + 'px';
+        svg.style.height = renderH + 'px';
+        svg.style.minWidth = renderW + 'px';
+      }
+      [1, 1.5, 2].forEach(z => {
+        const btn = document.getElementById('mjZoomBtn-' + z);
+        if (!btn) return;
+        const active = Math.abs((Number(state.mjChartZoom) || 1) - z) < 0.01;
+        btn.className = active
+          ? 'px-2 py-0.5 rounded-lg border border-emerald-600 bg-emerald-600 text-white text-[11px] font-bold transition'
+          : 'px-2 py-0.5 rounded-lg border border-stone-300 bg-white text-stone-600 text-[11px] font-bold hover:bg-stone-100 transition';
+      });
+    }
+
+    function confirmClearAllMounjaroShots() {
+      const shotCount = (state.mounjaroShots || []).length;
+      const hasSideEffectData = Object.keys(state.days || {}).some(d => {
+        const r = state.days[d];
+        if (!r) return false;
+        return (Array.isArray(r.mjSideEffects) && r.mjSideEffects.length > 0) || !!r.mjNote || (r.mjSeverity || 0) > 0;
+      });
+      if (shotCount === 0 && !hasSideEffectData) {
+        showToast('지울 마운자로 기록이 없어요.');
+        return;
+      }
+      openAppModal(
+        '마운자로 기록 전체 초기화',
+        `투약 기록 ${shotCount}건과 모든 날짜의 마운자로 부작용·식욕 체감 기록을 삭제할까요? (예시 기록 포함, 되돌릴 수 없어요)`,
+        function () {
+          state.mounjaroShots = [];
+          state.mounjaroCurveMode = 'actual';
+          Object.keys(state.days || {}).forEach(d => {
+            const r = state.days[d];
+            if (!r) return;
+            r.mjSideEffects = [];
+            r.mjAppetite = 3;
+            r.mjSeverity = 0;
+            r.mjNote = '';
+          });
+          saveStateToStorage();
+          renderAll();
+          showToast('마운자로 투약·부작용 기록을 모두 초기화했어요.', 'emerald');
+        }
+      );
     }
 
     function renderCycleView(rec, cycleInfo) {
