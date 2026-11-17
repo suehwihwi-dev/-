@@ -1175,7 +1175,17 @@
   <script>
     // --- Constants & Reference Data ---
     const STORAGE_KEY = 'seo_hyun_daily_care_v4';
-    const TODAY_DEFAULT = '2026-11-17';
+
+    // 브라우저 로컬 기준 실제 오늘 날짜를 'YYYY-MM-DD'로 반환 (하드코딩 금지)
+    function getTodayKey(baseDate) {
+      const d = baseDate instanceof Date ? baseDate : new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    const TODAY_DEFAULT = getTodayKey();
 
     // Built-in Korean Food & Ingredient Nutrition Database (approximate per serving)
     // Allows instant auto-estimation of kcal, carbs(g), protein(g), fat(g) from menu text
@@ -1330,7 +1340,7 @@
 
     // --- Application State ---
     let state = {
-      selectedDate: TODAY_DEFAULT,
+      selectedDate: getTodayKey(),
       activeTab: 'today',
       calendarYear: 2026,
       calendarMonth: 11,
@@ -1546,7 +1556,7 @@
 
     // --- Date & Time Math Utilities ---
     function parseDateParts(dateStr) {
-      const parts = (dateStr || TODAY_DEFAULT).split('-').map(Number);
+      const parts = (dateStr || getTodayKey()).split('-').map(Number);
       return { year: parts[0] || 2026, month: parts[1] || 11, day: parts[2] || 17 };
     }
 
@@ -1801,12 +1811,14 @@
     }
 
     function jumpToToday() {
-      state.selectedDate = TODAY_DEFAULT;
-      state.calendarYear = 2026;
-      state.calendarMonth = 11;
+      const todayKey = getTodayKey();
+      const p = parseDateParts(todayKey);
+      state.selectedDate = todayKey;
+      state.calendarYear = p.year;
+      state.calendarMonth = p.month;
       saveStateToStorage();
       renderAll();
-      showToast('오늘 날짜(2026-11-17)로 이동했어요.');
+      showToast(`오늘 날짜(${todayKey})로 이동했어요.`);
     }
 
     // --- Morning Meds & Supplements Functions ---
@@ -2319,6 +2331,9 @@
 
     // --- Sample Demo Data & Reset / Export / Import ---
     function loadDemoSampleData() {
+      const ok = confirm('예시 기록을 채우면 일부 날짜의 기존 기록이 덮어써질 수 있어요. 계속할까요?');
+      if (!ok) return;
+
       state.mounjaroShots = [
         {
           id: 'mj_sample_2',
@@ -3403,6 +3418,12 @@
     // --- Initialize App ---
     window.addEventListener('DOMContentLoaded', function () {
       loadStateFromStorage();
+      // 앱을 열면 항상 실제 오늘 날짜 기록부터 보여준다 (이전에 보던 날짜에 고정되지 않도록)
+      const todayKey = getTodayKey();
+      const todayParts = parseDateParts(todayKey);
+      state.selectedDate = todayKey;
+      state.calendarYear = todayParts.year;
+      state.calendarMonth = todayParts.month;
       selectBristolType(state.selectedBristol || 4);
       renderAll();
     });
