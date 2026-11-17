@@ -1064,11 +1064,11 @@
       <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-emerald-50/70 rounded-2xl p-4 border border-emerald-200/80">
           <h3 class="text-sm font-bold text-emerald-900 mb-2">✅ 지난달보다 나아진 점</h3>
-          <ul id="reportImprovedList" class="space-y-1.5 text-xs text-emerald-900"></ul>
+          <ul id="reportImprovedList" class="space-y-1.5 text-xs text-emerald-900 list-disc pl-4"></ul>
         </div>
         <div class="bg-amber-50/70 rounded-2xl p-4 border border-amber-200/80">
           <h3 class="text-sm font-bold text-amber-900 mb-2">⚠️ 신경 써야 할 점</h3>
-          <ul id="reportWorseList" class="space-y-1.5 text-xs text-amber-900"></ul>
+          <ul id="reportWorseList" class="space-y-1.5 text-xs text-amber-900 list-disc pl-4"></ul>
         </div>
       </section>
 
@@ -3721,7 +3721,7 @@
       const unit = o.unit || '';
       if (cur === null || cur === undefined) return { text: '', cls: 'text-stone-400', diff: null };
       if (prev === null || prev === undefined) {
-        return { text: `${o.label || '전월 대비'} 비교할 전월 기록 없음`, cls: 'text-stone-400', diff: null };
+        return { text: `${o.label || '전월 대비'} · 전월 기록 없음`, cls: 'text-stone-400', diff: null };
       }
       const diff = cur - prev;
       const flat = Math.abs(diff) < (digits === 0 ? 0.5 : Math.pow(10, -digits) * 0.51);
