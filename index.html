@@ -2109,7 +2109,7 @@
     }
 
     function onDateInputChange(val) {
-      if (!val) return;
+      if (!val || !/^\d{4}-\d{2}-\d{2}$/.test(val)) return;
       state.selectedDate = val;
       saveStateToStorage();
       renderAll();
@@ -3534,6 +3534,10 @@
       return String(dateStr || '').slice(0, 7);
     }
 
+    function isValidMonthKey(mk) {
+      return /^(19|20)\d{2}-(0[1-9]|1[0-2])$/.test(String(mk || ''));
+    }
+
     function addMonthsToKey(mk, delta) {
       const p = parseMonthKey(mk);
       const d = new Date(Date.UTC(p.year, p.month - 1 + delta, 1));
@@ -3556,14 +3560,14 @@
     }
 
     function shiftReportMonth(delta) {
-      const base = /^\d{4}-\d{2}$/.test(state.reportMonth || '') ? state.reportMonth : getTodayKey().slice(0, 7);
+      const base = isValidMonthKey(state.reportMonth) ? state.reportMonth : getTodayKey().slice(0, 7);
       state.reportMonth = addMonthsToKey(base, delta);
       saveStateToStorage();
       renderMonthlyReportView();
     }
 
     function onReportMonthChange(mk) {
-      if (!/^\d{4}-\d{2}$/.test(mk || '')) return;
+      if (!isValidMonthKey(mk)) return;
       state.reportMonth = mk;
       saveStateToStorage();
       renderMonthlyReportView();
@@ -3929,7 +3933,7 @@
       if (!metricGrid && !monthSelect) return;
 
       const realCurrent = getTodayKey().slice(0, 7);
-      let curKey = /^\d{4}-\d{2}$/.test(state.reportMonth || '') ? state.reportMonth : realCurrent;
+      let curKey = isValidMonthKey(state.reportMonth) ? state.reportMonth : realCurrent;
       state.reportMonth = curKey;
       const prevKey = addMonthsToKey(curKey, -1);
 
@@ -3939,7 +3943,7 @@
       for (let i = 1; i < REPORT_TREND_MONTHS; i++) monthSet.add(addMonthsToKey(realCurrent, -i));
       Object.keys(state.days || {}).forEach(d => {
         const k = monthKeyFromDate(d);
-        if (/^\d{4}-\d{2}$/.test(k)) monthSet.add(k);
+        if (isValidMonthKey(k)) monthSet.add(k);
       });
       monthSet.add(curKey);
       const monthList = Array.from(monthSet).sort().reverse();
@@ -3951,6 +3955,14 @@
 
       const cur = computeMonthMetrics(curKey);
       const prev = computeMonthMetrics(prevKey);
+      // 전월(또는 이번 달)에 기록이 아예 없으면 0과 비교한 가짜 증감을 만들지 않는다
+      const EMPTY_METRICS = {
+        sleepAvg: null, greatSleepRatio: null, medRate: null, workoutMin: null,
+        stretchRate: null, avgKcal: null, avgProtein: null, moodAvg: null,
+        posRatio: null, negRatio: null
+      };
+      const curCmp = cur.recordedDays > 0 ? cur : EMPTY_METRICS;
+      const prevCmp = prev.recordedDays > 0 ? prev : EMPTY_METRICS;
 
       if (rangeLabel) {
         rangeLabel.textContent = `${formatMonthLabel(curKey)} (기록 ${cur.recordedDays}일) vs ${formatMonthLabel(prevKey)} (기록 ${prev.recordedDays}일) — 월 선택으로 다른 달도 비교할 수 있어요`;
@@ -3958,15 +3970,15 @@
 
       // 전월 대비 증감 카드
       if (metricGrid) {
-        const sleepDelta = buildDelta(cur.sleepAvg, prev.sleepAvg, { label: '평균 수면', unit: '시간', digits: 1, better: 'up' });
-        const greatDelta = buildDelta(cur.greatSleepRatio, prev.greatSleepRatio, { label: '꿀잠 비율', unit: '%p', digits: 0, better: 'up' });
-        const medDelta = buildDelta(cur.medRate, prev.medRate, { label: '복용률', unit: '%p', digits: 0, better: 'up' });
-        const workoutDelta = buildDelta(cur.workoutMin, prev.workoutMin, { label: '운동 시간', unit: '분', digits: 0, better: 'up' });
-        const stretchDelta = buildDelta(cur.stretchRate, prev.stretchRate, { label: '스트레칭 달성률', unit: '%p', digits: 0, better: 'up' });
-        const kcalDelta = buildDelta(cur.avgKcal, prev.avgKcal, { label: '칼로리', unit: 'kcal', digits: 0, better: 'neutral' });
-        const proteinDelta = buildDelta(cur.avgProtein, prev.avgProtein, { label: '단백질', unit: 'g', digits: 0, better: 'up' });
-        const moodDelta = buildDelta(cur.moodAvg, prev.moodAvg, { label: '평균 기분', unit: '점', digits: 1, better: 'up' });
-        const posDelta = buildDelta(cur.posRatio, prev.posRatio, { label: '긍정 비율', unit: '%p', digits: 0, better: 'up' });
+        const sleepDelta = buildDelta(curCmp.sleepAvg, prevCmp.sleepAvg, { label: '평균 수면', unit: '시간', digits: 1, better: 'up' });
+        const greatDelta = buildDelta(curCmp.greatSleepRatio, prevCmp.greatSleepRatio, { label: '꿀잠 비율', unit: '%p', digits: 0, better: 'up' });
+        const medDelta = buildDelta(curCmp.medRate, prevCmp.medRate, { label: '복용률', unit: '%p', digits: 0, better: 'up' });
+        const workoutDelta = buildDelta(curCmp.workoutMin, prevCmp.workoutMin, { label: '운동 시간', unit: '분', digits: 0, better: 'up' });
+        const stretchDelta = buildDelta(curCmp.stretchRate, prevCmp.stretchRate, { label: '스트레칭 달성률', unit: '%p', digits: 0, better: 'up' });
+        const kcalDelta = buildDelta(curCmp.avgKcal, prevCmp.avgKcal, { label: '칼로리', unit: 'kcal', digits: 0, better: 'neutral' });
+        const proteinDelta = buildDelta(curCmp.avgProtein, prevCmp.avgProtein, { label: '단백질', unit: 'g', digits: 0, better: 'up' });
+        const moodDelta = buildDelta(curCmp.moodAvg, prevCmp.moodAvg, { label: '평균 기분', unit: '점', digits: 1, better: 'up' });
+        const posDelta = buildDelta(curCmp.posRatio, prevCmp.posRatio, { label: '긍정 비율', unit: '%p', digits: 0, better: 'up' });
 
         const avgWorkoutPerDay = cur.recordedDays ? cur.workoutMin / cur.recordedDays : null;
         const moodDominant = cur.moodDays ? topCountEntries(cur.moodCounts, 1)[0] : null;
