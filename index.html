@@ -191,11 +191,8 @@
         <button type="button" id="tabBtn-cycle" onclick="switchMainTab('cycle')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold text-stone-600 hover:bg-stone-200/60 transition whitespace-nowrap">
           생리주기 · 호르몬 케어
         </button>
-        <button type="button" id="tabBtn-calendar" onclick="switchMainTab('calendar')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold text-stone-600 hover:bg-stone-200/60 transition whitespace-nowrap">
-          월간 캘린더 · 모아보기
-        </button>
         <button type="button" id="tabBtn-stats" onclick="switchMainTab('stats')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold text-stone-600 hover:bg-stone-200/60 transition whitespace-nowrap">
-          주간 리포트 · 패턴
+          월별 리포트 · 주기/패턴
         </button>
       </div>
 
@@ -344,7 +341,7 @@
                     <span class="font-semibold text-stone-600">총 수면 시간</span>
                     <span id="sleepHoursLabel" class="font-bold text-indigo-700">7.5시간</span>
                   </div>
-                  <input type="range" id="sleepHoursRange" min="2" max="14" step="0.5" value="7.5" oninput="updateSleepAndEnergy()" class="w-full accent-indigo-600 cursor-pointer mt-1" />
+                  <input type="range" id="sleepHoursRange" min="2" max="14" step="0.5" value="7.5" oninput="updateSleepHours()" class="w-full accent-indigo-600 cursor-pointer mt-1" />
                 </div>
               </div>
             </div>
@@ -389,7 +386,6 @@
                   <p class="text-xs text-stone-500">메뉴를 입력하면 대략적인 칼로리·탄단지가 자동 추정되며 직접 수정도 가능해요</p>
                 </div>
               </div>
-              <span id="waterCounterBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">💧 수분 0컵</span>
             </div>
 
             <!-- Daily Calorie & Macro Totals Bar -->
@@ -410,16 +406,6 @@
                 <div id="macroBarCarb" class="bg-amber-400 h-full transition-all" style="width: 33%"></div>
                 <div id="macroBarProtein" class="bg-emerald-500 h-full transition-all" style="width: 34%"></div>
                 <div id="macroBarFat" class="bg-rose-400 h-full transition-all" style="width: 33%"></div>
-              </div>
-            </div>
-
-            <!-- Water Quick Tracker -->
-            <div class="mb-3 p-2.5 rounded-xl bg-sky-50/60 border border-sky-100 flex items-center justify-between gap-2">
-              <span class="text-xs font-medium text-sky-900">오늘 마신 물 (250ml 기준)</span>
-              <div class="flex items-center gap-1.5">
-                <button type="button" onclick="adjustWater(-1)" class="w-7 h-7 rounded-lg bg-white border border-sky-200 text-sky-700 font-bold hover:bg-sky-100 transition">-</button>
-                <span id="waterCountText" class="text-sm font-bold text-sky-800 w-10 text-center">0컵</span>
-                <button type="button" onclick="adjustWater(1)" class="w-7 h-7 rounded-lg bg-sky-600 text-white font-bold hover:bg-sky-700 transition">+</button>
               </div>
             </div>
 
@@ -504,36 +490,13 @@
                 <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">🚽</span>
                 <div>
                   <h2 class="text-base font-bold text-stone-800">장 건강 & 배변 기록</h2>
-                  <p class="text-xs text-stone-500">오늘 화장실 잘 갔는지, 상태와 상쾌함을 기록해요</p>
+                  <p class="text-xs text-stone-500">오늘 화장실 잘 갔는지, 상쾌함과 메모를 가볍게 남겨요</p>
                 </div>
               </div>
               <span id="bowelStatusBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">오늘 0회</span>
             </div>
 
-            <!-- Bristol Stool Scale Selector -->
-            <div class="mb-3">
-              <div class="text-xs font-semibold text-stone-600 mb-1.5">배변 형태 선택 (브리스톨 척도)</div>
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5" id="bristolSelectorGrid">
-                <button type="button" onclick="selectBristolType(1)" id="bristolBtn-1" class="p-2 rounded-xl border border-stone-200 text-left hover:bg-stone-50 transition">
-                  <div class="text-xs font-bold text-stone-800">1·2형 딱딱함</div>
-                  <div class="text-[11px] text-stone-500">토끼똥·변비 기운</div>
-                </button>
-                <button type="button" onclick="selectBristolType(4)" id="bristolBtn-4" class="p-2 rounded-xl border text-left transition chip-selected-teal">
-                  <div class="text-xs font-bold">3·4형 황금바나나</div>
-                  <div class="text-[11px] opacity-80">매끈·가장 이상적!</div>
-                </button>
-                <button type="button" onclick="selectBristolType(5)" id="bristolBtn-5" class="p-2 rounded-xl border border-stone-200 text-left hover:bg-stone-50 transition">
-                  <div class="text-xs font-bold text-stone-800">5·6형 무른편</div>
-                  <div class="text-[11px] text-stone-500">부드럽거나 진흙형</div>
-                </button>
-                <button type="button" onclick="selectBristolType(7)" id="bristolBtn-7" class="p-2 rounded-xl border border-stone-200 text-left hover:bg-stone-50 transition">
-                  <div class="text-xs font-bold text-stone-800">7형 물설사</div>
-                  <div class="text-[11px] text-stone-500">장 자극·수분 주의</div>
-                </button>
-              </div>
-            </div>
-
-            <!-- Bowel Input Form -->
+            <!-- Bowel Input Form (시간 · 쾌변 만족도 · 메모) -->
             <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80 space-y-2.5 mb-4">
               <div class="grid grid-cols-2 gap-2">
                 <div>
@@ -636,7 +599,7 @@
                 <span class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">💭</span>
                 <div>
                   <h2 class="text-base font-bold text-stone-800">오늘의 기분 & 마음 컨디션</h2>
-                  <p class="text-xs text-stone-500">감정 흐름과 에너지 레벨, 오늘의 한 줄을 남겨보세요</p>
+                  <p class="text-xs text-stone-500">감정 흐름과 오늘의 한 줄을 남겨보세요</p>
                 </div>
               </div>
               <span id="moodSavedBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200">자동 저장됨</span>
@@ -673,15 +636,6 @@
             <div class="mb-4">
               <div class="text-xs font-semibold text-stone-600 mb-1.5">세부 감정 · 컨디션 태그 (다중 선택)</div>
               <div class="flex flex-wrap gap-1.5" id="emotionTagGrid"></div>
-            </div>
-
-            <!-- Energy Level Slider -->
-            <div class="mb-4 p-3 rounded-xl bg-stone-50 border border-stone-200/80">
-              <div class="flex justify-between text-xs mb-1">
-                <span class="font-medium text-stone-600">⚡ 오늘 낮 에너지 · 집중력 레벨</span>
-                <span id="energyLevelLabel" class="font-bold text-stone-800">3 / 5</span>
-              </div>
-              <input type="range" id="energyLevelRange" min="1" max="5" step="1" value="3" oninput="updateSleepAndEnergy()" class="w-full accent-amber-500 cursor-pointer" />
             </div>
 
             <!-- Daily Diary Note -->
@@ -1087,96 +1041,74 @@
       </div>
     </div>
 
-    <!-- TAB 4: MONTHLY CALENDAR -->
-    <div id="view-calendar" class="hidden space-y-6">
-      <div class="bg-white rounded-2xl p-5 md:p-6 border border-stone-200/90 shadow-xs">
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div>
-            <h2 class="text-lg font-bold text-stone-800">월간 한눈에 보기 캘린더</h2>
-            <p class="text-xs text-stone-500">날짜를 클릭하면 해당 날짜의 약·수면·식단·배변·스트레칭·운동·마운자로·생리 기록으로 바로 이동합니다</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="shiftCalendarMonth(-1)" class="px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold hover:bg-stone-100">◀ 이전 달</button>
-            <span id="calendarMonthTitle" class="text-base font-bold text-stone-800 px-2">2026년 11월</span>
-            <button type="button" onclick="shiftCalendarMonth(1)" class="px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold hover:bg-stone-100">다음 달 ▶</button>
-          </div>
-        </div>
-
-        <!-- Legend -->
-        <div class="flex flex-wrap items-center gap-4 text-xs text-stone-600 mb-3 pb-3 border-b border-stone-100">
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>생리 기록일</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-200 border border-rose-400 inline-block"></span>예상 생리 기간</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block"></span>예상 배란·가임기</span>
-          <span class="flex items-center gap-1">💉 마운자로 투여일</span>
-          <span class="flex items-center gap-1">💊 약·영양제</span>
-          <span class="flex items-center gap-1">🍽️ 식사기록</span>
-          <span class="flex items-center gap-1">🚽 배변완료</span>
-          <span class="flex items-center gap-1">💪 운동/스트레칭</span>
-        </div>
-
-        <!-- Day of week header -->
-        <div class="grid grid-cols-7 gap-1.5 text-center text-xs font-bold text-stone-500 mb-1.5">
-          <div class="text-rose-500 py-1">일</div>
-          <div class="py-1">월</div>
-          <div class="py-1">화</div>
-          <div class="py-1">수</div>
-          <div class="py-1">목</div>
-          <div class="py-1">금</div>
-          <div class="text-sky-600 py-1">토</div>
-        </div>
-
-        <!-- Calendar Days Grid -->
-        <div id="calendarGridContainer" class="grid grid-cols-7 gap-1.5"></div>
-      </div>
-    </div>
-
-    <!-- TAB 5: WEEKLY STATS & INSIGHTS -->
+    <!-- TAB 4: MONTHLY REPORT (월별 비교 & 생리주기별 트래킹) -->
     <div id="view-stats" class="hidden space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs">
-          <div class="text-xs text-stone-500">최근 7일 쾌변 달성일</div>
-          <div id="statBowelDays" class="text-2xl font-bold text-emerald-700 mt-1">0 / 7일</div>
-          <p class="text-[11px] text-stone-500 mt-1">장 컨디션 리듬 체크</p>
-        </div>
-        <div class="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs">
-          <div class="text-xs text-stone-500">최근 7일 누적 운동 시간</div>
-          <div id="statWorkoutTotal" class="text-2xl font-bold text-indigo-700 mt-1">0분</div>
-          <p class="text-[11px] text-stone-500 mt-1">상·하체 스트레칭 실천 <span id="statStretchDays">0</span>일</p>
-        </div>
-        <div class="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs">
-          <div class="text-xs text-stone-500">최근 7일 평균 기분 · 수면</div>
-          <div id="statAvgMood" class="text-2xl font-bold text-purple-700 mt-1">-</div>
-          <p id="statAvgSleep" class="text-[11px] text-stone-500 mt-1">평균 수면 -시간</p>
-        </div>
-        <div class="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs">
-          <div class="text-xs text-stone-500">최근 7일 식사 · 일평균 칼로리</div>
-          <div id="statMealCount" class="text-2xl font-bold text-amber-700 mt-1">0끼</div>
-          <p id="statWaterAvg" class="text-[11px] text-stone-500 mt-1">일평균 수분 0컵</p>
-        </div>
-      </div>
 
-      <!-- Recent 7 Days Table Breakdown -->
-      <div class="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs">
-        <h3 class="text-base font-bold text-stone-800 mb-1">최근 7일 나 관리 요약표</h3>
-        <p class="text-xs text-stone-500 mb-4">선택한 날짜를 기준으로 최근 일주일간의 아침약·영양제, 취침·수면질, 식사(칼로리·탄단지), 배변, 스트레칭·운동, 마운자로(농도/부작용), 기분·분비물 흐름을 비교합니다.</p>
+      <!-- Month Selector -->
+      <section class="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-500">Monthly Report & Cycle Pattern</span>
+            <h2 class="text-lg md:text-xl font-bold text-stone-800 mt-0.5">이번 달 vs 지난달, 뭐가 달라졌을까?</h2>
+            <p id="reportRangeLabel" class="text-xs text-stone-500 mt-1">-</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" onclick="shiftReportMonth(-1)" class="px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold hover:bg-stone-100 transition">◀ 이전 달</button>
+            <select id="reportMonthSelect" onchange="onReportMonthChange(this.value)" class="px-3 py-1.5 rounded-xl border border-stone-200 bg-white text-sm font-bold text-stone-800 focus:outline-none focus:border-rose-400"></select>
+            <button type="button" onclick="shiftReportMonth(1)" class="px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold hover:bg-stone-100 transition">다음 달 ▶</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Good / Bad Change Summary -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-emerald-50/70 rounded-2xl p-4 border border-emerald-200/80">
+          <h3 class="text-sm font-bold text-emerald-900 mb-2">✅ 지난달보다 나아진 점</h3>
+          <ul id="reportImprovedList" class="space-y-1.5 text-xs text-emerald-900"></ul>
+        </div>
+        <div class="bg-amber-50/70 rounded-2xl p-4 border border-amber-200/80">
+          <h3 class="text-sm font-bold text-amber-900 mb-2">⚠️ 신경 써야 할 점</h3>
+          <ul id="reportWorseList" class="space-y-1.5 text-xs text-amber-900"></ul>
+        </div>
+      </section>
+
+      <!-- Metric Cards (전월 대비 변화량) -->
+      <div id="reportMetricGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+      <!-- Recent Month Trend -->
+      <section class="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs">
+        <h3 class="text-base font-bold text-stone-800 mb-1">최근 월 추이</h3>
+        <p class="text-xs text-stone-500 mb-4">최근 6개월간 수면·복용률·운동·식단·기분이 어떻게 흘러왔는지 한 줄로 비교합니다.</p>
         <div class="overflow-x-auto custom-scroll">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="border-b border-stone-200 text-stone-500 bg-stone-50">
-                <th class="py-2.5 px-3 font-semibold">날짜</th>
-                <th class="py-2.5 px-3 font-semibold">아침약 · 영양제</th>
-                <th class="py-2.5 px-3 font-semibold">전날 취침 · 수면질</th>
-                <th class="py-2.5 px-3 font-semibold">식사 · 영양성분 합계</th>
-                <th class="py-2.5 px-3 font-semibold">배변 상태</th>
-                <th class="py-2.5 px-3 font-semibold">상하체 스트레칭 · 운동</th>
-                <th class="py-2.5 px-3 font-semibold">마운자로 · 부작용</th>
-                <th class="py-2.5 px-3 font-semibold">기분 · 분비물</th>
+                <th class="py-2.5 px-3 font-semibold whitespace-nowrap">월</th>
+                <th class="py-2.5 px-3 font-semibold whitespace-nowrap">기록일</th>
+                <th class="py-2.5 px-3 font-semibold whitespace-nowrap">평균 수면</th>
+                <th class="py-2.5 px-3 font-semibold whitespace-nowrap">꿀잠 비율</th>
+                <th class="py-2.5 px-3 font-semibold whitespace-nowrap">약·영양제</th>
+                <th class="py-2.5 px-3 font-semibold whitespace-nowrap">운동 시간</th>
+                <th class="py-2.5 px-3 font-semibold whitespace-nowrap">일평균 칼로리</th>
+                <th class="py-2.5 px-3 font-semibold whitespace-nowrap">긍정 기분</th>
               </tr>
             </thead>
-            <tbody id="weeklyReportTableBody" class="divide-y divide-stone-100"></tbody>
+            <tbody id="reportTrendBody" class="divide-y divide-stone-100"></tbody>
           </table>
         </div>
-      </div>
+      </section>
+
+      <!-- Cycle Phase Mood & Discharge Tracking -->
+      <section class="bg-gradient-to-r from-rose-50 via-pink-50/60 to-purple-50/50 rounded-2xl p-5 border border-rose-200/80 shadow-xs">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <h3 class="text-base font-bold text-stone-800">🩸 생리주기별 무드 & 분비물 트래킹 <span id="reportCycleMonthLabel" class="text-sm font-semibold text-rose-600"></span></h3>
+          <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-white text-rose-700 border border-rose-200" id="reportCycleRecordBadge">기록 집계 중</span>
+        </div>
+        <p id="reportCyclePhaseNote" class="text-xs text-stone-600 mb-4 leading-relaxed"></p>
+        <div id="reportCyclePhaseGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-3.5"></div>
+        <p class="text-[11px] text-stone-500 mt-3 pt-2.5 border-t border-rose-200/70">주기 단계는 생리주기 탭의 '최근 생리 시작일 · 평균 주기' 설정으로 각 날짜를 계산해 매핑합니다. 설정을 바꾸면 이 리포트도 함께 바뀌어요.</p>
+      </section>
+
     </div>
 
   </main>
@@ -1489,13 +1421,6 @@
       1: { emoji: '🌧️', label: '우울·다운' }
     };
 
-    const BRISTOL_META = {
-      1: { name: '1·2형 딱딱함', badge: 'bg-amber-100 text-amber-800' },
-      4: { name: '3·4형 황금바나나', badge: 'bg-emerald-100 text-emerald-800' },
-      5: { name: '5·6형 무른편', badge: 'bg-sky-100 text-sky-800' },
-      7: { name: '7형 물설사', badge: 'bg-rose-100 text-rose-800' }
-    };
-
     const SLEEP_QUALITY_MAP = {
       '꿀잠·개운함': 'sleepQualBtn-great',
       '무난·보통': 'sleepQualBtn-good',
@@ -1507,9 +1432,7 @@
     let state = {
       selectedDate: getTodayKey(),
       activeTab: 'today',
-      calendarYear: 2026,
-      calendarMonth: 11,
-      selectedBristol: 4,
+      reportMonth: getTodayKey().slice(0, 7),
       mounjaroCurveMode: 'actual',
       mjChartZoom: 1,
       mounjaroShots: [],
@@ -1570,13 +1493,11 @@
           sleepHours: 7.5,
           sleepQuality: '무난·보통',
           meals: [],
-          waterCups: 0,
           bowels: [],
           stretches: [],
           workouts: [],
           moodLevel: null,
           emotionTags: [],
-          energyLevel: 3,
           moodNote: '',
           isPeriod: false,
           flowLevel: 0,
@@ -2160,7 +2081,7 @@
     // --- Navigation & Date Switching ---
     function switchMainTab(tabName) {
       state.activeTab = tabName;
-      const tabs = ['today', 'mounjaro', 'cycle', 'calendar', 'stats'];
+      const tabs = ['today', 'mounjaro', 'cycle', 'stats'];
       tabs.forEach(t => {
         const viewEl = document.getElementById(`view-${t}`);
         const btnEl = document.getElementById(`tabBtn-${t}`);
@@ -2183,9 +2104,6 @@
 
     function shiftSelectedDate(delta) {
       state.selectedDate = addDays(state.selectedDate, delta);
-      const p = parseDateParts(state.selectedDate);
-      state.calendarYear = p.year;
-      state.calendarMonth = p.month;
       saveStateToStorage();
       renderAll();
     }
@@ -2193,19 +2111,13 @@
     function onDateInputChange(val) {
       if (!val) return;
       state.selectedDate = val;
-      const p = parseDateParts(val);
-      state.calendarYear = p.year;
-      state.calendarMonth = p.month;
       saveStateToStorage();
       renderAll();
     }
 
     function jumpToToday() {
       const todayKey = getTodayKey();
-      const p = parseDateParts(todayKey);
       state.selectedDate = todayKey;
-      state.calendarYear = p.year;
-      state.calendarMonth = p.month;
       saveStateToStorage();
       renderAll();
       showToast(`오늘 날짜(${todayKey})로 이동했어요.`);
@@ -2259,13 +2171,6 @@
     }
 
     // --- Meal, Snack & Nutrition Functions ---
-    function adjustWater(delta) {
-      const rec = getDayRecord(state.selectedDate);
-      rec.waterCups = Math.max(0, Math.min(20, (rec.waterCups || 0) + delta));
-      saveStateToStorage();
-      renderAll();
-    }
-
     function addMealEntry() {
       const typeSelect = document.getElementById('mealTypeSelect');
       const timeInput = document.getElementById('mealTimeInput');
@@ -2329,21 +2234,6 @@
     }
 
     // --- Bowel Functions ---
-    function selectBristolType(typeNum) {
-      state.selectedBristol = typeNum;
-      [1, 4, 5, 7].forEach(num => {
-        const btn = document.getElementById(`bristolBtn-${num}`);
-        if (!btn) return;
-        if (num === typeNum) {
-          btn.classList.add('chip-selected-teal');
-          btn.classList.remove('border-stone-200');
-        } else {
-          btn.classList.remove('chip-selected-teal');
-          btn.classList.add('border-stone-200');
-        }
-      });
-    }
-
     function addBowelEntry() {
       const timeInput = document.getElementById('bowelTimeInput');
       const feelingSelect = document.getElementById('bowelFeelingSelect');
@@ -2353,7 +2243,6 @@
       rec.bowels.push({
         id: 'bowel_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
         time: timeInput && timeInput.value ? timeInput.value : '09:00',
-        bristol: state.selectedBristol || 4,
         feeling: feelingSelect ? feelingSelect.value : '✨ 완전 개운·쾌변!',
         note: (noteInput ? noteInput.value : '').trim()
       });
@@ -2447,12 +2336,10 @@
       renderAll();
     }
 
-    function updateSleepAndEnergy() {
+    function updateSleepHours() {
       const sleepEl = document.getElementById('sleepHoursRange');
-      const energyEl = document.getElementById('energyLevelRange');
       const rec = getDayRecord(state.selectedDate);
       if (sleepEl) rec.sleepHours = parseFloat(sleepEl.value) || 7.5;
-      if (energyEl) rec.energyLevel = parseInt(energyEl.value, 10) || 3;
       saveStateToStorage();
       renderAll();
     }
@@ -2704,23 +2591,7 @@
       renderAll();
     }
 
-    // --- Calendar View Functions ---
-    function shiftCalendarMonth(delta) {
-      let m = state.calendarMonth + delta;
-      let y = state.calendarYear;
-      if (m < 1) { m = 12; y -= 1; }
-      if (m > 12) { m = 1; y += 1; }
-      state.calendarYear = y;
-      state.calendarMonth = m;
-      renderCalendarView();
-    }
-
-    function selectDateFromCalendar(dateStr) {
-      state.selectedDate = dateStr;
-      saveStateToStorage();
-      switchMainTab('today');
-      showToast(`${dateStr} 기록 화면으로 이동했어요.`);
-    }
+    // --- Monthly Report View Functions ---
 
     // --- Sample Demo Data & Reset / Export / Import ---
     function loadDemoSampleData() {
@@ -2764,9 +2635,8 @@
             { id: 'm2', type: '점심', time: '12:40', fullness: '딱 좋음 (80%)', menu: '부채살 스테이크 & 구운 알배추', kcal: 430, carb: 14, protein: 41, fat: 24 },
             { id: 'm3', type: '간식', time: '16:15', fullness: '가벼움 (70%)', menu: '그릭요거트 & 호두 소량', kcal: 175, carb: 7, protein: 10, fat: 12 }
           ],
-          waterCups: 7,
           bowels: [
-            { id: 'b1', time: '09:20', bristol: 4, feeling: '✨ 완전 개운·쾌변!', note: '수분 섭취 늘리고 유산균 챙겨서 쾌변 성공' }
+            { id: 'b1', time: '09:20', feeling: '✨ 완전 개운·쾌변!', note: '수분 섭취 늘리고 유산균 챙겨서 쾌변 성공' }
           ],
           stretches: ['upper', 'lower'],
           workouts: [
@@ -2775,7 +2645,6 @@
           ],
           moodLevel: 5,
           emotionTags: ['✨ 상쾌함', '🔥 집중잘됨', '💪 활력넘침'],
-          energyLevel: 4,
           moodNote: '어제 주사 맞고 28시간 지나 피크 구간이라 음식 생각이 싹 사라졌다! 단백질 위주로 든든히 챙기고 운동도 개운하게 완료.',
           isPeriod: false,
           flowLevel: 0,
@@ -2800,9 +2669,8 @@
             { id: 'm22', type: '점심', time: '13:00', fullness: '든든함 (100%)', menu: '오야코동 소량', kcal: 350, carb: 42, protein: 21, fat: 10 },
             { id: 'm23', type: '저녁', time: '18:30', fullness: '딱 좋음 (80%)', menu: '구운 두부 & 미소시루', kcal: 195, carb: 10, protein: 19, fat: 10 }
           ],
-          waterCups: 6,
           bowels: [
-            { id: 'b21', time: '10:00', bristol: 4, feeling: '🙂 무난하게 성공', note: '' }
+            { id: 'b21', time: '10:00', feeling: '🙂 무난하게 성공', note: '' }
           ],
           stretches: ['upper'],
           workouts: [
@@ -2810,7 +2678,6 @@
           ],
           moodLevel: 4,
           emotionTags: ['🌿 차분함', '🔥 집중잘됨'],
-          energyLevel: 4,
           moodNote: '오전 10시에 마운자로 2주차 오른쪽 복부 주사 완료! 저녁부터 서서히 배가 안 고프다.',
           isPeriod: false,
           flowLevel: 0,
@@ -2835,9 +2702,8 @@
             { id: 'm32', type: '간식', time: '15:30', fullness: '가벼움 (70%)', menu: '알룰로스 저당 디저트', kcal: 110, carb: 8, protein: 4, fat: 7 },
             { id: 'm33', type: '저녁', time: '18:40', fullness: '딱 좋음 (80%)', menu: '구운 알배추 & 닭가슴살', kcal: 235, carb: 13, protein: 34, fat: 5.5 }
           ],
-          waterCups: 7,
           bowels: [
-            { id: 'b31', time: '09:40', bristol: 4, feeling: '✨ 완전 개운·쾌변!', note: '구운 배추 덕분인지 쾌변!' }
+            { id: 'b31', time: '09:40', feeling: '✨ 완전 개운·쾌변!', note: '구운 배추 덕분인지 쾌변!' }
           ],
           stretches: ['lower'],
           workouts: [
@@ -2845,7 +2711,6 @@
           ],
           moodLevel: 4,
           emotionTags: ['🥰 행복함', '🌿 차분함'],
-          energyLevel: 5,
           moodNote: '1주차 투여 6일차라 반감기가 지나 식욕이 살짝 돌아왔지만 구운 알배추로 든든하게 방어 성공!',
           isPeriod: false,
           flowLevel: 0,
@@ -3029,8 +2894,7 @@
       renderTodayView(rec, cycleInfo, totalWorkoutMin, nutTotals);
       renderMounjaroView(rec, mjInfo);
       renderCycleView(rec, cycleInfo);
-      renderCalendarView();
-      renderStatsView();
+      renderMonthlyReportView();
     }
 
     function renderDischargeGridHtml(selectedId) {
@@ -3128,11 +2992,7 @@
         }
       }
 
-      // Water
-      const waterBadge = document.getElementById('waterCounterBadge');
-      const waterText = document.getElementById('waterCountText');
-      if (waterBadge) waterBadge.textContent = `💧 수분 ${rec.waterCups || 0}컵 (${(rec.waterCups || 0) * 250}ml)`;
-      if (waterText) waterText.textContent = `${rec.waterCups || 0}컵`;
+      // Water 표시·에너지 슬라이더는 삭제됨 (기존 저장 필드는 무시)
 
       // Meals List
       const mealList = document.getElementById('mealListContainer');
@@ -3178,11 +3038,10 @@
         if (rec.bowels.length === 0) {
           bowelList.innerHTML = `
             <div class="text-center py-6 px-3 rounded-xl border border-dashed border-stone-200 text-xs text-stone-400">
-              오늘 화장실 다녀오셨나요? 형태와 쾌변도를 선택하고 기록해 보세요.
+              오늘 화장실 다녀오셨다면 시간과 쾌변 만족도를 가볍게 남겨보세요.
             </div>`;
         } else {
           bowelList.innerHTML = rec.bowels.map(b => {
-            const meta = BRISTOL_META[b.bristol] || BRISTOL_META[4];
             return `
               <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-stone-50/80 border border-stone-200/70">
                 <div class="flex items-center gap-2.5 min-w-0">
@@ -3190,7 +3049,6 @@
                   <div class="min-w-0">
                     <div class="flex items-center gap-1.5 flex-wrap">
                       <span class="text-xs font-bold text-stone-800">${escapeHtml(b.feeling)}</span>
-                      <span class="text-[11px] px-2 py-0.5 rounded-full font-semibold ${meta.badge}">${meta.name}</span>
                     </div>
                     ${b.note ? `<div class="text-[11px] text-stone-500 mt-0.5 truncate">${escapeHtml(b.note)}</div>` : ''}
                   </div>
@@ -3271,12 +3129,6 @@
           `;
         }).join('');
       }
-
-      // Energy Slider
-      const energyRange = document.getElementById('energyLevelRange');
-      const energyLabel = document.getElementById('energyLevelLabel');
-      if (energyRange) energyRange.value = rec.energyLevel ?? 3;
-      if (energyLabel) energyLabel.textContent = `${rec.energyLevel ?? 3} / 5`;
 
       const moodTextarea = document.getElementById('moodNoteTextarea');
       if (moodTextarea && document.activeElement !== moodTextarea) {
@@ -3670,202 +3522,563 @@
       }
     }
 
-    function renderCalendarView() {
-      const titleEl = document.getElementById('calendarMonthTitle');
-      const gridEl = document.getElementById('calendarGridContainer');
-      if (!gridEl) return;
+    // --- Monthly Report (전월 대비 & 생리주기별 트래킹) ---
+    const REPORT_TREND_MONTHS = 6;
 
-      const y = state.calendarYear;
-      const m = state.calendarMonth;
-      if (titleEl) titleEl.textContent = `${y}년 ${m}월`;
-
-      const firstDayOfMonth = new Date(Date.UTC(y, m - 1, 1));
-      const startDow = firstDayOfMonth.getUTCDay();
-      const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
-
-      let cellsHtml = '';
-      for (let i = 0; i < startDow; i++) {
-        cellsHtml += `<div class="h-20 md:h-24 rounded-xl bg-stone-50/40 border border-transparent"></div>`;
-      }
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const rec = state.days[dateStr];
-        const cInfo = calculateCycleInfo(dateStr);
-
-        const isSelected = dateStr === state.selectedDate;
-        const isActualPeriod = rec && (rec.isPeriod || rec.flowLevel > 0);
-        const isPredictedPeriod = !isActualPeriod && cInfo.cycleDay <= cInfo.periodLen;
-        const isOvulationWindow = Math.abs(cInfo.cycleDay - cInfo.ovulationDayInCycle) <= 1;
-        const mjShotOnDay = (state.mounjaroShots || []).find(s => s.date === dateStr);
-
-        let borderClass = isSelected ? 'ring-2 ring-stone-800 border-stone-800 bg-amber-50/30' : 'border-stone-200/80 bg-white hover:bg-stone-50';
-        if (isActualPeriod) borderClass += ' bg-rose-50/70 border-rose-300';
-        else if (isPredictedPeriod) borderClass += ' bg-rose-50/30 border-rose-200 border-dashed';
-
-        const hasMed = rec && (rec.psychMedTaken || rec.supplementTaken);
-        const hasMeal = rec && rec.meals && rec.meals.length > 0;
-        const hasBowel = rec && rec.bowels && rec.bowels.length > 0;
-        const hasWorkout = rec && ((rec.workouts && rec.workouts.length > 0) || (rec.stretches && rec.stretches.length > 0));
-        const moodEmoji = rec && rec.moodLevel && MOOD_META[rec.moodLevel] ? MOOD_META[rec.moodLevel].emoji : '';
-
-        cellsHtml += `
-          <button type="button" onclick="selectDateFromCalendar('${dateStr}')" class="h-20 md:h-24 p-1.5 md:p-2 rounded-xl border text-left flex flex-col justify-between transition ${borderClass}">
-            <div class="flex items-center justify-between w-full">
-              <span class="text-xs font-bold ${isActualPeriod ? 'text-rose-600' : 'text-stone-700'}">${day}</span>
-              <span class="text-xs">${moodEmoji}</span>
-            </div>
-            <div class="space-y-0.5 w-full">
-              ${mjShotOnDay ? `<div class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-600 text-white font-semibold truncate">💉 ${mjShotOnDay.dose}mg</div>` : ''}
-              ${isActualPeriod ? `<div class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500 text-white font-semibold truncate">🩸 생리일</div>` : ''}
-              ${!isActualPeriod && isPredictedPeriod ? `<div class="text-[10px] px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-medium truncate">예정일</div>` : ''}
-              ${!isActualPeriod && !isPredictedPeriod && isOvulationWindow ? `<div class="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-medium truncate">배란기</div>` : ''}
-              <div class="flex items-center gap-0.5 text-[11px] pt-0.5 flex-wrap">
-                ${hasMed ? '<span>💊</span>' : ''}
-                ${hasMeal ? '<span>🍽️</span>' : ''}
-                ${hasBowel ? '<span>🚽</span>' : ''}
-                ${hasWorkout ? '<span>💪</span>' : ''}
-              </div>
-            </div>
-          </button>
-        `;
-      }
-
-      gridEl.innerHTML = cellsHtml;
+    function parseMonthKey(mk) {
+      const parts = String(mk || '').split('-');
+      return { year: parseInt(parts[0], 10) || 1970, month: parseInt(parts[1], 10) || 1 };
     }
 
-    function renderStatsView() {
-      let bowelDays = 0;
-      let workoutTotalMin = 0;
-      let stretchDays = 0;
-      let moodSum = 0;
-      let moodCount = 0;
-      let sleepSum = 0;
-      let sleepCount = 0;
-      let mealTotal = 0;
-      let waterSum = 0;
-      let kcalSum = 0;
-      let kcalDays = 0;
+    function monthKeyFromDate(dateStr) {
+      return String(dateStr || '').slice(0, 7);
+    }
 
-      const rowsHtml = [];
+    function addMonthsToKey(mk, delta) {
+      const p = parseMonthKey(mk);
+      const d = new Date(Date.UTC(p.year, p.month - 1 + delta, 1));
+      return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+    }
 
-      for (let i = 0; i < 7; i++) {
-        const dStr = addDays(state.selectedDate, -i);
-        const rec = state.days[dStr];
-        const mjDayInfo = analyzeMounjaroStatus(dStr);
-        const dayNut = getDayNutritionTotals(rec);
+    function formatMonthLabel(mk) {
+      const p = parseMonthKey(mk);
+      return `${p.year}년 ${p.month}월`;
+    }
 
-        const meals = rec ? rec.meals || [] : [];
-        const bowels = rec ? rec.bowels || [] : [];
-        const stretches = rec ? rec.stretches || [] : [];
-        const workouts = rec ? rec.workouts || [] : [];
-        const wMin = workouts.reduce((s, w) => s + (Number(w.minutes) || 0), 0);
+    function getMonthDateKeys(mk) {
+      const p = parseMonthKey(mk);
+      const total = new Date(Date.UTC(p.year, p.month, 0)).getUTCDate();
+      const out = [];
+      for (let day = 1; day <= total; day++) {
+        out.push(`${mk}-${String(day).padStart(2, '0')}`);
+      }
+      return out;
+    }
 
-        if (bowels.length > 0) bowelDays += 1;
-        workoutTotalMin += wMin;
-        if (stretches.length > 0) stretchDays += 1;
-        if (rec && rec.moodLevel) {
-          moodSum += rec.moodLevel;
-          moodCount += 1;
+    function shiftReportMonth(delta) {
+      const base = /^\d{4}-\d{2}$/.test(state.reportMonth || '') ? state.reportMonth : getTodayKey().slice(0, 7);
+      state.reportMonth = addMonthsToKey(base, delta);
+      saveStateToStorage();
+      renderMonthlyReportView();
+    }
+
+    function onReportMonthChange(mk) {
+      if (!/^\d{4}-\d{2}$/.test(mk || '')) return;
+      state.reportMonth = mk;
+      saveStateToStorage();
+      renderMonthlyReportView();
+    }
+
+    // 기록이 실제로 남은 날인지 (자동 생성된 빈 기본값 레코드는 제외)
+    function isRecordedDay(rec) {
+      if (!rec || typeof rec !== 'object') return false;
+      const has = v => Array.isArray(v) && v.length > 0;
+      return has(rec.meals) || has(rec.workouts) || has(rec.stretches) || has(rec.bowels) ||
+        has(rec.cycleSymptoms) || !!rec.moodLevel || !!rec.psychMedTaken || !!rec.supplementTaken ||
+        !!rec.cervicalDischarge || !!rec.isPeriod || Number(rec.flowLevel) > 0 ||
+        !!(rec.medNote && String(rec.medNote).trim()) || !!(rec.mjNote && String(rec.mjNote).trim());
+    }
+
+    // 수면을 실제로 기록한 날인지 (기본값 00:30 취침·08:00 기상·7.5시간은 기록으로 치지 않음)
+    function isSleepRecorded(rec) {
+      if (!rec) return false;
+      const bedChanged = !!rec.bedTime && rec.bedTime !== '00:30';
+      const wakeChanged = !!rec.wakeTime && rec.wakeTime !== '08:00';
+      const hoursChanged = rec.sleepHours !== undefined && rec.sleepHours !== null && Math.abs(Number(rec.sleepHours) - 7.5) > 0.01;
+      return bedChanged || wakeChanged || hoursChanged;
+    }
+
+    // 주기 단계 계산 — day 레코드를 만들지 않고 설정값만으로 계산
+    function getCyclePhaseKey(dateStr) {
+      const cfg = state.cycleConfig || {};
+      const lastStart = cfg.lastStartDate || '2026-10-26';
+      const cycleLen = Math.max(20, Math.min(45, parseInt(cfg.cycleLength, 10) || 28));
+      const periodLen = Math.max(2, Math.min(10, parseInt(cfg.periodLength, 10) || 5));
+      const rawDiff = diffDays(dateStr, lastStart);
+      let modDiff = rawDiff % cycleLen;
+      if (modDiff < 0) modDiff += cycleLen;
+      const cycleDay = modDiff + 1;
+      const ovulationDayInCycle = Math.max(8, cycleLen - 14);
+      const rec = state.days[dateStr];
+      const actualPeriod = !!(rec && (rec.isPeriod || Number(rec.flowLevel) > 0));
+      if (actualPeriod || cycleDay <= periodLen) return 'menstrual';
+      if (cycleDay < ovulationDayInCycle - 2) return 'follicular';
+      if (cycleDay <= ovulationDayInCycle + 2) return 'ovulation';
+      return 'luteal';
+    }
+
+    const CYCLE_PHASES = [
+      { key: 'menstrual', name: '월경기', emoji: '🩸', bar: 'bg-rose-400', chip: 'bg-rose-50 text-rose-700 border-rose-200', hint: '생리 기간 · 회복과 철분 보충' },
+      { key: 'follicular', name: '여포기', emoji: '🌱', bar: 'bg-emerald-400', chip: 'bg-emerald-50 text-emerald-700 border-emerald-200', hint: '에스트로겐 상승 · 컨디션 황금기' },
+      { key: 'ovulation', name: '배란기', emoji: '✨', bar: 'bg-purple-400', chip: 'bg-purple-50 text-purple-700 border-purple-200', hint: '에스트로겐 피크 · 가임기' },
+      { key: 'luteal', name: '황체기', emoji: '🌙', bar: 'bg-amber-400', chip: 'bg-amber-50 text-amber-800 border-amber-200', hint: '프로게스테론 우세 · PMS 케어' }
+    ];
+
+    function ratioPercent(part, total) {
+      if (!total) return null;
+      return (part / total) * 100;
+    }
+
+    function computeMonthMetrics(mk) {
+      const m = {
+        monthKey: mk,
+        recordedDays: 0,
+        sleepDays: 0, sleepSum: 0, greatSleepDays: 0,
+        medDays: 0, medRateSum: 0, medFullDays: 0,
+        workoutMin: 0, workoutSessions: 0, stretchFullDays: 0,
+        mealDays: 0, kcalSum: 0, proteinSum: 0,
+        moodDays: 0, moodSum: 0, moodCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+        emotionCounts: {}, dischargeCounts: {}, bowelDays: 0
+      };
+
+      getMonthDateKeys(mk).forEach(dateStr => {
+        const rec = state.days[dateStr];
+        if (!isRecordedDay(rec)) return;
+        m.recordedDays += 1;
+
+        if (isSleepRecorded(rec) && Number(rec.sleepHours) > 0) {
+          m.sleepDays += 1;
+          m.sleepSum += Number(rec.sleepHours);
+          if (rec.sleepQuality === '꿀잠·개운함') m.greatSleepDays += 1;
         }
-        if (rec && rec.sleepHours) {
-          sleepSum += Number(rec.sleepHours);
-          sleepCount += 1;
+
+        const medCount = (rec.psychMedTaken ? 1 : 0) + (rec.supplementTaken ? 1 : 0);
+        m.medDays += 1;
+        m.medRateSum += medCount / 2;
+        if (medCount === 2) m.medFullDays += 1;
+
+        (Array.isArray(rec.workouts) ? rec.workouts : []).forEach(w => {
+          m.workoutMin += Number(w.minutes) || 0;
+          m.workoutSessions += 1;
+        });
+
+        const stretches = Array.isArray(rec.stretches) ? rec.stretches : [];
+        if (stretches.includes('upper') && stretches.includes('lower')) m.stretchFullDays += 1;
+
+        const meals = Array.isArray(rec.meals) ? rec.meals : [];
+        if (meals.length > 0) {
+          const nut = getDayNutritionTotals(rec);
+          m.mealDays += 1;
+          m.kcalSum += nut.kcal;
+          m.proteinSum += nut.protein;
         }
-        mealTotal += meals.length;
-        waterSum += rec ? (rec.waterCups || 0) : 0;
-        if (dayNut.kcal > 0) {
-          kcalSum += dayNut.kcal;
-          kcalDays += 1;
+
+        if (rec.moodLevel && MOOD_META[rec.moodLevel]) {
+          const lvl = Number(rec.moodLevel);
+          m.moodDays += 1;
+          m.moodSum += lvl;
+          m.moodCounts[lvl] = (m.moodCounts[lvl] || 0) + 1;
         }
 
-        const medParts = [];
-        if (rec && rec.psychMedTaken) medParts.push('정신과약✅');
-        if (rec && rec.supplementTaken) medParts.push('영양제✅');
-        const medSummary = medParts.length > 0
-          ? medParts.join(' · ')
-          : '<span class="text-stone-400">미체크</span>';
+        (Array.isArray(rec.emotionTags) ? rec.emotionTags : []).forEach(tag => {
+          m.emotionCounts[tag] = (m.emotionCounts[tag] || 0) + 1;
+        });
 
-        const sleepSummary = rec && (rec.bedTime || rec.sleepQuality)
-          ? `${rec.bedTime || '00:30'} 취침 (${rec.sleepHours || 7.5}h · ${rec.sleepQuality || '보통'})`
-          : '<span class="text-stone-400">-</span>';
+        if (rec.cervicalDischarge) {
+          m.dischargeCounts[rec.cervicalDischarge] = (m.dischargeCounts[rec.cervicalDischarge] || 0) + 1;
+        }
 
-        const mealSummary = meals.length > 0
-          ? `<strong>${dayNut.kcal}kcal</strong> (탄${dayNut.carb}/단${dayNut.protein}/지${dayNut.fat}g) · ${meals.map(m => m.menu).join(', ')}`
-          : '<span class="text-stone-400">-</span>';
+        if (Array.isArray(rec.bowels) && rec.bowels.length > 0) m.bowelDays += 1;
+      });
 
-        const bowelSummary = bowels.length > 0
-          ? bowels.map(b => `${b.time} (${b.feeling})`).join(', ')
-          : '<span class="text-stone-400">미기록</span>';
+      const posDays = m.moodCounts[4] + m.moodCounts[5];
+      const negDays = m.moodCounts[1] + m.moodCounts[2];
+      return Object.assign(m, {
+        sleepAvg: m.sleepDays ? m.sleepSum / m.sleepDays : null,
+        greatSleepRatio: ratioPercent(m.greatSleepDays, m.sleepDays),
+        medRate: m.medDays ? (m.medRateSum / m.medDays) * 100 : null,
+        stretchRate: ratioPercent(m.stretchFullDays, m.recordedDays),
+        avgKcal: m.mealDays ? m.kcalSum / m.mealDays : null,
+        avgProtein: m.mealDays ? m.proteinSum / m.mealDays : null,
+        moodAvg: m.moodDays ? m.moodSum / m.moodDays : null,
+        posRatio: ratioPercent(posDays, m.moodDays),
+        negRatio: ratioPercent(negDays, m.moodDays),
+        posDays,
+        negDays
+      });
+    }
 
-        const stretchNames = [];
-        if (stretches.includes('upper')) stretchNames.push('상체');
-        if (stretches.includes('lower')) stretchNames.push('하체');
-        const moveSummary = (wMin > 0 || stretchNames.length > 0)
-          ? `${stretchNames.length > 0 ? stretchNames.join('+') + ' 스트레칭' : '스트레칭 없음'} · 운동 ${wMin}분`
-          : '<span class="text-stone-400">-</span>';
+    function formatFixed(value, digits) {
+      if (value === null || value === undefined || isNaN(value)) return '-';
+      return Number(value).toFixed(digits === undefined ? 1 : digits);
+    }
 
-        const seCount = rec && rec.mjSideEffects ? rec.mjSideEffects.length : 0;
-        const mjSummary = (mjDayInfo.hasShots || seCount > 0)
-          ? `${mjDayInfo.activeMg.toFixed(2)}mg${seCount > 0 ? ' · 부작용 ' + seCount + '개' : ''}`
-          : '<span class="text-stone-400">-</span>';
+    function formatSigned(diff, digits, unit) {
+      const d = digits === undefined ? 1 : digits;
+      const abs = Math.abs(diff).toFixed(d);
+      if (Math.abs(diff) < (d === 0 ? 0.5 : Math.pow(10, -d) * 0.51)) return `±0${unit || ''}`;
+      return `${diff > 0 ? '+' : '-'}${abs}${unit || ''}`;
+    }
 
-        const dischargeObj = rec && rec.cervicalDischarge
-          ? DISCHARGE_ITEMS.find(d => d.id === rec.cervicalDischarge)
-          : null;
-        const moodPart = rec && rec.moodLevel && MOOD_META[rec.moodLevel]
-          ? `${MOOD_META[rec.moodLevel].emoji} ${MOOD_META[rec.moodLevel].label}`
-          : '-';
-        const moodAndDischarge = (moodPart !== '-' || dischargeObj)
-          ? `${moodPart}${dischargeObj ? ' · 💧' + dischargeObj.label : ''}`
-          : '<span class="text-stone-400">-</span>';
+    // 전월 대비 변화 문구 (better: 'up' | 'down' | 'neutral')
+    function buildDelta(cur, prev, opts) {
+      const o = opts || {};
+      const digits = o.digits === undefined ? 1 : o.digits;
+      const unit = o.unit || '';
+      if (cur === null || cur === undefined) return { text: '', cls: 'text-stone-400', diff: null };
+      if (prev === null || prev === undefined) {
+        return { text: `${o.label || '전월 대비'} 비교할 전월 기록 없음`, cls: 'text-stone-400', diff: null };
+      }
+      const diff = cur - prev;
+      const flat = Math.abs(diff) < (digits === 0 ? 0.5 : Math.pow(10, -digits) * 0.51);
+      if (flat) {
+        return { text: `${o.label || '전월 대비'} ＝ 변화 없음`, cls: 'text-stone-400', diff: 0 };
+      }
+      const arrow = diff > 0 ? '▲' : '▼';
+      let cls = 'text-stone-500';
+      if (o.better === 'up') cls = diff > 0 ? 'text-emerald-600' : 'text-rose-600';
+      else if (o.better === 'down') cls = diff < 0 ? 'text-emerald-600' : 'text-rose-600';
+      return {
+        text: `${o.label || '전월 대비'} ${arrow} ${formatSigned(diff, digits, unit)}`,
+        cls,
+        diff
+      };
+    }
 
-        rowsHtml.push(`
-          <tr class="hover:bg-stone-50/80 cursor-pointer" onclick="selectDateFromCalendar('${dStr}')">
-            <td class="py-2.5 px-3 font-bold text-stone-800 whitespace-nowrap">${dStr}</td>
-            <td class="py-2.5 px-3 text-stone-700 whitespace-nowrap">${medSummary}</td>
-            <td class="py-2.5 px-3 text-stone-700 whitespace-nowrap">${sleepSummary}</td>
-            <td class="py-2.5 px-3 text-stone-700 max-w-xs truncate">${mealSummary}</td>
-            <td class="py-2.5 px-3 text-stone-700 whitespace-nowrap">${bowelSummary}</td>
-            <td class="py-2.5 px-3 text-stone-700 whitespace-nowrap">${moveSummary}</td>
-            <td class="py-2.5 px-3 text-emerald-800 font-medium whitespace-nowrap">${mjSummary}</td>
-            <td class="py-2.5 px-3 text-stone-700 whitespace-nowrap">${moodAndDischarge}</td>
-          </tr>
-        `);
+    function metricCard(cfg) {
+      const deltas = (cfg.deltas || [])
+        .filter(d => d && d.text)
+        .map(d => `<div class="text-[11px] font-bold ${d.cls}">${d.text}</div>`)
+        .join('');
+      const subs = (cfg.subs || [])
+        .filter(Boolean)
+        .map(s => `<div class="text-[11px] text-stone-500">${s}</div>`)
+        .join('');
+      return `
+        <div class="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="w-8 h-8 rounded-xl ${cfg.iconBg || 'bg-stone-100 text-stone-700'} flex items-center justify-center font-bold">${cfg.emoji}</span>
+            <h3 class="text-sm font-bold text-stone-800">${cfg.title}</h3>
+          </div>
+          <div class="text-2xl font-bold ${cfg.valueCls || 'text-stone-800'}">${cfg.main}</div>
+          <div class="mt-1.5 space-y-0.5">${deltas}${subs}</div>
+        </div>`;
+    }
+
+    function topCountEntries(counts, limit) {
+      return Object.keys(counts || {})
+        .map(key => ({ key: key, count: counts[key] }))
+        .sort((a, b) => b.count - a.count || String(a.key).localeCompare(String(b.key)))
+        .slice(0, limit);
+    }
+
+    function computePhaseStats(mk, phaseKey) {
+      const stats = {
+        phaseKey: phaseKey,
+        recordedDays: 0,
+        moodDays: 0, moodSum: 0, moodCounts: {},
+        emotionCounts: {}, dischargeCounts: {}
+      };
+      getMonthDateKeys(mk).forEach(dateStr => {
+        if (getCyclePhaseKey(dateStr) !== phaseKey) return;
+        const rec = state.days[dateStr];
+        if (!isRecordedDay(rec)) return;
+        stats.recordedDays += 1;
+        if (rec.moodLevel && MOOD_META[rec.moodLevel]) {
+          const lvl = Number(rec.moodLevel);
+          stats.moodDays += 1;
+          stats.moodSum += lvl;
+          stats.moodCounts[lvl] = (stats.moodCounts[lvl] || 0) + 1;
+        }
+        (Array.isArray(rec.emotionTags) ? rec.emotionTags : []).forEach(tag => {
+          stats.emotionCounts[tag] = (stats.emotionCounts[tag] || 0) + 1;
+        });
+        if (rec.cervicalDischarge) {
+          stats.dischargeCounts[rec.cervicalDischarge] = (stats.dischargeCounts[rec.cervicalDischarge] || 0) + 1;
+        }
+      });
+      stats.moodAvg = stats.moodDays ? stats.moodSum / stats.moodDays : null;
+      stats.dominantMood = topCountEntries(stats.moodCounts, 1)[0] || null;
+      return stats;
+    }
+
+    function dischargeLabel(id) {
+      const found = DISCHARGE_ITEMS.find(d => d.id === id);
+      return found ? found.label : '';
+    }
+
+    function renderPhaseCard(phase, cur, prev) {
+      const moodBars = Object.keys(cur.moodCounts)
+        .map(Number)
+        .sort((a, b) => b - a)
+        .map(lvl => {
+          const c = cur.moodCounts[lvl];
+          const w = Math.max(6, Math.round((c / Math.max(1, cur.moodDays)) * 100));
+          return `
+            <div class="flex items-center gap-1.5">
+              <span class="w-[86px] shrink-0 text-[11px] text-stone-600">${MOOD_META[lvl].emoji} ${MOOD_META[lvl].label}</span>
+              <div class="flex-1 h-1.5 rounded-full bg-stone-100 overflow-hidden"><div class="h-full ${phase.bar}" style="width:${w}%"></div></div>
+              <span class="text-[10px] text-stone-500 w-6 text-right">${c}일</span>
+            </div>`;
+        }).join('');
+
+      const tagTop = topCountEntries(cur.emotionCounts, 3);
+      const tagChips = tagTop.length
+        ? tagTop.map(t => `<span class="text-[11px] px-2 py-0.5 rounded-full bg-white border border-stone-200 text-stone-700">${escapeHtml(t.key)} <span class="font-bold text-stone-500">${t.count}</span></span>`).join('')
+        : '<span class="text-[11px] text-stone-400">태그 기록 없음</span>';
+
+      const dischargeTop = topCountEntries(cur.dischargeCounts, 6);
+      const dischargeMax = dischargeTop.length ? dischargeTop[0].count : 0;
+      const dischargeRows = dischargeTop.length
+        ? dischargeTop.map(d => {
+            const w = Math.max(8, Math.round((d.count / Math.max(1, dischargeMax)) * 100));
+            return `
+              <div class="flex items-center gap-1.5">
+                <span class="w-[132px] shrink-0 text-[11px] text-stone-600 truncate">${escapeHtml(dischargeLabel(d.key))}</span>
+                <div class="flex-1 h-1.5 rounded-full bg-stone-100 overflow-hidden"><div class="h-full bg-rose-300" style="width:${w}%"></div></div>
+                <span class="text-[10px] text-stone-500 w-6 text-right">${d.count}</span>
+              </div>`;
+          }).join('')
+        : '<div class="text-[11px] text-stone-400">분비물 기록 없음</div>';
+
+      const dominantMoodText = cur.dominantMood
+        ? `${MOOD_META[cur.dominantMood.key].emoji} ${MOOD_META[cur.dominantMood.key].label} <span class="text-stone-400">(${cur.dominantMood.count}일, 평균 ${formatFixed(cur.moodAvg, 1)}점)</span>`
+        : '<span class="text-stone-400">기분 기록 없음</span>';
+
+      let prevText = '';
+      if (prev.recordedDays === 0) {
+        prevText = '전월에는 이 단계 기록이 없었어요.';
+      } else {
+        const prevDischarge = topCountEntries(prev.dischargeCounts, 1)[0];
+        prevText = `전월 ${prev.recordedDays}일 · ${prev.dominantMood ? MOOD_META[prev.dominantMood.key].emoji + ' ' + MOOD_META[prev.dominantMood.key].label : '기분 미기록'} · 분비물 최다 ${prevDischarge ? escapeHtml(dischargeLabel(prevDischarge.key)) : '없음'}`;
       }
 
-      const statBowelDays = document.getElementById('statBowelDays');
-      const statWorkoutTotal = document.getElementById('statWorkoutTotal');
-      const statStretchDays = document.getElementById('statStretchDays');
-      const statAvgMood = document.getElementById('statAvgMood');
-      const statAvgSleep = document.getElementById('statAvgSleep');
-      const statMealCount = document.getElementById('statMealCount');
-      const statWaterAvg = document.getElementById('statWaterAvg');
-      const tableBody = document.getElementById('weeklyReportTableBody');
+      return `
+        <div class="bg-white/90 rounded-xl p-3.5 border border-rose-100 space-y-2.5">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm">${phase.emoji}</span>
+                <span class="text-sm font-bold text-stone-800">${phase.name}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full border ${phase.chip}">${cur.recordedDays}일 기록</span>
+              </div>
+              <div class="text-[10px] text-stone-500 mt-0.5">${phase.hint}</div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-[10px] text-stone-400">대표 기분</div>
+              <div class="text-xs font-bold text-stone-700">${dominantMoodText}</div>
+            </div>
+          </div>
+          ${cur.recordedDays === 0
+            ? `<div class="text-[11px] text-stone-400 py-1">이 단계에 남긴 기록이 없어요. 기분·분비물을 기록하면 자동으로 집계됩니다.</div>`
+            : `<div class="space-y-1">${moodBars}</div>
+               <div>
+                 <div class="text-[10px] font-semibold text-stone-500 mb-1">주요 감정 태그</div>
+                 <div class="flex flex-wrap gap-1">${tagChips}</div>
+               </div>
+               <div>
+                 <div class="text-[10px] font-semibold text-stone-500 mb-1">질 분비물 양상 빈도</div>
+                 <div class="space-y-1">${dischargeRows}</div>
+               </div>`}
+          <div class="text-[10px] text-stone-500 pt-1.5 border-t border-stone-100">${prevText}</div>
+        </div>`;
+    }
 
-      if (statBowelDays) statBowelDays.textContent = `${bowelDays} / 7일`;
-      if (statWorkoutTotal) statWorkoutTotal.textContent = `${workoutTotalMin}분`;
-      if (statStretchDays) statStretchDays.textContent = `${stretchDays}`;
-      if (statAvgMood) {
-        if (moodCount > 0) {
-          const avg = Math.round(moodSum / moodCount);
-          statAvgMood.textContent = `${MOOD_META[avg].emoji} ${(moodSum / moodCount).toFixed(1)}점`;
-        } else {
-          statAvgMood.textContent = '기록 전';
+    function buildChangeListItems(cur, prev) {
+      const improved = [];
+      const worse = [];
+
+      if (cur.recordedDays === 0) {
+        return {
+          improved: ['<li class="text-stone-500">이 달 기록이 아직 없어요. 오늘의 기록을 남기면 자동으로 비교해 드려요.</li>'],
+          worse: ['<li class="text-stone-500">비교할 기록이 없습니다.</li>']
+        };
+      }
+      if (prev.recordedDays === 0) {
+        return {
+          improved: ['<li class="text-stone-500">전월 기록이 없어 비교 기준이 없어요. 다음 달부터 변화량이 표시됩니다.</li>'],
+          worse: ['<li class="text-stone-500">전월 기록이 없어 비교할 수 없습니다.</li>']
+        };
+      }
+
+      const check = (curVal, prevVal, threshold, unit, digits, upIsBetter, label, valueUnit) => {
+        if (curVal === null || prevVal === null) return;
+        const diff = curVal - prevVal;
+        if (Math.abs(diff) < threshold) return;
+        const vUnit = valueUnit === undefined ? unit : valueUnit;
+        const better = upIsBetter ? diff > 0 : diff < 0;
+        const text = `<strong>${label}</strong> ${formatSigned(diff, digits, unit)} (${formatFixed(prevVal, digits)}${vUnit} → ${formatFixed(curVal, digits)}${vUnit})`;
+        (better ? improved : worse).push(`<li>${text}</li>`);
+      };
+
+      check(cur.sleepAvg, prev.sleepAvg, 0.3, '시간', 1, true, '평균 수면');
+      check(cur.greatSleepRatio, prev.greatSleepRatio, 5, '%p', 0, true, '꿀잠·개운함 비율', '%');
+      check(cur.medRate, prev.medRate, 5, '%p', 0, true, '아침 약·영양제 복용률', '%');
+      check(cur.workoutMin, prev.workoutMin, 10, '분', 0, true, '월 운동 시간');
+      check(cur.stretchRate, prev.stretchRate, 10, '%p', 0, true, '상·하체 스트레칭 달성률', '%');
+      check(cur.avgProtein, prev.avgProtein, 5, 'g', 0, true, '일평균 단백질');
+      check(cur.posRatio, prev.posRatio, 5, '%p', 0, true, '긍정 기분 비율', '%');
+      check(cur.negRatio, prev.negRatio, 5, '%p', 0, false, '지침·예민 비율', '%');
+
+      if (improved.length === 0) improved.push('<li class="text-stone-500">뚜렷하게 나아진 항목이 없어요. 이번 달 기록이 더 쌓이면 보여드릴게요.</li>');
+      if (worse.length === 0) worse.push('<li class="text-stone-500">전월보다 나빠진 항목이 없어요. 지금 흐름을 유지해요!</li>');
+      return { improved, worse };
+    }
+
+    function renderMonthlyReportView() {
+      const monthSelect = document.getElementById('reportMonthSelect');
+      const rangeLabel = document.getElementById('reportRangeLabel');
+      const metricGrid = document.getElementById('reportMetricGrid');
+      const improvedList = document.getElementById('reportImprovedList');
+      const worseList = document.getElementById('reportWorseList');
+      const trendBody = document.getElementById('reportTrendBody');
+      const phaseGrid = document.getElementById('reportCyclePhaseGrid');
+      const phaseNote = document.getElementById('reportCyclePhaseNote');
+      const phaseMonthLabel = document.getElementById('reportCycleMonthLabel');
+      const phaseBadge = document.getElementById('reportCycleRecordBadge');
+      if (!metricGrid && !monthSelect) return;
+
+      const realCurrent = getTodayKey().slice(0, 7);
+      let curKey = /^\d{4}-\d{2}$/.test(state.reportMonth || '') ? state.reportMonth : realCurrent;
+      state.reportMonth = curKey;
+      const prevKey = addMonthsToKey(curKey, -1);
+
+      // 월 선택 옵션: 최근 6개월 + 기록이 있는 달
+      const monthSet = new Set();
+      monthSet.add(realCurrent);
+      for (let i = 1; i < REPORT_TREND_MONTHS; i++) monthSet.add(addMonthsToKey(realCurrent, -i));
+      Object.keys(state.days || {}).forEach(d => {
+        const k = monthKeyFromDate(d);
+        if (/^\d{4}-\d{2}$/.test(k)) monthSet.add(k);
+      });
+      monthSet.add(curKey);
+      const monthList = Array.from(monthSet).sort().reverse();
+      if (monthSelect) {
+        monthSelect.innerHTML = monthList
+          .map(k => `<option value="${k}" ${k === curKey ? 'selected' : ''}>${formatMonthLabel(k)}</option>`)
+          .join('');
+      }
+
+      const cur = computeMonthMetrics(curKey);
+      const prev = computeMonthMetrics(prevKey);
+
+      if (rangeLabel) {
+        rangeLabel.textContent = `${formatMonthLabel(curKey)} (기록 ${cur.recordedDays}일) vs ${formatMonthLabel(prevKey)} (기록 ${prev.recordedDays}일) — 월 선택으로 다른 달도 비교할 수 있어요`;
+      }
+
+      // 전월 대비 증감 카드
+      if (metricGrid) {
+        const sleepDelta = buildDelta(cur.sleepAvg, prev.sleepAvg, { label: '평균 수면', unit: '시간', digits: 1, better: 'up' });
+        const greatDelta = buildDelta(cur.greatSleepRatio, prev.greatSleepRatio, { label: '꿀잠 비율', unit: '%p', digits: 0, better: 'up' });
+        const medDelta = buildDelta(cur.medRate, prev.medRate, { label: '복용률', unit: '%p', digits: 0, better: 'up' });
+        const workoutDelta = buildDelta(cur.workoutMin, prev.workoutMin, { label: '운동 시간', unit: '분', digits: 0, better: 'up' });
+        const stretchDelta = buildDelta(cur.stretchRate, prev.stretchRate, { label: '스트레칭 달성률', unit: '%p', digits: 0, better: 'up' });
+        const kcalDelta = buildDelta(cur.avgKcal, prev.avgKcal, { label: '칼로리', unit: 'kcal', digits: 0, better: 'neutral' });
+        const proteinDelta = buildDelta(cur.avgProtein, prev.avgProtein, { label: '단백질', unit: 'g', digits: 0, better: 'up' });
+        const moodDelta = buildDelta(cur.moodAvg, prev.moodAvg, { label: '평균 기분', unit: '점', digits: 1, better: 'up' });
+        const posDelta = buildDelta(cur.posRatio, prev.posRatio, { label: '긍정 비율', unit: '%p', digits: 0, better: 'up' });
+
+        const avgWorkoutPerDay = cur.recordedDays ? cur.workoutMin / cur.recordedDays : null;
+        const moodDominant = cur.moodDays ? topCountEntries(cur.moodCounts, 1)[0] : null;
+
+        metricGrid.innerHTML = [
+          metricCard({
+            title: '수면 시간 & 수면 질',
+            emoji: '🌙',
+            iconBg: 'bg-indigo-100 text-indigo-700',
+            valueCls: 'text-indigo-700',
+            main: cur.sleepAvg !== null ? `${formatFixed(cur.sleepAvg, 1)}시간` : '기록 없음',
+            deltas: [sleepDelta, greatDelta],
+            subs: [
+              `꿀잠·개운함 ${cur.greatSleepRatio !== null ? formatFixed(cur.greatSleepRatio, 0) + '%' : '-'} (${cur.greatSleepDays}/${cur.sleepDays}일)`,
+              `수면 기록한 날 ${cur.sleepDays}일`
+            ]
+          }),
+          metricCard({
+            title: '아침 약 & 영양제 복용률',
+            emoji: '💊',
+            iconBg: 'bg-sky-100 text-sky-700',
+            valueCls: 'text-sky-700',
+            main: cur.medRate !== null ? `${formatFixed(cur.medRate, 0)}%` : '기록 없음',
+            deltas: [medDelta],
+            subs: [
+              `둘 다 챙긴 날 ${cur.medFullDays}일 · 기록 ${cur.medDays}일 기준`,
+              cur.recordedDays ? `이번 달 기록일 ${cur.recordedDays}일` : ''
+            ]
+          }),
+          metricCard({
+            title: '운동 시간 & 스트레칭',
+            emoji: '💪',
+            iconBg: 'bg-teal-100 text-teal-700',
+            valueCls: 'text-teal-700',
+            main: `${cur.workoutMin}분 · ${cur.workoutSessions}회`,
+            deltas: [workoutDelta, stretchDelta],
+            subs: [
+              avgWorkoutPerDay !== null ? `기록일 기준 하루 평균 ${formatFixed(avgWorkoutPerDay, 0)}분` : '',
+              `상·하체 스트레칭 완료 ${cur.stretchFullDays}일 (달성률 ${cur.stretchRate !== null ? formatFixed(cur.stretchRate, 0) + '%' : '-'})`
+            ]
+          }),
+          metricCard({
+            title: '식단 (기록일 기준 일평균)',
+            emoji: '🍽️',
+            iconBg: 'bg-amber-100 text-amber-700',
+            valueCls: 'text-amber-700',
+            main: cur.avgKcal !== null ? `${formatFixed(cur.avgKcal, 0)} kcal` : '기록 없음',
+            deltas: [kcalDelta, proteinDelta],
+            subs: [
+              `단백질 ${cur.avgProtein !== null ? formatFixed(cur.avgProtein, 0) : '-'}g · 탄수·지방 포함 총합 평균`,
+              `식사 기록한 날 ${cur.mealDays}일`
+            ]
+          }),
+          metricCard({
+            title: '전반적 기분 분포',
+            emoji: '💭',
+            iconBg: 'bg-purple-100 text-purple-700',
+            valueCls: 'text-purple-700',
+            main: moodDominant ? `${MOOD_META[moodDominant.key].emoji} ${MOOD_META[moodDominant.key].label}` : '기록 없음',
+            deltas: [posDelta, moodDelta],
+            subs: [
+              `긍정 ${cur.posRatio !== null ? formatFixed(cur.posRatio, 0) + '%' : '-'} · 보통 ${cur.moodDays ? formatFixed(ratioPercent(cur.moodCounts[3], cur.moodDays), 0) + '%' : '-'} · 지침 ${cur.negRatio !== null ? formatFixed(cur.negRatio, 0) + '%' : '-'}`,
+              `기분 기록한 날 ${cur.moodDays}일`
+            ]
+          })
+        ].join('');
+      }
+
+      const changeLists = buildChangeListItems(cur, prev);
+      if (improvedList) improvedList.innerHTML = changeLists.improved.join('');
+      if (worseList) worseList.innerHTML = changeLists.worse.join('');
+
+      // 최근 월 추이
+      if (trendBody) {
+        const rows = [];
+        for (let i = 0; i < REPORT_TREND_MONTHS; i++) {
+          const mk = addMonthsToKey(curKey, -i);
+          const m = computeMonthMetrics(mk);
+          const isCur = mk === curKey;
+          const rowCls = isCur ? 'bg-rose-50/50 font-semibold' : 'hover:bg-stone-50/80';
+          const cellText = v => v === null || v === undefined ? '<span class="text-stone-300">-</span>' : v;
+          rows.push(`
+            <tr class="${rowCls}">
+              <td class="py-2.5 px-3 whitespace-nowrap ${isCur ? 'text-rose-700 font-bold' : 'text-stone-800'}">${formatMonthLabel(mk)}${isCur ? ' (선택)' : ''}</td>
+              <td class="py-2.5 px-3 whitespace-nowrap">${m.recordedDays}일</td>
+              <td class="py-2.5 px-3 whitespace-nowrap">${cellText(m.sleepAvg !== null ? formatFixed(m.sleepAvg, 1) + '시간' : null)}</td>
+              <td class="py-2.5 px-3 whitespace-nowrap">${cellText(m.greatSleepRatio !== null ? formatFixed(m.greatSleepRatio, 0) + '%' : null)}</td>
+              <td class="py-2.5 px-3 whitespace-nowrap">${cellText(m.medRate !== null ? formatFixed(m.medRate, 0) + '%' : null)}</td>
+              <td class="py-2.5 px-3 whitespace-nowrap">${cellText(m.workoutMin > 0 ? m.workoutMin + '분' : null)}</td>
+              <td class="py-2.5 px-3 whitespace-nowrap">${cellText(m.avgKcal !== null ? formatFixed(m.avgKcal, 0) + ' kcal' : null)}</td>
+              <td class="py-2.5 px-3 whitespace-nowrap">${cellText(m.posRatio !== null ? formatFixed(m.posRatio, 0) + '%' : null)}</td>
+            </tr>`);
         }
+        trendBody.innerHTML = rows.join('');
       }
-      if (statAvgSleep) {
-        statAvgSleep.textContent = sleepCount > 0
-          ? `평균 수면 ${(sleepSum / sleepCount).toFixed(1)}시간`
-          : '평균 수면 7.5시간';
+
+      // 생리주기별 무드 & 분비물
+      if (phaseMonthLabel) phaseMonthLabel.textContent = `· ${formatMonthLabel(curKey)}`;
+      const cfg = state.cycleConfig || {};
+      if (phaseNote) {
+        phaseNote.innerHTML = `주기 설정(최근 시작일 ${escapeHtml(cfg.lastStartDate || '-')} · ${parseInt(cfg.cycleLength, 10) || 28}일 주기 · 생리 ${parseInt(cfg.periodLength, 10) || 5}일)으로 이 달의 날짜별 단계를 계산해 집계했어요. 실제 생리 기록이 있는 날은 월경기로 우선 반영합니다.`;
       }
-      if (statMealCount) {
-        statMealCount.textContent = kcalDays > 0
-          ? `일평균 ${Math.round(kcalSum / kcalDays)}kcal`
-          : `${mealTotal}회`;
+      if (phaseBadge) {
+        phaseBadge.textContent = `기분 ${cur.moodDays}일 · 분비물 ${Object.keys(cur.dischargeCounts).reduce((s, k) => s + cur.dischargeCounts[k], 0)}일 기록`;
       }
-      if (statWaterAvg) statWaterAvg.textContent = `최근 7일 ${mealTotal}끼 · 일평균 수분 ${(waterSum / 7).toFixed(1)}컵`;
-      if (tableBody) tableBody.innerHTML = rowsHtml.join('');
+      if (phaseGrid) {
+        phaseGrid.innerHTML = CYCLE_PHASES.map(phase => {
+          const phaseCur = computePhaseStats(curKey, phase.key);
+          const phasePrev = computePhaseStats(prevKey, phase.key);
+          return renderPhaseCard(phase, phaseCur, phasePrev);
+        }).join('');
+      }
     }
 
     function escapeHtml(str) {
@@ -3882,11 +4095,8 @@
       loadStateFromStorage();
       // 앱을 열면 항상 실제 오늘 날짜 기록부터 보여준다 (이전에 보던 날짜에 고정되지 않도록)
       const todayKey = getTodayKey();
-      const todayParts = parseDateParts(todayKey);
       state.selectedDate = todayKey;
-      state.calendarYear = todayParts.year;
-      state.calendarMonth = todayParts.month;
-      selectBristolType(state.selectedBristol || 4);
+      if (!/^\d{4}-\d{2}$/.test(state.reportMonth || '')) state.reportMonth = todayKey.slice(0, 7);
       renderAll();
     });
   </script>

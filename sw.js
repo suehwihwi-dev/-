@@ -1,5 +1,5 @@
 /* 나만의 데일리 케어 - 오프라인 캐시 (앱 데이터는 전부 localStorage에 있음) */
-const CACHE = 'daily-care-shell-v3';
+const CACHE = 'daily-care-shell-v4';
 const SHELL = [
   './',
   './index.html',
