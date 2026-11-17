@@ -1,0 +1,3419 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="데일리 케어" />
+  <meta name="application-name" content="데일리 케어" />
+  <meta name="theme-color" content="#faf8f5" />
+  <meta name="color-scheme" content="light" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>나만의 데일리 케어 로그 · My Daily Care</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #faf8f5;
+      color: #292524;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f5f2ed;
+      border-radius: 9999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #d6d0c4;
+      border-radius: 9999px;
+    }
+    .tab-active {
+      background-color: #292524;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(41, 37, 36, 0.15);
+    }
+    .chip-selected {
+      background-color: #fff1f2;
+      border-color: #f43f5e;
+      color: #be123c;
+      font-weight: 600;
+    }
+    .chip-selected-teal {
+      background-color: #f0fdfa;
+      border-color: #0d9488;
+      color: #0f766e;
+      font-weight: 600;
+    }
+    .chip-selected-amber {
+      background-color: #fffbeb;
+      border-color: #d97706;
+      color: #b45309;
+      font-weight: 600;
+    }
+    .chip-selected-indigo {
+      background-color: #eef2ff;
+      border-color: #6366f1;
+      color: #4338ca;
+      font-weight: 600;
+    }
+    .chip-selected-purple {
+      background-color: #faf5ff;
+      border-color: #9333ea;
+      color: #6b21a8;
+      font-weight: 600;
+    }
+    .chip-selected-emerald {
+      background-color: #ecfdf5;
+      border-color: #10b981;
+      color: #047857;
+      font-weight: 600;
+    }
+    /* ===== PWA 풀스크린(iPhone 홈 화면) 안전 영역 보정 ===== */
+    html {
+      -webkit-text-size-adjust: 100%;
+      overscroll-behavior-y: none;
+      background-color: #faf8f5;
+    }
+    body {
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+    }
+    /* 노치·다이내믹 아일랜드 아래로 헤더 배치 (헤더 배경은 위쪽까지 채움) */
+    header {
+      padding-top: env(safe-area-inset-top);
+    }
+    /* 홈 인디케이터 영역만큼 하단 여백 확보 (Tailwind pb-24 클래스보다 우선) */
+    body.min-h-screen {
+      padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+    }
+    @media (min-width: 768px) {
+      body.min-h-screen {
+        padding-bottom: calc(3rem + env(safe-area-inset-bottom));
+      }
+    }
+    /* 토스트는 노치/상단 안전영역 아래로 */
+    #toastContainer {
+      top: calc(1rem + env(safe-area-inset-top));
+      right: calc(1rem + env(safe-area-inset-right));
+    }
+    /* 풀스크린에서 상태바 아래로 내용이 겹치지 않도록 모달 여백 보정 */
+    #appModal {
+      padding-top: calc(1rem + env(safe-area-inset-top));
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24 md:pb-12">
+
+  <!-- Toast Notification -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Confirmation / Info Modal -->
+  <div id="appModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-stone-900/40 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-stone-200">
+      <h3 id="modalTitle" class="text-lg font-bold text-stone-800 mb-2">알림</h3>
+      <p id="modalBody" class="text-sm text-stone-600 mb-5 leading-relaxed"></p>
+      <div class="flex justify-end gap-2">
+        <button type="button" id="modalCancelBtn" onclick="closeAppModal()" class="px-4 py-2 rounded-xl text-sm font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 transition">취소</button>
+        <button type="button" id="modalConfirmBtn" class="px-4 py-2 rounded-xl text-sm font-semibold bg-rose-500 text-white hover:bg-rose-600 transition">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Header -->
+  <header class="sticky top-0 z-30 bg-[#faf8f5]/95 backdrop-blur-md border-b border-stone-200/80">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-400 to-amber-400 flex items-center justify-center text-white shadow-sm font-bold text-lg">
+          ✿
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-lg md:text-xl font-bold tracking-tight text-stone-800">나만의 데일리 케어</h1>
+            <span id="cycleHeaderBadge" class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-rose-100 text-rose-700">주기 계산 중</span>
+            <span id="mounjaroHeaderBadge" class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-800">💉 마운자로 준비</span>
+          </div>
+          <p class="text-xs text-stone-500">식단(칼로리·탄단지) · 배변 · 스트레칭/운동 · 수면 · 약/영양제 · 마운자로 · 생리/분비물 기록장</p>
+        </div>
+      </div>
+
+      <!-- Date Navigator & Actions -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="flex items-center bg-white border border-stone-200 rounded-xl p-1 shadow-2xs">
+          <button type="button" onclick="shiftSelectedDate(-1)" class="p-1.5 rounded-lg hover:bg-stone-100 text-stone-600 transition" title="이전 날짜">
+            ◀
+          </button>
+          <input type="date" id="selectedDateInput" onchange="onDateInputChange(this.value)" class="px-2 py-1 text-sm font-semibold text-stone-800 bg-transparent focus:outline-none cursor-pointer" />
+          <button type="button" onclick="shiftSelectedDate(1)" class="p-1.5 rounded-lg hover:bg-stone-100 text-stone-600 transition" title="다음 날짜">
+            ▶
+          </button>
+          <button type="button" onclick="jumpToToday()" class="ml-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-stone-800 text-white hover:bg-stone-700 transition">
+            오늘
+          </button>
+        </div>
+
+        <button type="button" onclick="exportAllData()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 transition shadow-2xs">
+          백업 저장
+        </button>
+        <label class="px-3 py-2 rounded-xl text-xs font-semibold bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 transition shadow-2xs cursor-pointer">
+          복원
+          <input type="file" id="importFileInput" accept=".json" onchange="importAllData(event)" class="hidden" />
+        </label>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-6xl mx-auto px-4 pb-2.5 flex items-center justify-between gap-2 overflow-x-auto custom-scroll">
+      <div class="flex items-center gap-1.5">
+        <button type="button" id="tabBtn-today" onclick="switchMainTab('today')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold transition whitespace-nowrap tab-active">
+          오늘의 기록
+        </button>
+        <button type="button" id="tabBtn-mounjaro" onclick="switchMainTab('mounjaro')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold text-stone-600 hover:bg-stone-200/60 transition whitespace-nowrap">
+          💉 마운자로 · 혈중농도/부작용
+        </button>
+        <button type="button" id="tabBtn-cycle" onclick="switchMainTab('cycle')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold text-stone-600 hover:bg-stone-200/60 transition whitespace-nowrap">
+          생리주기 · 호르몬 케어
+        </button>
+        <button type="button" id="tabBtn-calendar" onclick="switchMainTab('calendar')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold text-stone-600 hover:bg-stone-200/60 transition whitespace-nowrap">
+          월간 캘린더 · 모아보기
+        </button>
+        <button type="button" id="tabBtn-stats" onclick="switchMainTab('stats')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold text-stone-600 hover:bg-stone-200/60 transition whitespace-nowrap">
+          주간 리포트 · 패턴
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <button type="button" onclick="loadDemoSampleData()" class="text-xs px-2.5 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100 font-medium transition">
+          예시 기록 채우기
+        </button>
+        <button type="button" onclick="confirmClearCurrentDay()" class="text-xs px-2.5 py-1.5 rounded-lg bg-stone-100 text-stone-600 hover:bg-stone-200 font-medium transition">
+          선택일 초기화
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-6xl mx-auto px-4 pt-5">
+
+    <!-- Daily Summary Banner (Always visible at top) -->
+    <section class="bg-white rounded-2xl p-4 md:p-5 border border-stone-200/90 shadow-xs mb-6">
+      <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <span id="summaryDateLabel" class="text-base md:text-lg font-bold text-stone-800">2026년 11월 17일 (화)</span>
+            <span id="summaryPeriodTag" class="hidden text-xs px-2.5 py-0.5 rounded-full font-semibold bg-rose-500 text-white">생리 중</span>
+            <span id="summaryMedTag" class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-sky-50 text-sky-700 border border-sky-200">💊 약/영양제 미체크</span>
+            <span id="summaryMounjaroTag" class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">💉 마운자로 투약 전</span>
+          </div>
+          <p id="summaryStatusText" class="text-xs md:text-sm text-stone-500">아침 약·영양제, 취침·수면 질, 식단(칼로리·탄단지 자동추정), 배변, 상하체 스트레칭·운동, 마운자로, 생리/분비물을 한곳에서 관리하세요.</p>
+        </div>
+
+        <!-- 8 Quick Status Pills -->
+        <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+          <div class="px-2 py-2 rounded-xl bg-sky-50/70 border border-sky-100 text-center">
+            <div class="text-[10px] text-stone-500">아침약/영양제</div>
+            <div id="pillMedStatus" class="text-xs font-bold text-sky-700 mt-0.5">0/2</div>
+          </div>
+          <div class="px-2 py-2 rounded-xl bg-amber-50/70 border border-amber-100 text-center">
+            <div class="text-[10px] text-stone-500">식사/칼로리</div>
+            <div id="pillMealCount" class="text-xs font-bold text-amber-700 mt-0.5">0회</div>
+          </div>
+          <div class="px-2 py-2 rounded-xl bg-emerald-50/70 border border-emerald-100 text-center">
+            <div class="text-[10px] text-stone-500">배변 기록</div>
+            <div id="pillBowelCount" class="text-xs font-bold text-emerald-700 mt-0.5">미기록</div>
+          </div>
+          <div class="px-2 py-2 rounded-xl bg-teal-50/70 border border-teal-100 text-center">
+            <div class="text-[10px] text-stone-500">스트레칭</div>
+            <div id="pillStretchStatus" class="text-xs font-bold text-teal-700 mt-0.5">0/2분할</div>
+          </div>
+          <div class="px-2 py-2 rounded-xl bg-indigo-50/70 border border-indigo-100 text-center">
+            <div class="text-[10px] text-stone-500">오늘 운동</div>
+            <div id="pillWorkoutMinutes" class="text-xs font-bold text-indigo-700 mt-0.5">0분</div>
+          </div>
+          <div class="px-2 py-2 rounded-xl bg-purple-50/70 border border-purple-100 text-center">
+            <div class="text-[10px] text-stone-500">오늘 기분</div>
+            <div id="pillMoodEmoji" class="text-xs font-bold text-purple-700 mt-0.5">-</div>
+          </div>
+          <div class="px-2 py-2 rounded-xl bg-rose-50/70 border border-rose-100 text-center">
+            <div class="text-[10px] text-stone-500">생리주기</div>
+            <div id="pillCycleDay" class="text-xs font-bold text-rose-700 mt-0.5">D-?</div>
+          </div>
+          <div class="px-2 py-2 rounded-xl bg-lime-50/80 border border-lime-200 text-center cursor-pointer hover:bg-lime-100/70 transition" onclick="switchMainTab('mounjaro')">
+            <div class="text-[10px] text-stone-500">체내 마운자로</div>
+            <div id="pillMounjaroLevel" class="text-xs font-bold text-emerald-800 mt-0.5">0.00mg</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 1: TODAY'S LOG -->
+    <div id="view-today" class="space-y-6">
+
+      <!-- MORNING MEDICATION, SUPPLEMENTS & LAST NIGHT SLEEP BAR -->
+      <section class="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+          <!-- Morning Psychiatric Meds & Supplements Check (5 cols) -->
+          <div class="lg:col-span-5 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-stone-100 pb-4 lg:pb-0 lg:pr-5">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold">💊</span>
+                  <div>
+                    <h2 class="text-base font-bold text-stone-800">아침 약 & 영양제 체크</h2>
+                    <p class="text-xs text-stone-500">잊지 않고 챙겨 먹었는지 바로 터치해 체크해요</p>
+                  </div>
+                </div>
+                <span id="medCheckBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">0 / 2 완료</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
+                <button type="button" id="psychMedToggleBtn" onclick="togglePsychMed()" class="p-3.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-left transition flex items-center justify-between">
+                  <div>
+                    <div class="text-xs font-bold text-stone-800">🌅 아침 정신과 약</div>
+                    <div id="psychMedSubText" class="text-[11px] text-stone-500 mt-0.5">터치하여 복용 체크</div>
+                  </div>
+                  <span id="psychMedIcon" class="text-lg">⬜</span>
+                </button>
+
+                <button type="button" id="supplementToggleBtn" onclick="toggleSupplement()" class="p-3.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-left transition flex items-center justify-between">
+                  <div>
+                    <div class="text-xs font-bold text-stone-800">🌿 오늘의 영양제</div>
+                    <div id="supplementSubText" class="text-[11px] text-stone-500 mt-0.5">터치하여 복용 체크</div>
+                  </div>
+                  <span id="supplementIcon" class="text-lg">⬜</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-12 gap-2 pt-1">
+              <div class="col-span-5">
+                <label class="block text-[11px] font-medium text-stone-500 mb-1">복용 시각</label>
+                <input type="time" id="medTimeInput" value="09:00" onchange="updateMedMeta()" class="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 text-xs font-semibold text-stone-800 focus:bg-white focus:outline-none focus:border-sky-500" />
+              </div>
+              <div class="col-span-7">
+                <label class="block text-[11px] font-medium text-stone-500 mb-1">영양제·약 메모 (선택)</label>
+                <input type="text" id="medNoteInput" placeholder="예: 마그네슘, 유산균, 비타민D" oninput="updateMedMeta()" class="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 text-xs text-stone-800 focus:bg-white focus:outline-none focus:border-sky-500" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Previous Night Bedtime, Wake-up Time & Sleep Quality (7 cols) -->
+          <div class="lg:col-span-7 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">🌙</span>
+                  <div>
+                    <h2 class="text-base font-bold text-stone-800">전날 취침 시각 & 수면의 질</h2>
+                    <p class="text-xs text-stone-500">어젯밤 몇 시에 잤는지, 자고 일어났을 때 수면 컨디션은 어땠는지 기록해요</p>
+                  </div>
+                </div>
+                <span id="sleepSummaryBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">수면 7.5시간</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3 p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+                <div>
+                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">🛌 전날 취침 시각</label>
+                  <input type="time" id="bedTimeInput" value="00:30" onchange="onSleepTimeChange()" class="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-bold text-stone-800 focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">☀️ 오늘 기상 시각</label>
+                  <input type="time" id="wakeTimeInput" value="08:00" onchange="onSleepTimeChange()" class="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-bold text-stone-800 focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div>
+                  <div class="flex justify-between text-[11px] mb-1">
+                    <span class="font-semibold text-stone-600">총 수면 시간</span>
+                    <span id="sleepHoursLabel" class="font-bold text-indigo-700">7.5시간</span>
+                  </div>
+                  <input type="range" id="sleepHoursRange" min="2" max="14" step="0.5" value="7.5" oninput="updateSleepAndEnergy()" class="w-full accent-indigo-600 cursor-pointer mt-1" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Sleep Quality Selector -->
+            <div>
+              <div class="text-xs font-semibold text-stone-600 mb-1.5">수면의 질 (자고 일어났을 때 개운함)</div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="sleepQualityGrid">
+                <button type="button" id="sleepQualBtn-great" onclick="selectSleepQuality('꿀잠·개운함')" class="p-2 rounded-xl border border-stone-200 text-left hover:bg-stone-50 transition">
+                  <div class="text-xs font-bold text-stone-800">😴✨ 꿀잠·개운함</div>
+                  <div class="text-[11px] text-stone-500">깊게 자고 상쾌함</div>
+                </button>
+                <button type="button" id="sleepQualBtn-good" onclick="selectSleepQuality('무난·보통')" class="p-2 rounded-xl border border-stone-200 text-left hover:bg-stone-50 transition">
+                  <div class="text-xs font-bold text-stone-800">🙂 무난·보통</div>
+                  <div class="text-[11px] text-stone-500">평소처럼 적당히 잠</div>
+                </button>
+                <button type="button" id="sleepQualBtn-light" onclick="selectSleepQuality('얕은잠·자주깸')" class="p-2 rounded-xl border border-stone-200 text-left hover:bg-stone-50 transition">
+                  <div class="text-xs font-bold text-stone-800">🥱 얕은잠·자주깸</div>
+                  <div class="text-[11px] text-stone-500">꿈을 많이 꾸거나 깸</div>
+                </button>
+                <button type="button" id="sleepQualBtn-poor" onclick="selectSleepQuality('뒤척임·피곤')" class="p-2 rounded-xl border border-stone-200 text-left hover:bg-stone-50 transition">
+                  <div class="text-xs font-bold text-stone-800">😵 뒤척임·피곤</div>
+                  <div class="text-[11px] text-stone-500">잠들기 힘들고 무거움</div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- CARD 1: MEALS, SNACKS & NUTRITION (CALORIES / MACROS) -->
+        <section class="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">🍽️</span>
+                <div>
+                  <h2 class="text-base font-bold text-stone-800">식사 & 간식 · 영양성분 기록</h2>
+                  <p class="text-xs text-stone-500">메뉴를 입력하면 대략적인 칼로리·탄단지가 자동 추정되며 직접 수정도 가능해요</p>
+                </div>
+              </div>
+              <span id="waterCounterBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">💧 수분 0컵</span>
+            </div>
+
+            <!-- Daily Calorie & Macro Totals Bar -->
+            <div class="mb-3 p-3 rounded-xl bg-amber-50/60 border border-amber-100 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-stone-700">오늘 총 섭취량</span>
+                  <span id="dailyTotalKcalText" class="text-sm font-bold text-amber-800">0 kcal</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] font-semibold">
+                  <span class="px-2 py-0.5 rounded bg-white border border-amber-200 text-amber-800">탄 <span id="dailyTotalCarbText">0</span>g</span>
+                  <span class="px-2 py-0.5 rounded bg-white border border-emerald-200 text-emerald-800">단 <span id="dailyTotalProteinText">0</span>g</span>
+                  <span class="px-2 py-0.5 rounded bg-white border border-rose-200 text-rose-800">지 <span id="dailyTotalFatText">0</span>g</span>
+                </div>
+              </div>
+              <!-- Macro Ratio Progress Bar -->
+              <div class="w-full h-2 rounded-full bg-stone-200 overflow-hidden flex">
+                <div id="macroBarCarb" class="bg-amber-400 h-full transition-all" style="width: 33%"></div>
+                <div id="macroBarProtein" class="bg-emerald-500 h-full transition-all" style="width: 34%"></div>
+                <div id="macroBarFat" class="bg-rose-400 h-full transition-all" style="width: 33%"></div>
+              </div>
+            </div>
+
+            <!-- Water Quick Tracker -->
+            <div class="mb-3 p-2.5 rounded-xl bg-sky-50/60 border border-sky-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-sky-900">오늘 마신 물 (250ml 기준)</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="adjustWater(-1)" class="w-7 h-7 rounded-lg bg-white border border-sky-200 text-sky-700 font-bold hover:bg-sky-100 transition">-</button>
+                <span id="waterCountText" class="text-sm font-bold text-sky-800 w-10 text-center">0컵</span>
+                <button type="button" onclick="adjustWater(1)" class="w-7 h-7 rounded-lg bg-sky-600 text-white font-bold hover:bg-sky-700 transition">+</button>
+              </div>
+            </div>
+
+            <!-- Meal Input Form with Calorie & Macro Auto-Estimate -->
+            <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80 space-y-2.5 mb-4">
+              <div class="grid grid-cols-12 gap-2">
+                <div class="col-span-4 sm:col-span-3">
+                  <label class="block text-[11px] font-medium text-stone-500 mb-1">분류</label>
+                  <select id="mealTypeSelect" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-800 focus:outline-none focus:border-amber-500">
+                    <option value="아침">🌅 아침</option>
+                    <option value="점심" selected>☀️ 점심</option>
+                    <option value="저녁">🌙 저녁</option>
+                    <option value="간식">🍪 간식</option>
+                    <option value="음료/차">🍵 음료/차</option>
+                    <option value="야식">🦉 야식</option>
+                  </select>
+                </div>
+                <div class="col-span-4 sm:col-span-3">
+                  <label class="block text-[11px] font-medium text-stone-500 mb-1">먹은 시간</label>
+                  <input type="time" id="mealTimeInput" value="12:30" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-800 focus:outline-none focus:border-amber-500" />
+                </div>
+                <div class="col-span-4 sm:col-span-6">
+                  <label class="block text-[11px] font-medium text-stone-500 mb-1">포만감 / 컨디션</label>
+                  <select id="mealFullnessSelect" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs text-stone-700 focus:outline-none focus:border-amber-500">
+                    <option value="가벼움 (70%)">가벼움 (70%)</option>
+                    <option value="딱 좋음 (80%)" selected>기분 좋게 배부름 (80%)</option>
+                    <option value="든든함 (100%)">든든함 (100%)</option>
+                    <option value="과식/더부룩">과식 / 살짝 더부룩</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Menu Input + Auto-Estimate Trigger -->
+              <div class="flex gap-1.5">
+                <input type="text" id="mealMenuInput" placeholder="메뉴 입력 시 칼로리·탄단지 자동 계산 (예: 부채살 구이, 삶은 달걀 2개)" oninput="onMealMenuInputType(this.value)" onkeydown="if(event.key==='Enter'){addMealEntry();}" class="flex-1 px-3 py-2 rounded-lg border border-stone-200 bg-white text-xs md:text-sm text-stone-800 focus:outline-none focus:border-amber-500" />
+                <button type="button" onclick="triggerManualNutritionEstimate()" class="px-2.5 py-2 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-bold shrink-0 transition" title="메뉴 이름으로 칼로리와 탄단지 다시 추정">
+                  ✨ 영양 추정
+                </button>
+              </div>
+
+              <!-- Editable Calorie & Macro Fields -->
+              <div class="grid grid-cols-4 gap-2 pt-0.5">
+                <div>
+                  <label class="block text-[10px] font-semibold text-stone-500 mb-0.5">칼로리 (kcal)</label>
+                  <input type="number" id="mealKcalInput" min="0" max="5000" step="10" placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-bold text-amber-800 focus:outline-none focus:border-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-semibold text-stone-500 mb-0.5">탄수화물 (g)</label>
+                  <input type="number" id="mealCarbInput" min="0" max="500" step="1" placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-700 focus:outline-none focus:border-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-semibold text-stone-500 mb-0.5">단백질 (g)</label>
+                  <input type="number" id="mealProteinInput" min="0" max="500" step="1" placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-emerald-700 focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-[10px] font-semibold text-stone-500 mb-0.5">지방 (g)</label>
+                  <input type="number" id="mealFatInput" min="0" max="500" step="1" placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-rose-700 focus:outline-none focus:border-rose-500" />
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between gap-2 pt-0.5">
+                <span id="mealEstimateHint" class="text-[11px] text-stone-500">메뉴명을 적으면 대략적인 영양성분이 자동으로 채워져요 (직접 수정 가능)</span>
+                <button type="button" onclick="addMealEntry()" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shrink-0 transition">
+                  + 기록 추가
+                </button>
+              </div>
+            </div>
+
+            <!-- Meal Timeline List -->
+            <div id="mealListContainer" class="space-y-2 max-h-64 overflow-y-auto custom-scroll pr-1"></div>
+          </div>
+        </section>
+
+        <!-- CARD 2: BOWEL MOVEMENT -->
+        <section class="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">🚽</span>
+                <div>
+                  <h2 class="text-base font-bold text-stone-800">장 건강 & 배변 기록</h2>
+                  <p class="text-xs text-stone-500">오늘 화장실 잘 갔는지, 상태와 상쾌함을 기록해요</p>
+                </div>
+              </div>
+              <span id="bowelStatusBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">오늘 0회</span>
+            </div>
+
+            <!-- Bristol Stool Scale Selector -->
+            <div class="mb-3">
+              <div class="text-xs font-semibold text-stone-600 mb-1.5">배변 형태 선택 (브리스톨 척도)</div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5" id="bristolSelectorGrid">
+                <button type="button" onclick="selectBristolType(1)" id="bristolBtn-1" class="p-2 rounded-xl border border-stone-200 text-left hover:bg-stone-50 transition">
+                  <div class="text-xs font-bold text-stone-800">1·2형 딱딱함</div>
+                  <div class="text-[11px] text-stone-500">토끼똥·변비 기운</div>
+                </button>
+                <button type="button" onclick="selectBristolType(4)" id="bristolBtn-4" class="p-2 rounded-xl border text-left transition chip-selected-teal">
+                  <div class="text-xs font-bold">3·4형 황금바나나</div>
+                  <div class="text-[11px] opacity-80">매끈·가장 이상적!</div>
+                </button>
+                <button type="button" onclick="selectBristolType(5)" id="bristolBtn-5" class="p-2 rounded-xl border border-stone-200 text-left hover:bg-stone-50 transition">
+                  <div class="text-xs font-bold text-stone-800">5·6형 무른편</div>
+                  <div class="text-[11px] text-stone-500">부드럽거나 진흙형</div>
+                </button>
+                <button type="button" onclick="selectBristolType(7)" id="bristolBtn-7" class="p-2 rounded-xl border border-stone-200 text-left hover:bg-stone-50 transition">
+                  <div class="text-xs font-bold text-stone-800">7형 물설사</div>
+                  <div class="text-[11px] text-stone-500">장 자극·수분 주의</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Bowel Input Form -->
+            <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80 space-y-2.5 mb-4">
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-medium text-stone-500 mb-1">다녀온 시간</label>
+                  <input type="time" id="bowelTimeInput" value="09:00" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-800 focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-medium text-stone-500 mb-1">쾌변 만족도</label>
+                  <select id="bowelFeelingSelect" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-800 focus:outline-none focus:border-emerald-500">
+                    <option value="✨ 완전 개운·쾌변!" selected>✨ 완전 개운·쾌변!</option>
+                    <option value="🙂 무난하게 성공">🙂 무난하게 성공</option>
+                    <option value="😣 잔변감·조금 힘들었음">😣 잔변감·조금 힘들었음</option>
+                    <option value="⚡ 배아픔·급똥">⚡ 배아픔·급똥</option>
+                  </select>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <input type="text" id="bowelNoteInput" placeholder="메모 (선택: 유산균 복용, 따뜻한 물 마신 후 등)" onkeydown="if(event.key==='Enter'){addBowelEntry();}" class="flex-1 px-3 py-2 rounded-lg border border-stone-200 bg-white text-xs md:text-sm text-stone-800 focus:outline-none focus:border-emerald-500" />
+                <button type="button" onclick="addBowelEntry()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shrink-0 transition">
+                  + 배변 기록
+                </button>
+              </div>
+            </div>
+
+            <!-- Bowel Log List -->
+            <div id="bowelListContainer" class="space-y-2 max-h-56 overflow-y-auto custom-scroll pr-1"></div>
+          </div>
+        </section>
+
+        <!-- CARD 3: 2-SPLIT STRETCHING & WORKOUT -->
+        <section class="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">🧘‍♀️</span>
+                <div>
+                  <h2 class="text-base font-bold text-stone-800">상·하체 2분할 스트레칭 & 운동</h2>
+                  <p class="text-xs text-stone-500">상체·하체 스트레칭 여부와 오늘 한 운동을 체크해요</p>
+                </div>
+              </div>
+              <span id="workoutTotalBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">운동 0분</span>
+            </div>
+
+            <!-- 2-Split Stretching Routine Checklist -->
+            <div class="mb-4 p-3.5 rounded-xl bg-teal-50/50 border border-teal-100">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-teal-900">상·하체 2분할 스트레칭 체크 (클릭 시 토글)</span>
+                <span id="stretchCountLabel" class="text-[11px] font-semibold text-teal-700">0 / 2 완료</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="stretchChecklistGrid"></div>
+            </div>
+
+            <!-- Quick Workout Presets -->
+            <div class="mb-3">
+              <div class="text-xs font-semibold text-stone-500 mb-1.5">자주 하는 운동 빠른 선택</div>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="fillWorkoutPreset('웨이트 트레이닝', 50, '고강도')" class="text-xs px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-indigo-50 hover:text-indigo-700 text-stone-700 transition">🏋️‍♀️ 웨이트 50분</button>
+                <button type="button" onclick="fillWorkoutPreset('천국의 계단 (스텝밀)', 30, '고강도')" class="text-xs px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-indigo-50 hover:text-indigo-700 text-stone-700 transition">🪜 천국의 계단 30분</button>
+                <button type="button" onclick="fillWorkoutPreset('덤벨 & 밴드 홈트', 30, '중강도')" class="text-xs px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-indigo-50 hover:text-indigo-700 text-stone-700 transition">💪 덤벨·밴드 홈트</button>
+                <button type="button" onclick="fillWorkoutPreset('폼롤러 전신 릴리즈', 20, '저강도')" class="text-xs px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-indigo-50 hover:text-indigo-700 text-stone-700 transition">🧘 폼롤러 20분</button>
+                <button type="button" onclick="fillWorkoutPreset('야외 산책 · 걷기', 40, '저강도')" class="text-xs px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-indigo-50 hover:text-indigo-700 text-stone-700 transition">👟 산책 40분</button>
+              </div>
+            </div>
+
+            <!-- Workout Input Form -->
+            <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80 space-y-2.5 mb-4">
+              <div class="grid grid-cols-12 gap-2">
+                <div class="col-span-6">
+                  <label class="block text-[11px] font-medium text-stone-500 mb-1">운동 종목 / 내용</label>
+                  <input type="text" id="workoutNameInput" placeholder="예: 하체 웨이트, 천국의 계단" onkeydown="if(event.key==='Enter'){addWorkoutEntry();}" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-800 focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div class="col-span-3">
+                  <label class="block text-[11px] font-medium text-stone-500 mb-1">시간(분)</label>
+                  <input type="number" id="workoutMinutesInput" value="30" min="5" max="300" step="5" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-800 focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div class="col-span-3">
+                  <label class="block text-[11px] font-medium text-stone-500 mb-1">강도</label>
+                  <select id="workoutIntensitySelect" class="w-full px-2 py-2 rounded-lg border border-stone-200 bg-white text-xs text-stone-700 focus:outline-none focus:border-indigo-500">
+                    <option value="저강도">가벼움</option>
+                    <option value="중강도" selected>적당함</option>
+                    <option value="고강도">불태움🔥</option>
+                  </select>
+                </div>
+              </div>
+              <button type="button" onclick="addWorkoutEntry()" class="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition">
+                + 오늘 운동 추가하기
+              </button>
+            </div>
+
+            <!-- Workout List -->
+            <div id="workoutListContainer" class="space-y-2 max-h-48 overflow-y-auto custom-scroll pr-1"></div>
+          </div>
+        </section>
+
+        <!-- CARD 4: MOOD, ENERGY & DIARY -->
+        <section class="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">💭</span>
+                <div>
+                  <h2 class="text-base font-bold text-stone-800">오늘의 기분 & 마음 컨디션</h2>
+                  <p class="text-xs text-stone-500">감정 흐름과 에너지 레벨, 오늘의 한 줄을 남겨보세요</p>
+                </div>
+              </div>
+              <span id="moodSavedBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200">자동 저장됨</span>
+            </div>
+
+            <!-- 5-Step Mood Picker -->
+            <div class="mb-4">
+              <div class="text-xs font-semibold text-stone-600 mb-2">오늘 전반적인 기분은 어땠나요?</div>
+              <div class="grid grid-cols-5 gap-2" id="moodLevelGrid">
+                <button type="button" onclick="selectMoodLevel(5)" id="moodBtn-5" class="p-2.5 rounded-xl border border-stone-200 text-center hover:bg-rose-50/50 transition">
+                  <div class="text-2xl mb-1">🥰</div>
+                  <div class="text-[11px] font-bold text-stone-700">최고·뿌듯</div>
+                </button>
+                <button type="button" onclick="selectMoodLevel(4)" id="moodBtn-4" class="p-2.5 rounded-xl border border-stone-200 text-center hover:bg-rose-50/50 transition">
+                  <div class="text-2xl mb-1">🙂</div>
+                  <div class="text-[11px] font-bold text-stone-700">평온·좋음</div>
+                </button>
+                <button type="button" onclick="selectMoodLevel(3)" id="moodBtn-3" class="p-2.5 rounded-xl border border-stone-200 text-center hover:bg-rose-50/50 transition">
+                  <div class="text-2xl mb-1">😐</div>
+                  <div class="text-[11px] font-bold text-stone-700">그저 그럼</div>
+                </button>
+                <button type="button" onclick="selectMoodLevel(2)" id="moodBtn-2" class="p-2.5 rounded-xl border border-stone-200 text-center hover:bg-rose-50/50 transition">
+                  <div class="text-2xl mb-1">🫠</div>
+                  <div class="text-[11px] font-bold text-stone-700">지침·예민</div>
+                </button>
+                <button type="button" onclick="selectMoodLevel(1)" id="moodBtn-1" class="p-2.5 rounded-xl border border-stone-200 text-center hover:bg-rose-50/50 transition">
+                  <div class="text-2xl mb-1">🌧️</div>
+                  <div class="text-[11px] font-bold text-stone-700">우울·다운</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Detailed Emotion & Condition Tags -->
+            <div class="mb-4">
+              <div class="text-xs font-semibold text-stone-600 mb-1.5">세부 감정 · 컨디션 태그 (다중 선택)</div>
+              <div class="flex flex-wrap gap-1.5" id="emotionTagGrid"></div>
+            </div>
+
+            <!-- Energy Level Slider -->
+            <div class="mb-4 p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+              <div class="flex justify-between text-xs mb-1">
+                <span class="font-medium text-stone-600">⚡ 오늘 낮 에너지 · 집중력 레벨</span>
+                <span id="energyLevelLabel" class="font-bold text-stone-800">3 / 5</span>
+              </div>
+              <input type="range" id="energyLevelRange" min="1" max="5" step="1" value="3" oninput="updateSleepAndEnergy()" class="w-full accent-amber-500 cursor-pointer" />
+            </div>
+
+            <!-- Daily Diary Note -->
+            <div>
+              <label class="block text-xs font-semibold text-stone-600 mb-1.5">오늘의 한 줄 기분 & 몸 상태 메모</label>
+              <textarea id="moodNoteTextarea" rows="3" oninput="saveMoodNoteDebounced()" placeholder="오늘 기분이 어땠는지, 몸 컨디션이나 기억하고 싶은 순간을 자유롭게 적어보세요..." class="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/60 text-xs md:text-sm text-stone-800 focus:bg-white focus:outline-none focus:border-purple-500 resize-none"></textarea>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- CYCLE & CERVICAL DISCHARGE TRACKER INSIDE TODAY VIEW -->
+      <section class="bg-gradient-to-r from-rose-50 via-pink-50/70 to-purple-50/60 rounded-2xl p-5 border border-rose-200/80 shadow-xs space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-start gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-rose-500 text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
+              🩸
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 id="todayCycleTitle" class="text-base font-bold text-stone-800">생리주기 & 호르몬 분비물 체크</h3>
+                <span id="todayCyclePhasePill" class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-white text-rose-700 border border-rose-200">주기 분석</span>
+              </div>
+              <p id="todayCycleDesc" class="text-xs md:text-sm text-stone-600 mt-1 leading-relaxed"></p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <button type="button" id="quickTogglePeriodBtn" onclick="togglePeriodOnSelectedDate()" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-rose-500 hover:bg-rose-600 text-white shadow-xs transition">
+              🩸 오늘 생리 중 체크
+            </button>
+            <button type="button" onclick="switchMainTab('cycle')" class="px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 transition">
+              주기 설정 · 상세 보기 →
+            </button>
+          </div>
+        </div>
+
+        <!-- Cervical Mucus / Vaginal Discharge Quick Selector by Hormone Phase -->
+        <div class="bg-white/90 rounded-xl p-4 border border-rose-100">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+            <div>
+              <span class="text-xs font-bold text-stone-800">💧 호르몬 주기별 질 분비물(경관 점액) 상태 체크</span>
+              <span class="text-[11px] text-stone-500 ml-1.5">에스트로겐·프로게스테론 변화에 따라 분비물 양상이 달라져요</span>
+            </div>
+            <span id="todayDischargeBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">미체크</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" id="todayDischargeGrid"></div>
+          <p id="todayDischargeGuideText" class="text-xs text-stone-600 mt-2.5 pt-2 border-t border-stone-100"></p>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: MOUNJARO (TIRZEPATIDE) HALF-LIFE PK & SIDE EFFECTS -->
+    <div id="view-mounjaro" class="hidden space-y-6">
+      <section class="bg-white rounded-2xl p-5 md:p-6 border border-stone-200/90 shadow-xs space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Mounjaro (Tirzepatide) Pharmacokinetics & Care</span>
+            <h2 class="text-lg md:text-xl font-bold text-stone-800 mt-0.5">💉 마운자로 반감기(5일/120h) 혈중 농도 & 부작용 트래커</h2>
+            <p class="text-xs text-stone-500 mt-0.5">피하주사 후 약 24~48시간에 최고 농도(Tmax)에 도달하고, 반감기 약 5일(120시간) 주기로 완만하게 대사되는 체내 잔류량을 계산합니다.</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button type="button" id="mjModeBtn-actual" onclick="setMounjaroCurveMode('actual')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-white transition">
+              내 투약 기록 기준
+            </button>
+            <button type="button" id="mjModeBtn-preview" onclick="setMounjaroCurveMode('preview')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition">
+              2.5mg 4주 투약 시뮬레이션 미리보기
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Pharmacokinetic Readout Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-100">
+            <div class="text-xs text-stone-500">선택일 추정 체내 활성량</div>
+            <div id="mjCurrentActiveMg" class="text-lg md:text-xl font-bold text-emerald-800 mt-1">0.00 mg</div>
+            <div id="mjCurrentPhaseText" class="text-xs font-semibold text-emerald-600 mt-0.5">투약 기록 대기 중</div>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-teal-50/70 border border-teal-100">
+            <div class="text-xs text-stone-500">최근 투여 후 경과 시간</div>
+            <div id="mjElapsedTimeText" class="text-base md:text-lg font-bold text-teal-800 mt-1">-</div>
+            <div id="mjLastDoseSummary" class="text-xs text-teal-600 mt-0.5">반감기 120시간 기준</div>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-100">
+            <div class="text-xs text-stone-500">다음 권장 투여일 (7일 주기)</div>
+            <div id="mjNextShotDateText" class="text-base md:text-lg font-bold text-indigo-800 mt-1">-</div>
+            <div id="mjNextRecommendedSite" class="text-xs font-semibold text-indigo-600 mt-0.5">주사 부위 순환 추천</div>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-100">
+            <div class="text-xs text-stone-500">누적 투여 횟수 · 최근 체중</div>
+            <div id="mjTotalShotsText" class="text-base md:text-lg font-bold text-amber-800 mt-1">0회</div>
+            <div id="mjLatestWeightText" class="text-xs text-amber-700 mt-0.5">약 4주 후 항정상태(1.7배) 도달</div>
+          </div>
+        </div>
+
+        <!-- Interactive SVG Pharmacokinetic Concentration Curve -->
+        <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="font-bold text-stone-800 flex items-center gap-2">
+              <span>📈 체내 혈중 약물 농도 변화 곡선 (28일 타임라인)</span>
+              <span id="mjCurveModeLabel" class="px-2 py-0.5 rounded-full text-[11px] bg-emerald-100 text-emerald-800 font-semibold">내 투약 기록</span>
+            </div>
+            <div class="text-[11px] text-stone-500">
+              흡수 피크(Tmax ~24-48h) · 반감기(t½ = 5일/120h) 1-컴파트먼트 약동학 모델
+            </div>
+          </div>
+
+          <div class="w-full overflow-x-auto">
+            <svg id="mjPkCurveSvg" viewBox="0 0 760 220" class="w-full h-52 bg-white rounded-xl border border-stone-200/70"></svg>
+          </div>
+
+          <p id="mjPkAdviceBanner" class="text-xs text-stone-600 pt-1 leading-relaxed"></p>
+        </div>
+      </section>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Injection Dose Logger (5 cols) -->
+        <section class="lg:col-span-5 bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">💉</span>
+                <div>
+                  <h3 class="text-base font-bold text-stone-800">마운자로 주사 투약 기록하기</h3>
+                  <p class="text-xs text-stone-500">주 1회 투여 일시·용량·주사 부위를 기록하면 농도 곡선에 즉시 반영됩니다</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80 space-y-3 mb-4">
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">투여 날짜</label>
+                  <input type="date" id="mjShotDateInput" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-bold text-stone-800 focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">투여 시각</label>
+                  <input type="time" id="mjShotTimeInput" value="10:00" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-bold text-stone-800 focus:outline-none focus:border-emerald-500" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">용량 (mg)</label>
+                  <select id="mjShotDoseSelect" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-bold text-emerald-800 focus:outline-none focus:border-emerald-500">
+                    <option value="2.5" selected>2.5 mg (시작 용량)</option>
+                    <option value="5.0">5.0 mg</option>
+                    <option value="7.5">7.5 mg</option>
+                    <option value="10.0">10.0 mg</option>
+                    <option value="12.5">12.5 mg</option>
+                    <option value="15.0">15.0 mg (최대 용량)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">주사 부위 (매주 순환)</label>
+                  <select id="mjShotSiteSelect" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-800 focus:outline-none focus:border-emerald-500">
+                    <option value="복부 왼쪽">복부 왼쪽 (배꼽 5cm 외곽)</option>
+                    <option value="복부 오른쪽">복부 오른쪽 (배꼽 5cm 외곽)</option>
+                    <option value="허벅지 왼쪽">허벅지(대퇴부) 왼쪽</option>
+                    <option value="허벅지 오른쪽">허벅지(대퇴부) 오른쪽</option>
+                    <option value="상완 왼쪽">팔뚝 뒤쪽(상완) 왼쪽</option>
+                    <option value="상완 오른쪽">팔뚝 뒤쪽(상완) 오른쪽</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-12 gap-2">
+                <div class="col-span-5">
+                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">현재 체중 (kg, 선택)</label>
+                  <input type="number" id="mjShotWeightInput" step="0.1" placeholder="예: 54.5" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs text-stone-800 focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div class="col-span-7">
+                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">투약 메모 (선택)</label>
+                  <input type="text" id="mjShotNoteInput" placeholder="예: 1주차 첫 투약, 통증 거의 없음" onkeydown="if(event.key==='Enter'){addMounjaroShot();}" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs text-stone-800 focus:outline-none focus:border-emerald-500" />
+                </div>
+              </div>
+
+              <button type="button" onclick="addMounjaroShot()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition">
+                + 마운자로 주사 투약 기록 저장
+              </button>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-stone-700">나의 투약 히스토리</span>
+                <span class="text-[11px] text-stone-400">최근 순 정렬</span>
+              </div>
+              <div id="mjShotHistoryList" class="space-y-2 max-h-56 overflow-y-auto custom-scroll pr-1"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Daily Side Effects & Appetite Suppression Check (7 cols) -->
+        <section class="lg:col-span-7 bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">🩺</span>
+                <div>
+                  <h3 class="text-base font-bold text-stone-800">선택일 (<span id="mjSideEffectDateLabel"></span>) 부작용 & 식욕 억제 체감 기록</h3>
+                  <p class="text-xs text-stone-500">혈중 농도 변화에 따라 나타나는 위장관·전신 부작용과 포만감 지속도를 체크해요</p>
+                </div>
+              </div>
+              <span id="mjSideEffectCountBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">부작용 0개</span>
+            </div>
+
+            <!-- Appetite Suppression & Nausea/GI Severity Sliders -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 p-3.5 rounded-xl bg-stone-50 border border-stone-200/80">
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="font-semibold text-stone-700">🍽️ 식욕 억제 · 조기 포만감 체감</span>
+                  <span id="mjAppetiteLabel" class="font-bold text-emerald-700">3 / 5 (적당함)</span>
+                </div>
+                <input type="range" id="mjAppetiteRange" min="1" max="5" step="1" value="3" oninput="updateMounjaroDailyMetrics()" class="w-full accent-emerald-600 cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-stone-400 mt-0.5">
+                  <span>1: 식욕 평소같음</span>
+                  <span>3: 적당한 포만감</span>
+                  <span>5: 음식생각 전혀없음</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="font-semibold text-stone-700">🌊 전반적 부작용 불편감 정도</span>
+                  <span id="mjSeverityLabel" class="font-bold text-amber-700">없음 (0/4)</span>
+                </div>
+                <input type="range" id="mjSeverityRange" min="0" max="4" step="1" value="0" oninput="updateMounjaroDailyMetrics()" class="w-full accent-amber-500 cursor-pointer" />
+                <div class="flex justify-between text-[10px] text-stone-400 mt-0.5">
+                  <span>0: 편안함</span>
+                  <span>2: 약간 신경쓰임</span>
+                  <span>4: 일상 힘들정도</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Side Effects Multi-Select Checklist -->
+            <div class="mb-4">
+              <div class="text-xs font-semibold text-stone-600 mb-2">오늘 겪은 부작용 · 신체 반응 체크 (다중 선택)</div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="mjSideEffectsGrid"></div>
+            </div>
+
+            <!-- Side Effect Daily Memo -->
+            <div>
+              <label class="block text-xs font-semibold text-stone-600 mb-1.5">부작용 대처 & 몸 반응 메모</label>
+              <textarea id="mjSideEffectNoteInput" rows="2" oninput="updateMounjaroDailyMetrics()" placeholder="예: 주사 다음날이라 오전엔 살짝 울렁거렸지만 따뜻한 물 마시니 괜찮아짐, 저녁엔 소량만 먹어도 배부름..." class="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/60 text-xs md:text-sm text-stone-800 focus:bg-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+            </div>
+          </div>
+
+          <!-- Pharmacokinetic Safety & Care Tips Box -->
+          <div class="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-100 text-xs text-stone-700 leading-relaxed">
+            <div class="font-bold text-emerald-900 mb-1">💡 마운자로 약동학 & 부작용 케어 가이드</div>
+            <ul class="space-y-1 text-[11px] text-stone-600">
+              <li>• <strong>투여 후 24~48시간 (Tmax 피크 구간):</strong> 혈중 농도가 가장 높아 메스꺼움·더부룩함·트림이 나타나기 쉬워요. 식사량을 평소의 절반으로 나누어 천천히 씹어 드시고, 기름지거나 매운 음식은 피해 주세요.</li>
+              <li>• <strong>근손실 & 변비 예방:</strong> 식욕이 줄어들수록 <strong>식사 카드의 단백질(g)</strong> 섭취량과 하루 수분 6~8컵 이상, 식이섬유를 꼭 챙기고 <strong>장 건강 & 배변 기록</strong>과 함께 모니터링하세요.</li>
+              <li>• <strong>투여일 변경·누락 기준:</strong> 예정일로부터 4일(96시간) 이내라면 생각난 즉시 투여하고, 4일이 지났다면 건너뛰고 다음 예정일에 투여합니다 (최소 투여 간격 72시간 이상 유지).</li>
+            </ul>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- TAB 3: MENSTRUAL CYCLE & HORMONE TRACKER -->
+    <div id="view-cycle" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Cycle Status & Phase Card -->
+        <div class="lg:col-span-2 bg-white rounded-2xl p-5 md:p-6 border border-stone-200/90 shadow-xs space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 pb-4">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-rose-500">Cycle & Hormone Care</span>
+              <h2 class="text-lg md:text-xl font-bold text-stone-800 mt-0.5">내 생리주기 & 호르몬 리듬</h2>
+            </div>
+            <button type="button" onclick="setLastPeriodToSelectedDate()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-500 hover:bg-rose-600 text-white transition shadow-xs">
+              선택한 날짜를 최근 생리 시작일로 지정
+            </button>
+          </div>
+
+          <!-- 4 Metric Boxes -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-100">
+              <div class="text-xs text-stone-500">다음 생리 예정일</div>
+              <div id="cycleNextDateText" class="text-base font-bold text-rose-700 mt-1">-</div>
+              <div id="cycleNextDdayText" class="text-xs font-semibold text-rose-500 mt-0.5">-</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-100">
+              <div class="text-xs text-stone-500">현재 주기 일차</div>
+              <div id="cycleCurrentDayText" class="text-base font-bold text-amber-800 mt-1">-</div>
+              <div id="cyclePhaseNameText" class="text-xs font-semibold text-amber-600 mt-0.5">-</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-purple-50/70 border border-purple-100">
+              <div class="text-xs text-stone-500">예상 배란일</div>
+              <div id="cycleOvulationDateText" class="text-base font-bold text-purple-800 mt-1">-</div>
+              <div class="text-xs text-purple-600 mt-0.5">가임기 집중 주간</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-teal-50/70 border border-teal-100">
+              <div class="text-xs text-stone-500">평균 주기 / 기간</div>
+              <div id="cycleAvgSummaryText" class="text-base font-bold text-teal-800 mt-1">28일 / 5일</div>
+              <div class="text-xs text-teal-600 mt-0.5">맞춤 설정 반영</div>
+            </div>
+          </div>
+
+          <!-- Visual Cycle Timeline Bar -->
+          <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-3">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-stone-700">주기 4단계 호르몬 & 분비물 변화 흐름도</span>
+              <span id="cycleBarMarkerText" class="font-semibold text-rose-600">현재 위치</span>
+            </div>
+            <div class="w-full h-4 rounded-full overflow-hidden flex bg-stone-200">
+              <div class="bg-rose-400 h-full" style="width: 18%" title="월경기 (1~5일)"></div>
+              <div class="bg-emerald-400 h-full" style="width: 32%" title="여포기/황금기 (6~13일)"></div>
+              <div class="bg-purple-400 h-full" style="width: 14%" title="배란기 (14~17일)"></div>
+              <div class="bg-amber-400 h-full" style="width: 36%" title="황체기/PMS (18~28일)"></div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-stone-600 pt-1">
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block"></span><strong>월경기:</strong> 생리혈 배출·휴식</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span><strong>여포기:</strong> 건조→촉촉 로션형</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block"></span><strong>배란기:</strong> 맑은 계란흰자 점액</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span><strong>황체기:</strong> 끈적·불투명→건조</div>
+            </div>
+          </div>
+
+          <!-- Daily Flow, Cervical Discharge & PMS Symptoms Check for Selected Date -->
+          <div class="pt-2 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-stone-800">선택일 (<span id="cycleSymptomDateLabel"></span>) 생리량 · 질 분비물 · 증상 기록</h3>
+            </div>
+
+            <div>
+              <div class="text-xs font-medium text-stone-500 mb-1.5">생리혈 양 선택 (선택 시 생리일로 자동 체크)</div>
+              <div class="grid grid-cols-5 gap-2" id="flowLevelGrid">
+                <button type="button" onclick="setFlowLevel(0)" id="flowBtn-0" class="py-2 px-2 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-stone-50">없음</button>
+                <button type="button" onclick="setFlowLevel(1)" id="flowBtn-1" class="py-2 px-2 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-rose-50">💧 팬티라이너(소량)</button>
+                <button type="button" onclick="setFlowLevel(2)" id="flowBtn-2" class="py-2 px-2 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-rose-50">🩸🩸 보통</button>
+                <button type="button" onclick="setFlowLevel(3)" id="flowBtn-3" class="py-2 px-2 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-rose-50">🩸🩸🩸 많음</button>
+                <button type="button" onclick="setFlowLevel(4)" id="flowBtn-4" class="py-2 px-2 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-rose-50">⚡ 오버나이트(매우많음)</button>
+              </div>
+            </div>
+
+            <!-- Cervical Discharge Selector in Cycle View -->
+            <div>
+              <div class="text-xs font-medium text-stone-500 mb-1.5">질 분비물 (호르몬 주기별 점액 상태)</div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="cycleDischargeGrid"></div>
+            </div>
+
+            <div>
+              <div class="text-xs font-medium text-stone-500 mb-1.5">생리 전후 증상 · 몸 변화 체크</div>
+              <div class="flex flex-wrap gap-1.5" id="cycleSymptomGrid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cycle Configuration & History Sidebar -->
+        <div class="bg-white rounded-2xl p-5 md:p-6 border border-stone-200/90 shadow-xs space-y-5">
+          <div>
+            <h3 class="text-base font-bold text-stone-800 mb-1">생리주기 기본 설정</h3>
+            <p class="text-xs text-stone-500 mb-4">최근 시작일과 평균 주기를 입력하면 다음 예정일과 오늘의 호르몬 단계를 알려드려요.</p>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-stone-600 mb-1">최근 생리 시작일</label>
+                <input type="date" id="cycleLastStartInput" onchange="saveCycleConfig()" class="w-full px-3 py-2 rounded-xl border border-stone-200 text-sm font-semibold text-stone-800 focus:outline-none focus:border-rose-500" />
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-xs font-semibold text-stone-600 mb-1">평균 주기 (일)</label>
+                  <input type="number" id="cycleLengthInput" min="20" max="45" value="28" onchange="saveCycleConfig()" class="w-full px-3 py-2 rounded-xl border border-stone-200 text-sm font-semibold text-stone-800 focus:outline-none focus:border-rose-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-stone-600 mb-1">평균 생리 기간 (일)</label>
+                  <input type="number" id="periodLengthInput" min="2" max="10" value="5" onchange="saveCycleConfig()" class="w-full px-3 py-2 rounded-xl border border-stone-200 text-sm font-semibold text-stone-800 focus:outline-none focus:border-rose-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-stone-100 pt-4">
+            <h4 class="text-xs font-bold text-stone-700 mb-2">단계별 맞춤 운동 · 컨디션 · 분비물 가이드</h4>
+            <div id="cycleCareTipBox" class="p-3.5 rounded-xl bg-rose-50/60 border border-rose-100 text-xs text-stone-700 leading-relaxed space-y-1.5"></div>
+          </div>
+
+          <div class="border-t border-stone-100 pt-4">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs font-bold text-stone-700">생리 시작일 히스토리 추가/관리</h4>
+            </div>
+            <div class="flex gap-2 mb-2.5">
+              <input type="date" id="newCycleHistoryInput" class="flex-1 px-2.5 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800" />
+              <button type="button" onclick="addCycleStartDateHistory()" class="px-3 py-1.5 rounded-lg bg-stone-800 text-white text-xs font-semibold hover:bg-stone-700 transition">+ 추가</button>
+            </div>
+            <div id="cycleHistoryList" class="space-y-1.5 max-h-40 overflow-y-auto custom-scroll"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 4: MONTHLY CALENDAR -->
+    <div id="view-calendar" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl p-5 md:p-6 border border-stone-200/90 shadow-xs">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-stone-800">월간 한눈에 보기 캘린더</h2>
+            <p class="text-xs text-stone-500">날짜를 클릭하면 해당 날짜의 약·수면·식단·배변·스트레칭·운동·마운자로·생리 기록으로 바로 이동합니다</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="shiftCalendarMonth(-1)" class="px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold hover:bg-stone-100">◀ 이전 달</button>
+            <span id="calendarMonthTitle" class="text-base font-bold text-stone-800 px-2">2026년 11월</span>
+            <button type="button" onclick="shiftCalendarMonth(1)" class="px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold hover:bg-stone-100">다음 달 ▶</button>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="flex flex-wrap items-center gap-4 text-xs text-stone-600 mb-3 pb-3 border-b border-stone-100">
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>생리 기록일</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-200 border border-rose-400 inline-block"></span>예상 생리 기간</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block"></span>예상 배란·가임기</span>
+          <span class="flex items-center gap-1">💉 마운자로 투여일</span>
+          <span class="flex items-center gap-1">💊 약·영양제</span>
+          <span class="flex items-center gap-1">🍽️ 식사기록</span>
+          <span class="flex items-center gap-1">🚽 배변완료</span>
+          <span class="flex items-center gap-1">💪 운동/스트레칭</span>
+        </div>
+
+        <!-- Day of week header -->
+        <div class="grid grid-cols-7 gap-1.5 text-center text-xs font-bold text-stone-500 mb-1.5">
+          <div class="text-rose-500 py-1">일</div>
+          <div class="py-1">월</div>
+          <div class="py-1">화</div>
+          <div class="py-1">수</div>
+          <div class="py-1">목</div>
+          <div class="py-1">금</div>
+          <div class="text-sky-600 py-1">토</div>
+        </div>
+
+        <!-- Calendar Days Grid -->
+        <div id="calendarGridContainer" class="grid grid-cols-7 gap-1.5"></div>
+      </div>
+    </div>
+
+    <!-- TAB 5: WEEKLY STATS & INSIGHTS -->
+    <div id="view-stats" class="hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs">
+          <div class="text-xs text-stone-500">최근 7일 쾌변 달성일</div>
+          <div id="statBowelDays" class="text-2xl font-bold text-emerald-700 mt-1">0 / 7일</div>
+          <p class="text-[11px] text-stone-500 mt-1">장 컨디션 리듬 체크</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs">
+          <div class="text-xs text-stone-500">최근 7일 누적 운동 시간</div>
+          <div id="statWorkoutTotal" class="text-2xl font-bold text-indigo-700 mt-1">0분</div>
+          <p class="text-[11px] text-stone-500 mt-1">상·하체 스트레칭 실천 <span id="statStretchDays">0</span>일</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs">
+          <div class="text-xs text-stone-500">최근 7일 평균 기분 · 수면</div>
+          <div id="statAvgMood" class="text-2xl font-bold text-purple-700 mt-1">-</div>
+          <p id="statAvgSleep" class="text-[11px] text-stone-500 mt-1">평균 수면 -시간</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs">
+          <div class="text-xs text-stone-500">최근 7일 식사 · 일평균 칼로리</div>
+          <div id="statMealCount" class="text-2xl font-bold text-amber-700 mt-1">0끼</div>
+          <p id="statWaterAvg" class="text-[11px] text-stone-500 mt-1">일평균 수분 0컵</p>
+        </div>
+      </div>
+
+      <!-- Recent 7 Days Table Breakdown -->
+      <div class="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs">
+        <h3 class="text-base font-bold text-stone-800 mb-1">최근 7일 나 관리 요약표</h3>
+        <p class="text-xs text-stone-500 mb-4">선택한 날짜를 기준으로 최근 일주일간의 아침약·영양제, 취침·수면질, 식사(칼로리·탄단지), 배변, 스트레칭·운동, 마운자로(농도/부작용), 기분·분비물 흐름을 비교합니다.</p>
+        <div class="overflow-x-auto custom-scroll">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-stone-200 text-stone-500 bg-stone-50">
+                <th class="py-2.5 px-3 font-semibold">날짜</th>
+                <th class="py-2.5 px-3 font-semibold">아침약 · 영양제</th>
+                <th class="py-2.5 px-3 font-semibold">전날 취침 · 수면질</th>
+                <th class="py-2.5 px-3 font-semibold">식사 · 영양성분 합계</th>
+                <th class="py-2.5 px-3 font-semibold">배변 상태</th>
+                <th class="py-2.5 px-3 font-semibold">상하체 스트레칭 · 운동</th>
+                <th class="py-2.5 px-3 font-semibold">마운자로 · 부작용</th>
+                <th class="py-2.5 px-3 font-semibold">기분 · 분비물</th>
+              </tr>
+            </thead>
+            <tbody id="weeklyReportTableBody" class="divide-y divide-stone-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // --- Constants & Reference Data ---
+    const STORAGE_KEY = 'seo_hyun_daily_care_v4';
+    const TODAY_DEFAULT = '2026-11-17';
+
+    // Built-in Korean Food & Ingredient Nutrition Database (approximate per serving)
+    // Allows instant auto-estimation of kcal, carbs(g), protein(g), fat(g) from menu text
+    const FOOD_NUTRITION_DB = [
+      { keywords: ['방탄말차', '방탄 말차', '방탄커피'], kcal: 160, carb: 2, protein: 2, fat: 16, unitTriggers: ['잔', '컵'] },
+      { keywords: ['말차', '녹차'], kcal: 35, carb: 4, protein: 2, fat: 1, unitTriggers: ['잔', '컵'] },
+      { keywords: ['아메리카노', '블랙커피', '차'], kcal: 10, carb: 2, protein: 0, fat: 0, unitTriggers: ['잔', '컵'] },
+      { keywords: ['라떼', '카페라떼', '두유라떼'], kcal: 150, carb: 12, protein: 7, fat: 8, unitTriggers: ['잔', '컵'] },
+      { keywords: ['달걀', '계란', '구운계란', '삶은달걀', '삶은계란'], kcal: 75, carb: 1, protein: 6, fat: 5, perItem: true },
+      { keywords: ['부채살', '스테이크', '소고기구이', '소고기'], kcal: 360, carb: 2, protein: 38, fat: 22 },
+      { keywords: ['규동', '소고기덮밥'], kcal: 580, carb: 68, protein: 28, fat: 20 },
+      { keywords: ['오야코동', '닭고기덮밥'], kcal: 540, carb: 65, protein: 32, fat: 15 },
+      { keywords: ['타카나볶음밥', '타카나 볶음밥', '볶음밥'], kcal: 460, carb: 62, protein: 14, fat: 16 },
+      { keywords: ['알배추', '구운배추', '구운 알배추', '배추구이', '배추'], kcal: 70, carb: 12, protein: 3, fat: 2 },
+      { keywords: ['양배추', '샐러드', '야채', '채소'], kcal: 65, carb: 10, protein: 2, fat: 2 },
+      { keywords: ['그릭요거트', '요거트'], kcal: 130, carb: 6, protein: 12, fat: 6 },
+      { keywords: ['견과류', '호두', '아몬드'], kcal: 140, carb: 4, protein: 4, fat: 13 },
+      { keywords: ['닭가슴살', '닭안심'], kcal: 165, carb: 1, protein: 31, fat: 3.5 },
+      { keywords: ['삼겹살', '통삼겹', '오겹살', '목살'], kcal: 480, carb: 2, protein: 26, fat: 40 },
+      { keywords: ['연어', '연어구이', '연어회'], kcal: 310, carb: 1, protein: 30, fat: 20 },
+      { keywords: ['두부', '구운두부', '순두부'], kcal: 140, carb: 4, protein: 15, fat: 8 },
+      { keywords: ['미소시루', '된장국', '국'], kcal: 55, carb: 6, protein: 4, fat: 2 },
+      { keywords: ['단백질쉐이크', '프로틴', '단백질 쉐이크'], kcal: 150, carb: 5, protein: 25, fat: 3 },
+      { keywords: ['알룰로스', '저당 디저트', '저당디저트', '초코 무스'], kcal: 110, carb: 8, protein: 4, fat: 7 },
+      { keywords: ['고구마', '군고구마'], kcal: 160, carb: 36, protein: 2, fat: 0.5 },
+      { keywords: ['사과', '바나나', '과일'], kcal: 95, carb: 24, protein: 1, fat: 0.3 },
+      { keywords: ['부추전', '전'], kcal: 290, carb: 34, protein: 7, fat: 14 },
+      { keywords: ['김치찌개', '찌개'], kcal: 260, carb: 12, protein: 18, fat: 15 },
+      { keywords: ['막국수', '들기름막국수', '파스타', '면'], kcal: 510, carb: 72, protein: 14, fat: 18 },
+      { keywords: ['밥', '현미밥', '잡곡밥'], kcal: 300, carb: 65, protein: 6, fat: 1.5 }
+    ];
+
+    // Mounjaro (Tirzepatide) Pharmacokinetic Constants (FDA Label & PopPK PMC10962491)
+    const MJ_HALF_LIFE_HOURS = 120.0;
+    const MJ_KE = Math.LN2 / MJ_HALF_LIFE_HOURS;
+    const MJ_KA = 0.115;
+    const MJ_TMAX_HOURS = Math.log(MJ_KA / MJ_KE) / (MJ_KA - MJ_KE);
+    const MJ_PEAK_NORM = (MJ_KA / (MJ_KA - MJ_KE)) * (Math.exp(-MJ_KE * MJ_TMAX_HOURS) - Math.exp(-MJ_KA * MJ_TMAX_HOURS));
+
+    const MJ_SITES = [
+      '복부 왼쪽', '복부 오른쪽', '허벅지 왼쪽', '허벅지 오른쪽', '상완 왼쪽', '상완 오른쪽'
+    ];
+
+    const MJ_SIDE_EFFECT_ITEMS = [
+      { id: 'nausea', label: '🤢 메스꺼움 · 오심' },
+      { id: 'dyspepsia', label: '🫃 소화불량 · 더부룩함' },
+      { id: 'reflux', label: '🫧 트림 · 위산역류(속쓰림)' },
+      { id: 'constipation', label: '🪨 변비 · 장운동 저하' },
+      { id: 'diarrhea', label: '⚡ 설사 · 묽은변' },
+      { id: 'fatigue', label: '🥱 피로감 · 무기력' },
+      { id: 'dizziness', label: '💫 어지러움 · 저혈당감' },
+      { id: 'chills', label: '🥶 오한 · 추위타기' },
+      { id: 'site_pain', label: '💉 주사부위 뻐근함/홍반' },
+      { id: 'dry_mouth', label: '💧 입마름 · 갈증' },
+      { id: 'hair', label: '💇‍♀️ 모발 빠짐 체크' },
+      { id: 'food_noise_off', label: '✨ 푸드노이즈(음식생각) 소멸' }
+    ];
+
+    const MJ_APPETITE_TEXT = {
+      1: '1 / 5 (평소와 비슷함)',
+      2: '2 / 5 (약간 덜 당김)',
+      3: '3 / 5 (적당한 조기 포만감)',
+      4: '4 / 5 (식욕 확실히 억제됨)',
+      5: '5 / 5 (음식 생각 전혀 안 남)'
+    };
+
+    const MJ_SEVERITY_TEXT = {
+      0: '없음 · 편안함 (0/4)',
+      1: '미세함 · 일상 무리없음 (1/4)',
+      2: '보통 · 조금 신경쓰임 (2/4)',
+      3: '심함 · 컨디션 저하 (3/4)',
+      4: '매우 심함 · 휴식/진료 필요 (4/4)'
+    };
+
+    // 2-Split Stretching (Upper body / Lower body)
+    const STRETCH_ITEMS = [
+      { id: 'upper', label: '🙆‍♀️ 상체 스트레칭 (목·승모근·어깨·가슴·척추)' },
+      { id: 'lower', label: '🧘‍♀️ 하체 스트레칭 (골반·고관절·햄스트링·종아리)' }
+    ];
+
+    // Cervical Discharge / Vaginal Mucus States by Hormone Cycle
+    const DISCHARGE_ITEMS = [
+      {
+        id: 'dry',
+        label: '거의 없음 · 건조',
+        phaseHint: '월경 직후 · 황체기 후반',
+        guide: '에스트로겐 수치가 낮은 시기에 자연스럽게 나타나는 건조·소량 패턴이에요.'
+      },
+      {
+        id: 'sticky',
+        label: '끈적 · 불투명 백색',
+        phaseHint: '여포기 초반 · 황체기',
+        guide: '에스트로겐이 서서히 오르기 시작하거나 배란 이후 프로게스테론이 우세할 때 흔한 형태예요.'
+      },
+      {
+        id: 'creamy',
+        label: '촉촉 · 로션/크림형',
+        phaseHint: '여포기 중후반 · 가임기 진입',
+        guide: '에스트로겐 분비가 활발해지며 자궁경부 점액이 부드럽고 촉촉해지는 시기예요.'
+      },
+      {
+        id: 'eggwhite',
+        label: '맑고 늘어나는 계란흰자형',
+        phaseHint: '배란기 피크 ✨',
+        guide: '에스트로겐이 최고조에 달해 배란이 임박했거나 진행 중임을 알리는 대표적인 가임기 점액이에요.'
+      },
+      {
+        id: 'watery',
+        label: '투명 · 물처럼 맑음',
+        phaseHint: '배란기 전후',
+        guide: '배란 전후 호르몬 대사가 활발할 때 맑고 수분감 많은 분비물이 늘어날 수 있어요. 팬티라이너보다 순면 속옷 환기를 권장해요.'
+      },
+      {
+        id: 'caution',
+        label: '주의 (덩어리·가려움·냄새)',
+        phaseHint: '면역력 저하 · 컨디션 체크',
+        guide: '수면 부족이나 스트레스, 생리 전후 면역력 저하로 질내 유익균 균형이 깨졌을 수 있어요. 통풍과 유산균·휴식을 챙겨주세요.'
+      }
+    ];
+
+    const EMOTION_TAGS = [
+      '✨ 상쾌함', '🔥 집중잘됨', '🌿 차분함', '🥰 행복함', '💪 활력넘침',
+      '🥱 피곤함', '🍫 단것당김', '😣 부종/무거움', '🫧 예민함', '💭 생각많음'
+    ];
+
+    const CYCLE_SYMPTOMS = [
+      '아랫배 묵직/생리통', '허리 뻐근함', '가슴 뭉침', '부종/몸무게 증가',
+      '단 음식/탄수화물 당김', '두통/어지러움', '피부 트러블', '피로감/졸림'
+    ];
+
+    const MOOD_META = {
+      5: { emoji: '🥰', label: '최고·뿌듯' },
+      4: { emoji: '🙂', label: '평온·좋음' },
+      3: { emoji: '😐', label: '그저 그럼' },
+      2: { emoji: '🫠', label: '지침·예민' },
+      1: { emoji: '🌧️', label: '우울·다운' }
+    };
+
+    const BRISTOL_META = {
+      1: { name: '1·2형 딱딱함', badge: 'bg-amber-100 text-amber-800' },
+      4: { name: '3·4형 황금바나나', badge: 'bg-emerald-100 text-emerald-800' },
+      5: { name: '5·6형 무른편', badge: 'bg-sky-100 text-sky-800' },
+      7: { name: '7형 물설사', badge: 'bg-rose-100 text-rose-800' }
+    };
+
+    const SLEEP_QUALITY_MAP = {
+      '꿀잠·개운함': 'sleepQualBtn-great',
+      '무난·보통': 'sleepQualBtn-good',
+      '얕은잠·자주깸': 'sleepQualBtn-light',
+      '뒤척임·피곤': 'sleepQualBtn-poor'
+    };
+
+    // --- Application State ---
+    let state = {
+      selectedDate: TODAY_DEFAULT,
+      activeTab: 'today',
+      calendarYear: 2026,
+      calendarMonth: 11,
+      selectedBristol: 4,
+      mounjaroCurveMode: 'actual',
+      mounjaroShots: [],
+      cycleConfig: {
+        lastStartDate: '2026-10-26',
+        cycleLength: 28,
+        periodLength: 5,
+        historyStartDates: ['2026-10-26', '2026-09-28', '2026-08-31']
+      },
+      days: {}
+    };
+
+    let moodSaveTimer = null;
+
+    // --- Safe LocalStorage Helpers ---
+    function loadStateFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('seo_hyun_daily_care_v3') || localStorage.getItem('seo_hyun_daily_care_v2');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            state = Object.assign({}, state, parsed);
+            if (!state.cycleConfig) {
+              state.cycleConfig = {
+                lastStartDate: '2026-10-26',
+                cycleLength: 28,
+                periodLength: 5,
+                historyStartDates: ['2026-10-26', '2026-09-28', '2026-08-31']
+              };
+            }
+            if (!Array.isArray(state.mounjaroShots)) state.mounjaroShots = [];
+            if (!state.mounjaroCurveMode) state.mounjaroCurveMode = 'actual';
+            if (!state.days) state.days = {};
+          }
+        }
+      } catch (err) {
+        // Fallback to in-memory state
+      }
+    }
+
+    function saveStateToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (err) {
+        // Ignore storage errors inside sandboxed contexts
+      }
+    }
+
+    function getDayRecord(dateStr) {
+      if (!state.days[dateStr]) {
+        state.days[dateStr] = {
+          psychMedTaken: false,
+          supplementTaken: false,
+          medTime: '09:00',
+          medNote: '',
+          bedTime: '00:30',
+          wakeTime: '08:00',
+          sleepHours: 7.5,
+          sleepQuality: '무난·보통',
+          meals: [],
+          waterCups: 0,
+          bowels: [],
+          stretches: [],
+          workouts: [],
+          moodLevel: null,
+          emotionTags: [],
+          energyLevel: 3,
+          moodNote: '',
+          isPeriod: false,
+          flowLevel: 0,
+          cervicalDischarge: '',
+          cycleSymptoms: [],
+          mjAppetite: 3,
+          mjSeverity: 0,
+          mjSideEffects: [],
+          mjNote: ''
+        };
+      }
+      const d = state.days[dateStr];
+      if (typeof d.psychMedTaken !== 'boolean') d.psychMedTaken = false;
+      if (typeof d.supplementTaken !== 'boolean') d.supplementTaken = false;
+      if (!d.medTime) d.medTime = '09:00';
+      if (typeof d.medNote !== 'string') d.medNote = '';
+      if (!d.bedTime) d.bedTime = '00:30';
+      if (!d.wakeTime) d.wakeTime = '08:00';
+      if (!d.sleepQuality) d.sleepQuality = '무난·보통';
+      if (typeof d.cervicalDischarge !== 'string') d.cervicalDischarge = '';
+      if (!Array.isArray(d.stretches)) d.stretches = [];
+      d.stretches = d.stretches.filter(id => id === 'upper' || id === 'lower');
+      if (typeof d.mjAppetite !== 'number') d.mjAppetite = 3;
+      if (typeof d.mjSeverity !== 'number') d.mjSeverity = 0;
+      if (!Array.isArray(d.mjSideEffects)) d.mjSideEffects = [];
+      if (typeof d.mjNote !== 'string') d.mjNote = '';
+      if (!Array.isArray(d.meals)) d.meals = [];
+      return d;
+    }
+
+    // --- Automatic Nutrition Estimation Engine ---
+    function estimateNutritionFromMenuText(menuText) {
+      const text = (menuText || '').trim();
+      if (!text) return null;
+
+      let totalKcal = 0;
+      let totalCarb = 0;
+      let totalProtein = 0;
+      let totalFat = 0;
+      let matchedCount = 0;
+
+      // Portion modifier detection
+      let portionScale = 1.0;
+      if (text.includes('소량') || text.includes('반공기') || text.includes('절반') || text.includes('조금')) {
+        portionScale = 0.65;
+      } else if (text.includes('곱빼기') || text.includes('많이') || text.includes('대짜')) {
+        portionScale = 1.35;
+      }
+
+      FOOD_NUTRITION_DB.forEach(entry => {
+        const hit = entry.keywords.some(kw => text.includes(kw));
+        if (hit) {
+          matchedCount += 1;
+          let countMult = 1;
+          if (entry.perItem) {
+            const m = text.match(/(\d+)\s*(?:개|알)/);
+            if (m && m[1]) {
+              countMult = Math.min(10, Math.max(1, parseInt(m[1], 10)));
+            }
+          }
+          totalKcal += entry.kcal * countMult;
+          totalCarb += entry.carb * countMult;
+          totalProtein += entry.protein * countMult;
+          totalFat += entry.fat * countMult;
+        }
+      });
+
+      if (matchedCount === 0) {
+        // Fallback heuristic based on meal type so any custom menu gets a reasonable starting estimate
+        const typeEl = document.getElementById('mealTypeSelect');
+        const mType = typeEl ? typeEl.value : '점심';
+        if (mType === '음료/차') {
+          return { kcal: 45, carb: 6, protein: 1, fat: 1.5, matched: false };
+        }
+        if (mType === '간식') {
+          return { kcal: 150, carb: 15, protein: 6, fat: 7, matched: false };
+        }
+        return { kcal: 380, carb: 38, protein: 22, fat: 15, matched: false };
+      }
+
+      return {
+        kcal: Math.round((totalKcal * portionScale) / 5) * 5,
+        carb: Math.round(totalCarb * portionScale),
+        protein: Math.round(totalProtein * portionScale),
+        fat: Math.round(totalFat * portionScale),
+        matched: true
+      };
+    }
+
+    function onMealMenuInputType(val) {
+      const est = estimateNutritionFromMenuText(val);
+      const kcalEl = document.getElementById('mealKcalInput');
+      const carbEl = document.getElementById('mealCarbInput');
+      const proEl = document.getElementById('mealProteinInput');
+      const fatEl = document.getElementById('mealFatInput');
+      const hintEl = document.getElementById('mealEstimateHint');
+
+      if (!est) {
+        if (kcalEl) kcalEl.value = '';
+        if (carbEl) carbEl.value = '';
+        if (proEl) proEl.value = '';
+        if (fatEl) fatEl.value = '';
+        if (hintEl) hintEl.textContent = '메뉴명을 적으면 대략적인 영양성분이 자동으로 채워져요 (직접 수정 가능)';
+        return;
+      }
+
+      if (kcalEl) kcalEl.value = est.kcal;
+      if (carbEl) carbEl.value = est.carb;
+      if (proEl) proEl.value = est.protein;
+      if (fatEl) fatEl.value = est.fat;
+      if (hintEl) {
+        hintEl.textContent = est.matched
+          ? `✨ 메뉴 키워드 분석: 약 ${est.kcal}kcal (탄 ${est.carb}g · 단 ${est.protein}g · 지 ${est.fat}g) 자동 입력됨`
+          : `✨ 기본 1인분 추정치 입력됨 (실제 양에 맞게 숫자를 자유롭게 수정하세요)`;
+      }
+    }
+
+    function triggerManualNutritionEstimate() {
+      const menuEl = document.getElementById('mealMenuInput');
+      if (!menuEl || !menuEl.value.trim()) {
+        showToast('먼저 메뉴 이름을 입력해 주세요!');
+        if (menuEl) menuEl.focus();
+        return;
+      }
+      onMealMenuInputType(menuEl.value);
+      showToast('메뉴 이름을 바탕으로 대략적인 칼로리와 탄단지를 추정했어요!');
+    }
+
+    function getDayNutritionTotals(rec) {
+      const meals = (rec && rec.meals) ? rec.meals : [];
+      let kcal = 0;
+      let carb = 0;
+      let protein = 0;
+      let fat = 0;
+      meals.forEach(m => {
+        kcal += Number(m.kcal) || 0;
+        carb += Number(m.carb) || 0;
+        protein += Number(m.protein) || 0;
+        fat += Number(m.fat) || 0;
+      });
+      return { kcal: Math.round(kcal), carb: Math.round(carb), protein: Math.round(protein), fat: Math.round(fat) };
+    }
+
+    // --- Date & Time Math Utilities ---
+    function parseDateParts(dateStr) {
+      const parts = (dateStr || TODAY_DEFAULT).split('-').map(Number);
+      return { year: parts[0] || 2026, month: parts[1] || 11, day: parts[2] || 17 };
+    }
+
+    function toUTCDate(dateStr) {
+      const p = parseDateParts(dateStr);
+      return new Date(Date.UTC(p.year, p.month - 1, p.day));
+    }
+
+    function dateTimeToMs(dateStr, timeStr) {
+      const p = parseDateParts(dateStr);
+      const tParts = (timeStr || '12:00').split(':').map(Number);
+      return Date.UTC(p.year, p.month - 1, p.day, tParts[0] || 0, tParts[1] || 0);
+    }
+
+    function formatUTCDate(d) {
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function addDays(dateStr, delta) {
+      const d = toUTCDate(dateStr);
+      d.setUTCDate(d.getUTCDate() + delta);
+      return formatUTCDate(d);
+    }
+
+    function diffDays(dateA, dateB) {
+      const a = toUTCDate(dateA).getTime();
+      const b = toUTCDate(dateB).getTime();
+      return Math.round((a - b) / (1000 * 60 * 60 * 24));
+    }
+
+    function formatKoreanDateWithDay(dateStr) {
+      const d = toUTCDate(dateStr);
+      const daysKo = ['일', '월', '화', '수', '목', '금', '토'];
+      const p = parseDateParts(dateStr);
+      const dow = daysKo[d.getUTCDay()];
+      return `${p.year}년 ${p.month}월 ${p.day}일 (${dow})`;
+    }
+
+    function computeSleepHoursFromTimes(bedTime, wakeTime) {
+      if (!bedTime || !wakeTime) return 7.5;
+      const [bH, bM] = bedTime.split(':').map(Number);
+      const [wH, wM] = wakeTime.split(':').map(Number);
+      if (isNaN(bH) || isNaN(wH)) return 7.5;
+      let bedMinutes = bH * 60 + (bM || 0);
+      let wakeMinutes = wH * 60 + (wM || 0);
+      let diff = wakeMinutes - bedMinutes;
+      if (diff <= 0) diff += 24 * 60;
+      const hours = Math.round((diff / 60) * 2) / 2;
+      return Math.max(2, Math.min(14, hours));
+    }
+
+    // --- Mounjaro Pharmacokinetic Concentration Engine ---
+    function singleDoseActiveMg(doseMg, deltaHours) {
+      if (deltaHours <= 0 || deltaHours > 24 * 35) return 0;
+      const raw = (MJ_KA / (MJ_KA - MJ_KE)) * (Math.exp(-MJ_KE * deltaHours) - Math.exp(-MJ_KA * deltaHours));
+      return Math.max(0, (doseMg * raw) / MJ_PEAK_NORM);
+    }
+
+    function getTotalActiveMgAtMs(targetMs, shotsList) {
+      let total = 0;
+      const list = shotsList || state.mounjaroShots || [];
+      for (let i = 0; i < list.length; i++) {
+        const s = list[i];
+        const shotMs = dateTimeToMs(s.date, s.time || '10:00');
+        const deltaHours = (targetMs - shotMs) / (1000 * 60 * 60);
+        if (deltaHours > 0) {
+          total += singleDoseActiveMg(Number(s.dose) || 2.5, deltaHours);
+        }
+      }
+      return total;
+    }
+
+    function getPreviewSimulatedShots(anchorDateStr) {
+      const startBase = addDays(anchorDateStr, -14);
+      return [
+        { id: 'sim1', date: startBase, time: '10:00', dose: 2.5, site: '복부 왼쪽' },
+        { id: 'sim2', date: addDays(startBase, 7), time: '10:00', dose: 2.5, site: '복부 오른쪽' },
+        { id: 'sim3', date: addDays(startBase, 14), time: '10:00', dose: 2.5, site: '허벅지 왼쪽' },
+        { id: 'sim4', date: addDays(startBase, 21), time: '10:00', dose: 2.5, site: '허벅지 오른쪽' }
+      ];
+    }
+
+    function analyzeMounjaroStatus(targetDateStr) {
+      const targetMs = dateTimeToMs(targetDateStr, '14:00');
+      const sortedShots = (state.mounjaroShots || []).slice().sort((a, b) => {
+        return dateTimeToMs(b.date, b.time) - dateTimeToMs(a.date, a.time);
+      });
+
+      const activeMg = getTotalActiveMgAtMs(targetMs, sortedShots);
+      const priorShots = sortedShots.filter(s => dateTimeToMs(s.date, s.time) <= targetMs);
+      const lastShot = priorShots.length > 0 ? priorShots[0] : (sortedShots[0] || null);
+
+      if (!lastShot) {
+        return {
+          hasShots: false,
+          activeMg: 0,
+          phaseLabel: '투약 시작 예정 (기록 없음)',
+          elapsedText: '첫 주사 기록 전',
+          lastDoseSummary: '주사 기록 시 반감기(120h) 자동 계산',
+          nextShotDate: targetDateStr,
+          recommendedSite: '복부 왼쪽 (추천 첫 부위)',
+          totalShots: 0,
+          latestWeight: '-',
+          adviceText: '아직 등록된 마운자로 투약 기록이 없어요. 상단의 [2.5mg 4주 투약 시뮬레이션 미리보기] 버튼을 눌러 투여 후 혈중 농도가 어떻게 오르고 반감기(5일)로 줄어드는지 미리 확인해 보세요!'
+        };
+      }
+
+      const lastShotMs = dateTimeToMs(lastShot.date, lastShot.time || '10:00');
+      const elapsedHours = (targetMs - lastShotMs) / (1000 * 60 * 60);
+      const nextShotDate = addDays(lastShot.date, 7);
+
+      const lastSiteIdx = MJ_SITES.indexOf(lastShot.site);
+      const nextSite = MJ_SITES[(lastSiteIdx >= 0 ? lastSiteIdx + 1 : 0) % MJ_SITES.length];
+
+      const withWeight = sortedShots.find(s => s.weight && Number(s.weight) > 0);
+      const latestWeight = withWeight ? `${Number(withWeight.weight).toFixed(1)} kg` : '체중 미입력';
+
+      let phaseLabel = '';
+      let adviceText = '';
+
+      if (elapsedHours < 0) {
+        phaseLabel = '투약 예정일 이전';
+        adviceText = `최근 기록된 투약일(${lastShot.date}) 이전 날짜를 조회 중입니다.`;
+      } else if (elapsedHours <= 16) {
+        phaseLabel = '피하 흡수 초기 (0~16h)';
+        adviceText = '주사 부위에서 혈중으로 약물이 서서히 흡수되는 단계예요. 오늘은 과식을 피하고 수분을 충분히 섭취해 주세요.';
+      } else if (elapsedHours <= 52) {
+        phaseLabel = '최고 농도 피크 구간 (Tmax 24~48h 🔥)';
+        adviceText = '혈중 약물 농도가 가장 높은 피크 구간이에요! 포만감이 가장 강하게 느껴지며 오심·더부룩함·트림이 생길 수 있으니 소량씩 천천히 드세요.';
+      } else if (elapsedHours <= 120) {
+        phaseLabel = '안정적 약효 유지기 (3~5일차 ✨)';
+        adviceText = '피크를 지나 반감기(120시간)까지 혈중 농도가 안정적으로 유지되는 황금 구간이에요. 식욕 억제와 컨디션 밸런스가 가장 좋습니다.';
+      } else if (elapsedHours <= 168) {
+        phaseLabel = '반감기 경과 · 차기 투여 준비기 (6~7일차)';
+        adviceText = '반감기(5일/120시간)가 지나 체내 약물 농도가 절반 이하로 내려가는 시기예요. 식욕이 살짝 돌아올 수 있으니 단백질과 구운 채소로 포만감을 채워주세요.';
+      } else {
+        const daysOver = Math.floor(elapsedHours / 24);
+        phaseLabel = `투여 후 ${daysOver}일 경과 (약물 감쇠기)`;
+        adviceText = '마지막 주사 후 7일 이상 경과하여 혈중 농도가 서서히 감소 중입니다 (완전 배출까지는 약 25일 소요).';
+      }
+
+      const elapsedDays = Math.floor(Math.max(0, elapsedHours) / 24);
+      const remHours = Math.round(Math.max(0, elapsedHours) % 24);
+      const elapsedText = elapsedHours >= 0
+        ? `${elapsedDays}일 ${remHours}시간 경과`
+        : `${Math.abs(Math.round(elapsedHours))}시간 후 투여`;
+
+      return {
+        hasShots: true,
+        activeMg,
+        phaseLabel,
+        elapsedText,
+        lastDoseSummary: `최근 ${lastShot.date} (${lastShot.dose}mg · ${lastShot.site})`,
+        nextShotDate,
+        recommendedSite: `다음 추천: ${nextSite}`,
+        totalShots: sortedShots.length,
+        latestWeight,
+        adviceText
+      };
+    }
+
+    // --- Toast & Modal Helpers ---
+    function showToast(message, tone) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const el = document.createElement('div');
+      const bgClass = tone === 'rose'
+        ? 'bg-rose-600 text-white'
+        : tone === 'emerald'
+          ? 'bg-emerald-600 text-white'
+          : 'bg-stone-800 text-white';
+      el.className = `px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold transition-all duration-300 ${bgClass}`;
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 250);
+      }, 2200);
+    }
+
+    function openAppModal(title, body, onConfirm) {
+      const modal = document.getElementById('appModal');
+      const titleEl = document.getElementById('modalTitle');
+      const bodyEl = document.getElementById('modalBody');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      if (!modal || !titleEl || !bodyEl || !confirmBtn) return;
+
+      titleEl.textContent = title;
+      bodyEl.textContent = body;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      confirmBtn.onclick = function () {
+        closeAppModal();
+        if (typeof onConfirm === 'function') onConfirm();
+      };
+    }
+
+    function closeAppModal() {
+      const modal = document.getElementById('appModal');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // --- Navigation & Date Switching ---
+    function switchMainTab(tabName) {
+      state.activeTab = tabName;
+      const tabs = ['today', 'mounjaro', 'cycle', 'calendar', 'stats'];
+      tabs.forEach(t => {
+        const viewEl = document.getElementById(`view-${t}`);
+        const btnEl = document.getElementById(`tabBtn-${t}`);
+        if (viewEl) {
+          if (t === tabName) viewEl.classList.remove('hidden');
+          else viewEl.classList.add('hidden');
+        }
+        if (btnEl) {
+          if (t === tabName) {
+            btnEl.classList.add('tab-active');
+            btnEl.classList.remove('text-stone-600');
+          } else {
+            btnEl.classList.remove('tab-active');
+            btnEl.classList.add('text-stone-600');
+          }
+        }
+      });
+      renderAll();
+    }
+
+    function shiftSelectedDate(delta) {
+      state.selectedDate = addDays(state.selectedDate, delta);
+      const p = parseDateParts(state.selectedDate);
+      state.calendarYear = p.year;
+      state.calendarMonth = p.month;
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function onDateInputChange(val) {
+      if (!val) return;
+      state.selectedDate = val;
+      const p = parseDateParts(val);
+      state.calendarYear = p.year;
+      state.calendarMonth = p.month;
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function jumpToToday() {
+      state.selectedDate = TODAY_DEFAULT;
+      state.calendarYear = 2026;
+      state.calendarMonth = 11;
+      saveStateToStorage();
+      renderAll();
+      showToast('오늘 날짜(2026-11-17)로 이동했어요.');
+    }
+
+    // --- Morning Meds & Supplements Functions ---
+    function togglePsychMed() {
+      const rec = getDayRecord(state.selectedDate);
+      rec.psychMedTaken = !rec.psychMedTaken;
+      saveStateToStorage();
+      renderAll();
+      showToast(rec.psychMedTaken ? '아침 정신과 약 복용 완료로 체크했어요! 💊' : '아침 정신과 약 체크를 해제했어요.', 'emerald');
+    }
+
+    function toggleSupplement() {
+      const rec = getDayRecord(state.selectedDate);
+      rec.supplementTaken = !rec.supplementTaken;
+      saveStateToStorage();
+      renderAll();
+      showToast(rec.supplementTaken ? '오늘 영양제 복용 완료로 체크했어요! 🌿' : '영양제 체크를 해제했어요.', 'emerald');
+    }
+
+    function updateMedMeta() {
+      const rec = getDayRecord(state.selectedDate);
+      const timeEl = document.getElementById('medTimeInput');
+      const noteEl = document.getElementById('medNoteInput');
+      if (timeEl && timeEl.value) rec.medTime = timeEl.value;
+      if (noteEl) rec.medNote = noteEl.value;
+      saveStateToStorage();
+      renderAll();
+    }
+
+    // --- Bedtime, Wake Time & Sleep Quality Functions ---
+    function onSleepTimeChange() {
+      const rec = getDayRecord(state.selectedDate);
+      const bedEl = document.getElementById('bedTimeInput');
+      const wakeEl = document.getElementById('wakeTimeInput');
+      if (bedEl && bedEl.value) rec.bedTime = bedEl.value;
+      if (wakeEl && wakeEl.value) rec.wakeTime = wakeEl.value;
+      rec.sleepHours = computeSleepHoursFromTimes(rec.bedTime, rec.wakeTime);
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function selectSleepQuality(qualityLabel) {
+      const rec = getDayRecord(state.selectedDate);
+      rec.sleepQuality = qualityLabel;
+      saveStateToStorage();
+      renderAll();
+      showToast(`수면의 질을 '${qualityLabel}'(으)로 기록했어요.`);
+    }
+
+    // --- Meal, Snack & Nutrition Functions ---
+    function adjustWater(delta) {
+      const rec = getDayRecord(state.selectedDate);
+      rec.waterCups = Math.max(0, Math.min(20, (rec.waterCups || 0) + delta));
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function addMealEntry() {
+      const typeSelect = document.getElementById('mealTypeSelect');
+      const timeInput = document.getElementById('mealTimeInput');
+      const fullnessSelect = document.getElementById('mealFullnessSelect');
+      const menuInput = document.getElementById('mealMenuInput');
+      const kcalInput = document.getElementById('mealKcalInput');
+      const carbInput = document.getElementById('mealCarbInput');
+      const proInput = document.getElementById('mealProteinInput');
+      const fatInput = document.getElementById('mealFatInput');
+
+      const menu = (menuInput ? menuInput.value : '').trim();
+      if (!menu) {
+        showToast('먹은 음식이나 간식 메뉴를 입력해 주세요!');
+        if (menuInput) menuInput.focus();
+        return;
+      }
+
+      // If nutrition fields are blank, auto-estimate once before saving
+      const autoEst = estimateNutritionFromMenuText(menu) || { kcal: 0, carb: 0, protein: 0, fat: 0 };
+      const kcal = kcalInput && kcalInput.value !== '' ? Math.max(0, Number(kcalInput.value) || 0) : autoEst.kcal;
+      const carb = carbInput && carbInput.value !== '' ? Math.max(0, Number(carbInput.value) || 0) : autoEst.carb;
+      const protein = proInput && proInput.value !== '' ? Math.max(0, Number(proInput.value) || 0) : autoEst.protein;
+      const fat = fatInput && fatInput.value !== '' ? Math.max(0, Number(fatInput.value) || 0) : autoEst.fat;
+
+      const rec = getDayRecord(state.selectedDate);
+      rec.meals.push({
+        id: 'meal_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        type: typeSelect ? typeSelect.value : '점심',
+        time: timeInput && timeInput.value ? timeInput.value : '12:00',
+        fullness: fullnessSelect ? fullnessSelect.value : '딱 좋음 (80%)',
+        menu: menu,
+        kcal: Math.round(kcal),
+        carb: Math.round(carb),
+        protein: Math.round(protein),
+        fat: Math.round(fat)
+      });
+
+      rec.meals.sort((a, b) => a.time.localeCompare(b.time));
+      if (menuInput) menuInput.value = '';
+      if (kcalInput) kcalInput.value = '';
+      if (carbInput) carbInput.value = '';
+      if (proInput) proInput.value = '';
+      if (fatInput) fatInput.value = '';
+      const hintEl = document.getElementById('mealEstimateHint');
+      if (hintEl) hintEl.textContent = '메뉴명을 적으면 대략적인 영양성분이 자동으로 채워져요 (직접 수정 가능)';
+
+      saveStateToStorage();
+      renderAll();
+      showToast(`식사 기록 (${Math.round(kcal)}kcal)이 저장되었어요!`, 'emerald');
+    }
+
+    function deleteMealEntry(mealId) {
+      const rec = getDayRecord(state.selectedDate);
+      rec.meals = rec.meals.filter(m => m.id !== mealId);
+      saveStateToStorage();
+      renderAll();
+      showToast('식사 기록을 삭제했어요.');
+    }
+
+    // --- Bowel Functions ---
+    function selectBristolType(typeNum) {
+      state.selectedBristol = typeNum;
+      [1, 4, 5, 7].forEach(num => {
+        const btn = document.getElementById(`bristolBtn-${num}`);
+        if (!btn) return;
+        if (num === typeNum) {
+          btn.classList.add('chip-selected-teal');
+          btn.classList.remove('border-stone-200');
+        } else {
+          btn.classList.remove('chip-selected-teal');
+          btn.classList.add('border-stone-200');
+        }
+      });
+    }
+
+    function addBowelEntry() {
+      const timeInput = document.getElementById('bowelTimeInput');
+      const feelingSelect = document.getElementById('bowelFeelingSelect');
+      const noteInput = document.getElementById('bowelNoteInput');
+
+      const rec = getDayRecord(state.selectedDate);
+      rec.bowels.push({
+        id: 'bowel_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        time: timeInput && timeInput.value ? timeInput.value : '09:00',
+        bristol: state.selectedBristol || 4,
+        feeling: feelingSelect ? feelingSelect.value : '✨ 완전 개운·쾌변!',
+        note: (noteInput ? noteInput.value : '').trim()
+      });
+
+      rec.bowels.sort((a, b) => a.time.localeCompare(b.time));
+      if (noteInput) noteInput.value = '';
+      saveStateToStorage();
+      renderAll();
+      showToast('오늘 배변 기록이 저장되었어요! 🚽', 'emerald');
+    }
+
+    function deleteBowelEntry(bowelId) {
+      const rec = getDayRecord(state.selectedDate);
+      rec.bowels = rec.bowels.filter(b => b.id !== bowelId);
+      saveStateToStorage();
+      renderAll();
+      showToast('배변 기록을 삭제했어요.');
+    }
+
+    // --- 2-Split Stretching & Workout Functions ---
+    function toggleStretchItem(stretchId) {
+      const rec = getDayRecord(state.selectedDate);
+      const idx = rec.stretches.indexOf(stretchId);
+      if (idx >= 0) {
+        rec.stretches.splice(idx, 1);
+      } else {
+        rec.stretches.push(stretchId);
+      }
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function fillWorkoutPreset(name, minutes, intensity) {
+      const nameInput = document.getElementById('workoutNameInput');
+      const minInput = document.getElementById('workoutMinutesInput');
+      const intSelect = document.getElementById('workoutIntensitySelect');
+      if (nameInput) nameInput.value = name;
+      if (minInput) minInput.value = minutes;
+      if (intSelect) intSelect.value = intensity;
+    }
+
+    function addWorkoutEntry() {
+      const nameInput = document.getElementById('workoutNameInput');
+      const minInput = document.getElementById('workoutMinutesInput');
+      const intSelect = document.getElementById('workoutIntensitySelect');
+
+      const name = (nameInput ? nameInput.value : '').trim();
+      if (!name) {
+        showToast('운동 종목을 입력하거나 위 프리셋을 눌러주세요!');
+        if (nameInput) nameInput.focus();
+        return;
+      }
+      const minutes = Math.max(1, parseInt(minInput ? minInput.value : '30', 10) || 30);
+
+      const rec = getDayRecord(state.selectedDate);
+      rec.workouts.push({
+        id: 'wk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        name: name,
+        minutes: minutes,
+        intensity: intSelect ? intSelect.value : '중강도'
+      });
+
+      if (nameInput) nameInput.value = '';
+      saveStateToStorage();
+      renderAll();
+      showToast('운동 기록이 추가되었어요! 💪', 'emerald');
+    }
+
+    function deleteWorkoutEntry(wkId) {
+      const rec = getDayRecord(state.selectedDate);
+      rec.workouts = rec.workouts.filter(w => w.id !== wkId);
+      saveStateToStorage();
+      renderAll();
+      showToast('운동 기록을 삭제했어요.');
+    }
+
+    // --- Mood, Sleep & Energy Functions ---
+    function selectMoodLevel(level) {
+      const rec = getDayRecord(state.selectedDate);
+      rec.moodLevel = rec.moodLevel === level ? null : level;
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function toggleEmotionTag(tag) {
+      const rec = getDayRecord(state.selectedDate);
+      const idx = rec.emotionTags.indexOf(tag);
+      if (idx >= 0) rec.emotionTags.splice(idx, 1);
+      else rec.emotionTags.push(tag);
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function updateSleepAndEnergy() {
+      const sleepEl = document.getElementById('sleepHoursRange');
+      const energyEl = document.getElementById('energyLevelRange');
+      const rec = getDayRecord(state.selectedDate);
+      if (sleepEl) rec.sleepHours = parseFloat(sleepEl.value) || 7.5;
+      if (energyEl) rec.energyLevel = parseInt(energyEl.value, 10) || 3;
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function saveMoodNoteDebounced() {
+      const noteEl = document.getElementById('moodNoteTextarea');
+      const badgeEl = document.getElementById('moodSavedBadge');
+      const rec = getDayRecord(state.selectedDate);
+      if (noteEl) rec.moodNote = noteEl.value;
+      if (badgeEl) badgeEl.textContent = '저장 중...';
+      if (moodSaveTimer) clearTimeout(moodSaveTimer);
+      moodSaveTimer = setTimeout(() => {
+        saveStateToStorage();
+        if (badgeEl) badgeEl.textContent = '자동 저장됨';
+      }, 350);
+    }
+
+    // --- Mounjaro Shot & Side Effects Functions ---
+    function setMounjaroCurveMode(mode) {
+      state.mounjaroCurveMode = mode === 'preview' ? 'preview' : 'actual';
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function addMounjaroShot() {
+      const dateInput = document.getElementById('mjShotDateInput');
+      const timeInput = document.getElementById('mjShotTimeInput');
+      const doseSelect = document.getElementById('mjShotDoseSelect');
+      const siteSelect = document.getElementById('mjShotSiteSelect');
+      const weightInput = document.getElementById('mjShotWeightInput');
+      const noteInput = document.getElementById('mjShotNoteInput');
+
+      const shotDate = (dateInput && dateInput.value) ? dateInput.value : state.selectedDate;
+      const shotTime = (timeInput && timeInput.value) ? timeInput.value : '10:00';
+      const dose = parseFloat(doseSelect ? doseSelect.value : '2.5') || 2.5;
+      const site = siteSelect ? siteSelect.value : '복부 왼쪽';
+      const weight = weightInput && weightInput.value ? parseFloat(weightInput.value) : null;
+      const note = (noteInput ? noteInput.value : '').trim();
+
+      state.mounjaroShots.push({
+        id: 'mj_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        date: shotDate,
+        time: shotTime,
+        dose: dose,
+        site: site,
+        weight: weight,
+        note: note
+      });
+
+      state.mounjaroShots.sort((a, b) => dateTimeToMs(b.date, b.time) - dateTimeToMs(a.date, a.time));
+      state.mounjaroCurveMode = 'actual';
+      if (noteInput) noteInput.value = '';
+      saveStateToStorage();
+      renderAll();
+      showToast(`💉 마운자로 ${dose}mg (${site}) 투약 기록이 저장되었어요!`, 'emerald');
+    }
+
+    function deleteMounjaroShot(shotId) {
+      state.mounjaroShots = (state.mounjaroShots || []).filter(s => s.id !== shotId);
+      saveStateToStorage();
+      renderAll();
+      showToast('마운자로 투약 기록을 삭제했어요.');
+    }
+
+    function toggleMounjaroSideEffect(effectId) {
+      const rec = getDayRecord(state.selectedDate);
+      const idx = rec.mjSideEffects.indexOf(effectId);
+      if (idx >= 0) rec.mjSideEffects.splice(idx, 1);
+      else rec.mjSideEffects.push(effectId);
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function updateMounjaroDailyMetrics() {
+      const rec = getDayRecord(state.selectedDate);
+      const appEl = document.getElementById('mjAppetiteRange');
+      const sevEl = document.getElementById('mjSeverityRange');
+      const noteEl = document.getElementById('mjSideEffectNoteInput');
+      if (appEl) rec.mjAppetite = parseInt(appEl.value, 10) || 3;
+      if (sevEl) rec.mjSeverity = parseInt(sevEl.value, 10) || 0;
+      if (noteEl) rec.mjNote = noteEl.value;
+      saveStateToStorage();
+      renderAll();
+    }
+
+    // --- Menstrual Cycle & Cervical Discharge Calculations ---
+    function selectCervicalDischarge(dischargeId) {
+      const rec = getDayRecord(state.selectedDate);
+      rec.cervicalDischarge = rec.cervicalDischarge === dischargeId ? '' : dischargeId;
+      saveStateToStorage();
+      renderAll();
+      if (rec.cervicalDischarge) {
+        const found = DISCHARGE_ITEMS.find(d => d.id === rec.cervicalDischarge);
+        if (found) showToast(`분비물 상태를 '${found.label}'(으)로 기록했어요.`);
+      }
+    }
+
+    function calculateCycleInfo(targetDateStr) {
+      const cfg = state.cycleConfig;
+      const lastStart = cfg.lastStartDate || '2026-10-26';
+      const cycleLen = Math.max(20, Math.min(45, parseInt(cfg.cycleLength, 10) || 28));
+      const periodLen = Math.max(2, Math.min(10, parseInt(cfg.periodLength, 10) || 5));
+
+      const rawDiff = diffDays(targetDateStr, lastStart);
+      let modDiff = rawDiff % cycleLen;
+      if (modDiff < 0) modDiff += cycleLen;
+      const cycleDay = modDiff + 1;
+
+      let cyclesElapsed = Math.floor(rawDiff / cycleLen);
+      if (rawDiff >= 0) cyclesElapsed += 1;
+      else cyclesElapsed = 0;
+      const nextStartDate = addDays(lastStart, cyclesElapsed * cycleLen);
+      const daysUntilNext = diffDays(nextStartDate, targetDateStr);
+
+      const ovulationDayInCycle = Math.max(8, cycleLen - 14);
+      const ovulationDate = addDays(nextStartDate, -14);
+
+      let phaseName = '';
+      let expectedDischarge = '';
+      let shortAdvice = '';
+      let detailedTip = '';
+
+      const rec = getDayRecord(targetDateStr);
+      const isActualPeriod = rec.isPeriod || rec.flowLevel > 0;
+
+      if (isActualPeriod || cycleDay <= periodLen) {
+        phaseName = '월경기 (생리 기간)';
+        expectedDischarge = '생리혈 배출 후 끝무렵에는 갈색 잔혈이나 건조한 상태가 나타나요.';
+        shortAdvice = '몸을 따뜻하게 유지하고 무리한 고강도 운동 대신 가벼운 하체·골반 스트레칭과 충분한 수면을 챙기세요.';
+        detailedTip = '• <strong>추천 스트레칭·운동:</strong> 하체(골반·고관절) 이완 스트레칭, 가벼운 산책<br>• <strong>호르몬·분비물 특징:</strong> 에스트로겐과 프로게스테론이 모두 낮으며 생리 직후에는 분비물이 거의 없거나 건조해요.<br>• <strong>셀프 케어:</strong> 아랫배 온찜질과 철분·수분 보충으로 컨디션을 보호해 주세요.';
+      } else if (cycleDay < ovulationDayInCycle - 2) {
+        phaseName = '여포기 (컨디션 황금기 ✨)';
+        expectedDischarge = '초반엔 건조·끈적하다가 배란이 가까워질수록 촉촉한 로션/크림형 분비물로 변해요.';
+        shortAdvice = '에스트로겐이 상승하며 기분과 대사가 가장 활발한 황금기예요! 웨이트나 천국의 계단 운동 효과가 가장 좋습니다.';
+        detailedTip = '• <strong>추천 스트레칭·운동:</strong> 상·하체 스트레칭 후 웨이트 트레이닝, 천국의 계단(스텝밀)<br>• <strong>호르몬·분비물 특징:</strong> 에스트로겐이 차오르며 건조했던 상태에서 점차 불투명한 크림·로션 형태의 점액이 나타나요.<br>• <strong>셀프 케어:</strong> 집중력과 체력이 모두 올라오는 시기이니 목표 루틴을 힘차게 밀고 나가세요!';
+      } else if (cycleDay <= ovulationDayInCycle + 2) {
+        phaseName = '배란기 (에스트로겐 피크 · 가임기)';
+        expectedDischarge = '맑고 투명하게 잘 늘어나는 계란흰자형(EWCM) 또는 수분감 많은 점액이 나타나는 시기예요.';
+        shortAdvice = '에스트로겐 피크 후 프로게스테론이 오르며 기초체온이 상승해요. 일시적으로 기분이 처지거나 배란통·장 둔화가 올 수 있어요.';
+        detailedTip = '• <strong>추천 스트레칭·운동:</strong> 중강도 근력 운동 + 하체·고관절 순환 스트레칭<br>• <strong>호르몬·분비물 특징:</strong> 맑고 탄력 있게 늘어나는 계란흰자형 점액이 특징적이며, 배란 직후 급격한 호르몬 낙차로 일시적인 우울감이나 피로가 올 수 있어요.<br>• <strong>셀프 케어:</strong> 아랫배가 콕콕 쑤시는 배란통이 있다면 무리하지 말고 충분히 수분을 섭취해 주세요.';
+      } else {
+        phaseName = '황체기 (PMS · 부종/수면 케어기)';
+        expectedDischarge = '프로게스테론 영향으로 분비물이 다시 끈적·불투명해지거나 건조해지며, 면역력 저하 시 질염에 주의해야 해요.';
+        shortAdvice = '프로게스테론 우세기로 몸이 붓거나 수면의 질이 얕아지고 단 음식이 당기기 쉬워요. 정해진 취침 시각과 아침 약·영양제를 꼭 챙겨주세요.';
+        detailedTip = '• <strong>추천 스트레칭·운동:</strong> 상·하체 2분할 스트레칭, 폼롤러 릴리즈, 가벼운 홈트<br>• <strong>호르몬·분비물 특징:</strong> 점액이 탁하고 끈적해지거나 줄어들며, 생리 전 면역력이 떨어지면 분비물 이상이나 가려움이 생기기 쉬워요.<br>• <strong>셀프 케어:</strong> 호르몬 변화로 수면이 얕아지거나 예민해질 수 있으니 자정 전후 취침 루틴을 편안하게 유지해 주세요.';
+      }
+
+      return {
+        cycleDay,
+        cycleLen,
+        periodLen,
+        nextStartDate,
+        daysUntilNext,
+        ovulationDate,
+        ovulationDayInCycle,
+        phaseName,
+        expectedDischarge,
+        shortAdvice,
+        detailedTip,
+        isActualPeriod
+      };
+    }
+
+    function togglePeriodOnSelectedDate() {
+      const rec = getDayRecord(state.selectedDate);
+      rec.isPeriod = !rec.isPeriod;
+      if (rec.isPeriod && rec.flowLevel === 0) rec.flowLevel = 2;
+      if (!rec.isPeriod) rec.flowLevel = 0;
+      saveStateToStorage();
+      renderAll();
+      showToast(rec.isPeriod ? '오늘 생리 중으로 체크했어요 🩸' : '생리 체크를 해제했어요.');
+    }
+
+    function setFlowLevel(level) {
+      const rec = getDayRecord(state.selectedDate);
+      rec.flowLevel = level;
+      rec.isPeriod = level > 0;
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function toggleCycleSymptom(sym) {
+      const rec = getDayRecord(state.selectedDate);
+      const idx = rec.cycleSymptoms.indexOf(sym);
+      if (idx >= 0) rec.cycleSymptoms.splice(idx, 1);
+      else rec.cycleSymptoms.push(sym);
+      saveStateToStorage();
+      renderAll();
+    }
+
+    function saveCycleConfig() {
+      const startEl = document.getElementById('cycleLastStartInput');
+      const lenEl = document.getElementById('cycleLengthInput');
+      const perEl = document.getElementById('periodLengthInput');
+
+      if (startEl && startEl.value) {
+        state.cycleConfig.lastStartDate = startEl.value;
+        if (!state.cycleConfig.historyStartDates.includes(startEl.value)) {
+          state.cycleConfig.historyStartDates.push(startEl.value);
+          state.cycleConfig.historyStartDates.sort().reverse();
+        }
+      }
+      if (lenEl) state.cycleConfig.cycleLength = Math.max(20, Math.min(45, parseInt(lenEl.value, 10) || 28));
+      if (perEl) state.cycleConfig.periodLength = Math.max(2, Math.min(10, parseInt(perEl.value, 10) || 5));
+
+      saveStateToStorage();
+      renderAll();
+      showToast('생리주기 설정이 업데이트되었어요!', 'rose');
+    }
+
+    function setLastPeriodToSelectedDate() {
+      state.cycleConfig.lastStartDate = state.selectedDate;
+      if (!state.cycleConfig.historyStartDates.includes(state.selectedDate)) {
+        state.cycleConfig.historyStartDates.push(state.selectedDate);
+        state.cycleConfig.historyStartDates.sort().reverse();
+      }
+      const rec = getDayRecord(state.selectedDate);
+      rec.isPeriod = true;
+      if (rec.flowLevel === 0) rec.flowLevel = 2;
+      saveStateToStorage();
+      renderAll();
+      showToast(`${state.selectedDate}일을 최근 생리 시작일로 설정했어요!`, 'rose');
+    }
+
+    function addCycleStartDateHistory() {
+      const input = document.getElementById('newCycleHistoryInput');
+      if (!input || !input.value) {
+        showToast('추가할 생리 시작 날짜를 선택해 주세요.');
+        return;
+      }
+      const val = input.value;
+      if (!state.cycleConfig.historyStartDates.includes(val)) {
+        state.cycleConfig.historyStartDates.push(val);
+        state.cycleConfig.historyStartDates.sort().reverse();
+        state.cycleConfig.lastStartDate = state.cycleConfig.historyStartDates[0];
+      }
+      input.value = '';
+      saveStateToStorage();
+      renderAll();
+      showToast('생리 시작일 히스토리에 추가되었어요.');
+    }
+
+    function deleteCycleHistoryDate(dateStr) {
+      state.cycleConfig.historyStartDates = state.cycleConfig.historyStartDates.filter(d => d !== dateStr);
+      if (state.cycleConfig.historyStartDates.length > 0) {
+        state.cycleConfig.lastStartDate = state.cycleConfig.historyStartDates[0];
+      }
+      saveStateToStorage();
+      renderAll();
+    }
+
+    // --- Calendar View Functions ---
+    function shiftCalendarMonth(delta) {
+      let m = state.calendarMonth + delta;
+      let y = state.calendarYear;
+      if (m < 1) { m = 12; y -= 1; }
+      if (m > 12) { m = 1; y += 1; }
+      state.calendarYear = y;
+      state.calendarMonth = m;
+      renderCalendarView();
+    }
+
+    function selectDateFromCalendar(dateStr) {
+      state.selectedDate = dateStr;
+      saveStateToStorage();
+      switchMainTab('today');
+      showToast(`${dateStr} 기록 화면으로 이동했어요.`);
+    }
+
+    // --- Sample Demo Data & Reset / Export / Import ---
+    function loadDemoSampleData() {
+      state.mounjaroShots = [
+        {
+          id: 'mj_sample_2',
+          date: '2026-11-16',
+          time: '10:00',
+          dose: 2.5,
+          site: '복부 오른쪽',
+          weight: 54.2,
+          note: '2주차 투약 완료, 통증 거의 없음'
+        },
+        {
+          id: 'mj_sample_1',
+          date: '2026-11-09',
+          time: '10:00',
+          dose: 2.5,
+          site: '복부 왼쪽',
+          weight: 55.0,
+          note: '마운자로 2.5mg 첫 시작!'
+        }
+      ];
+      state.mounjaroCurveMode = 'actual';
+
+      const sampleDays = {
+        '2026-11-17': {
+          psychMedTaken: true,
+          supplementTaken: true,
+          medTime: '08:40',
+          medNote: '정신과 아침약 + 마그네슘·유산균',
+          bedTime: '00:15',
+          wakeTime: '08:15',
+          sleepHours: 8.0,
+          sleepQuality: '꿀잠·개운함',
+          meals: [
+            { id: 'm1', type: '아침', time: '08:50', fullness: '가벼움 (70%)', menu: '방탄말차 1잔 & 삶은 달걀 2개', kcal: 310, carb: 4, protein: 14, fat: 26 },
+            { id: 'm2', type: '점심', time: '12:40', fullness: '딱 좋음 (80%)', menu: '부채살 스테이크 & 구운 알배추', kcal: 430, carb: 14, protein: 41, fat: 24 },
+            { id: 'm3', type: '간식', time: '16:15', fullness: '가벼움 (70%)', menu: '그릭요거트 & 호두 소량', kcal: 175, carb: 7, protein: 10, fat: 12 }
+          ],
+          waterCups: 7,
+          bowels: [
+            { id: 'b1', time: '09:20', bristol: 4, feeling: '✨ 완전 개운·쾌변!', note: '수분 섭취 늘리고 유산균 챙겨서 쾌변 성공' }
+          ],
+          stretches: ['upper', 'lower'],
+          workouts: [
+            { id: 'w1', name: '웨이트 트레이닝 (하체·둔근)', minutes: 45, intensity: '고강도' },
+            { id: 'w2', name: '천국의 계단 (스텝밀)', minutes: 25, intensity: '고강도' }
+          ],
+          moodLevel: 5,
+          emotionTags: ['✨ 상쾌함', '🔥 집중잘됨', '💪 활력넘침'],
+          energyLevel: 4,
+          moodNote: '어제 주사 맞고 28시간 지나 피크 구간이라 음식 생각이 싹 사라졌다! 단백질 위주로 든든히 챙기고 운동도 개운하게 완료.',
+          isPeriod: false,
+          flowLevel: 0,
+          cervicalDischarge: 'sticky',
+          cycleSymptoms: [],
+          mjAppetite: 5,
+          mjSeverity: 1,
+          mjSideEffects: ['dyspepsia', 'food_noise_off'],
+          mjNote: '투여 2일차 혈중 농도 피크(Tmax) 구간이라 조기 포만감이 엄청 강함! 물 자주 마시기.'
+        },
+        '2026-11-16': {
+          psychMedTaken: true,
+          supplementTaken: true,
+          medTime: '09:00',
+          medNote: '아침약 + 유산균',
+          bedTime: '00:30',
+          wakeTime: '08:30',
+          sleepHours: 8.0,
+          sleepQuality: '무난·보통',
+          meals: [
+            { id: 'm21', type: '아침', time: '09:10', fullness: '가벼움 (70%)', menu: '따뜻한 차 & 구운 계란 2개', kcal: 160, carb: 4, protein: 12, fat: 10 },
+            { id: 'm22', type: '점심', time: '13:00', fullness: '든든함 (100%)', menu: '오야코동 소량', kcal: 350, carb: 42, protein: 21, fat: 10 },
+            { id: 'm23', type: '저녁', time: '18:30', fullness: '딱 좋음 (80%)', menu: '구운 두부 & 미소시루', kcal: 195, carb: 10, protein: 19, fat: 10 }
+          ],
+          waterCups: 6,
+          bowels: [
+            { id: 'b21', time: '10:00', bristol: 4, feeling: '🙂 무난하게 성공', note: '' }
+          ],
+          stretches: ['upper'],
+          workouts: [
+            { id: 'w21', name: '덤벨 & 밴드 홈트', minutes: 35, intensity: '중강도' }
+          ],
+          moodLevel: 4,
+          emotionTags: ['🌿 차분함', '🔥 집중잘됨'],
+          energyLevel: 4,
+          moodNote: '오전 10시에 마운자로 2주차 오른쪽 복부 주사 완료! 저녁부터 서서히 배가 안 고프다.',
+          isPeriod: false,
+          flowLevel: 0,
+          cervicalDischarge: 'sticky',
+          cycleSymptoms: [],
+          mjAppetite: 4,
+          mjSeverity: 0,
+          mjSideEffects: ['food_noise_off'],
+          mjNote: '오전 10시 2주차 주사 투여 완료. 주사 부위 통증 없음.'
+        },
+        '2026-11-15': {
+          psychMedTaken: true,
+          supplementTaken: false,
+          medTime: '09:30',
+          medNote: '아침약 완료',
+          bedTime: '01:00',
+          wakeTime: '09:00',
+          sleepHours: 8.0,
+          sleepQuality: '꿀잠·개운함',
+          meals: [
+            { id: 'm31', type: '점심', time: '12:20', fullness: '딱 좋음 (80%)', menu: '규동 & 양배추 샐러드', kcal: 645, carb: 78, protein: 30, fat: 22 },
+            { id: 'm32', type: '간식', time: '15:30', fullness: '가벼움 (70%)', menu: '알룰로스 저당 디저트', kcal: 110, carb: 8, protein: 4, fat: 7 },
+            { id: 'm33', type: '저녁', time: '18:40', fullness: '딱 좋음 (80%)', menu: '구운 알배추 & 닭가슴살', kcal: 235, carb: 13, protein: 34, fat: 5.5 }
+          ],
+          waterCups: 7,
+          bowels: [
+            { id: 'b31', time: '09:40', bristol: 4, feeling: '✨ 완전 개운·쾌변!', note: '구운 배추 덕분인지 쾌변!' }
+          ],
+          stretches: ['lower'],
+          workouts: [
+            { id: 'w31', name: '야외 산책 · 걷기', minutes: 40, intensity: '저강도' }
+          ],
+          moodLevel: 4,
+          emotionTags: ['🥰 행복함', '🌿 차분함'],
+          energyLevel: 5,
+          moodNote: '1주차 투여 6일차라 반감기가 지나 식욕이 살짝 돌아왔지만 구운 알배추로 든든하게 방어 성공!',
+          isPeriod: false,
+          flowLevel: 0,
+          cervicalDischarge: 'creamy',
+          cycleSymptoms: [],
+          mjAppetite: 3,
+          mjSeverity: 0,
+          mjSideEffects: [],
+          mjNote: '투여 6일차(반감기 5일 경과 후)라 부작용 전혀 없고 컨디션 가벼움.'
+        }
+      };
+
+      Object.keys(sampleDays).forEach(d => {
+        state.days[d] = sampleDays[d];
+      });
+      state.selectedDate = '2026-11-17';
+      saveStateToStorage();
+      renderAll();
+      showToast('칼로리·탄단지 영양성분이 포함된 예시 기록이 채워졌어요! ✨', 'emerald');
+    }
+
+    function confirmClearCurrentDay() {
+      openAppModal(
+        '선택한 날짜 기록 초기화',
+        `${state.selectedDate}일의 약·수면·식사·배변·운동·기분·분비물·마운자로 부작용 기록을 비우시겠어요?`,
+        function () {
+          delete state.days[state.selectedDate];
+          saveStateToStorage();
+          renderAll();
+          showToast('선택한 날짜의 기록을 초기화했어요.');
+        }
+      );
+    }
+
+    function exportAllData() {
+      const dataStr = JSON.stringify(state, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `my_daily_care_backup_${state.selectedDate}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('전체 기록 백업 파일(.json)이 다운로드되었어요!');
+    }
+
+    function importAllData(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && typeof imported === 'object' && imported.days) {
+            state = Object.assign({}, state, imported);
+            saveStateToStorage();
+            renderAll();
+            showToast('백업 데이터를 성공적으로 복원했어요!', 'emerald');
+          } else {
+            showToast('올바른 백업 파일 형식이 아닙니다.', 'rose');
+          }
+        } catch (err) {
+          showToast('파일을 읽는 중 오류가 발생했어요.', 'rose');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // --- UI Rendering Functions ---
+    function renderAll() {
+      const dateInput = document.getElementById('selectedDateInput');
+      if (dateInput) dateInput.value = state.selectedDate;
+
+      const rec = getDayRecord(state.selectedDate);
+      const cycleInfo = calculateCycleInfo(state.selectedDate);
+      const mjInfo = analyzeMounjaroStatus(state.selectedDate);
+      const nutTotals = getDayNutritionTotals(rec);
+
+      // Header & Top Summary Pills
+      const summaryDateLabel = document.getElementById('summaryDateLabel');
+      if (summaryDateLabel) summaryDateLabel.textContent = formatKoreanDateWithDay(state.selectedDate);
+
+      const cycleHeaderBadge = document.getElementById('cycleHeaderBadge');
+      if (cycleHeaderBadge) {
+        cycleHeaderBadge.textContent = `${cycleInfo.phaseName.split(' ')[0]} · 주기 ${cycleInfo.cycleDay}일차`;
+      }
+
+      const mounjaroHeaderBadge = document.getElementById('mounjaroHeaderBadge');
+      if (mounjaroHeaderBadge) {
+        mounjaroHeaderBadge.textContent = mjInfo.hasShots
+          ? `💉 체내 약 ${mjInfo.activeMg.toFixed(2)}mg`
+          : '💉 마운자로 준비';
+      }
+
+      const summaryPeriodTag = document.getElementById('summaryPeriodTag');
+      if (summaryPeriodTag) {
+        if (cycleInfo.isActualPeriod) summaryPeriodTag.classList.remove('hidden');
+        else summaryPeriodTag.classList.add('hidden');
+      }
+
+      const medCount = (rec.psychMedTaken ? 1 : 0) + (rec.supplementTaken ? 1 : 0);
+      const summaryMedTag = document.getElementById('summaryMedTag');
+      if (summaryMedTag) {
+        if (medCount === 2) {
+          summaryMedTag.textContent = '💊 아침약·영양제 모두 완료';
+          summaryMedTag.className = 'text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        } else if (medCount === 1) {
+          summaryMedTag.textContent = `💊 ${rec.psychMedTaken ? '정신과약 완료' : '영양제 완료'} (1/2)`;
+          summaryMedTag.className = 'text-xs px-2.5 py-0.5 rounded-full font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+        } else {
+          summaryMedTag.textContent = '💊 약/영양제 미체크';
+          summaryMedTag.className = 'text-xs px-2.5 py-0.5 rounded-full font-semibold bg-sky-50 text-sky-700 border border-sky-200';
+        }
+      }
+
+      const summaryMounjaroTag = document.getElementById('summaryMounjaroTag');
+      if (summaryMounjaroTag) {
+        if (mjInfo.hasShots) {
+          summaryMounjaroTag.textContent = `💉 마운자로 ${mjInfo.activeMg.toFixed(2)}mg (${mjInfo.phaseLabel.split(' ')[0]})`;
+        } else {
+          summaryMounjaroTag.textContent = '💉 마운자로 투약 예정';
+        }
+      }
+
+      const pillMedStatus = document.getElementById('pillMedStatus');
+      if (pillMedStatus) {
+        pillMedStatus.textContent = medCount === 2 ? '완료 (2/2)' : `${medCount}/2`;
+      }
+
+      const totalWorkoutMin = rec.workouts.reduce((acc, w) => acc + (Number(w.minutes) || 0), 0);
+
+      const pillMealCount = document.getElementById('pillMealCount');
+      if (pillMealCount) {
+        pillMealCount.textContent = nutTotals.kcal > 0
+          ? `${nutTotals.kcal}kcal`
+          : `${rec.meals.length}회`;
+      }
+
+      const pillBowelCount = document.getElementById('pillBowelCount');
+      if (pillBowelCount) {
+        pillBowelCount.textContent = rec.bowels.length > 0 ? `완료 (${rec.bowels.length}회)` : '미기록';
+      }
+
+      const pillStretchStatus = document.getElementById('pillStretchStatus');
+      if (pillStretchStatus) {
+        if (rec.stretches.length === 2) pillStretchStatus.textContent = '상·하체 완료';
+        else if (rec.stretches.includes('upper')) pillStretchStatus.textContent = '상체 완료';
+        else if (rec.stretches.includes('lower')) pillStretchStatus.textContent = '하체 완료';
+        else pillStretchStatus.textContent = '0/2분할';
+      }
+
+      const pillWorkoutMinutes = document.getElementById('pillWorkoutMinutes');
+      if (pillWorkoutMinutes) pillWorkoutMinutes.textContent = `${totalWorkoutMin}분`;
+
+      const pillMoodEmoji = document.getElementById('pillMoodEmoji');
+      if (pillMoodEmoji) {
+        pillMoodEmoji.textContent = rec.moodLevel && MOOD_META[rec.moodLevel]
+          ? `${MOOD_META[rec.moodLevel].emoji} ${MOOD_META[rec.moodLevel].label}`
+          : '미체크';
+      }
+
+      const pillCycleDay = document.getElementById('pillCycleDay');
+      if (pillCycleDay) {
+        pillCycleDay.textContent = cycleInfo.isActualPeriod
+          ? `생리 중`
+          : `D-${cycleInfo.daysUntilNext}`;
+      }
+
+      const pillMounjaroLevel = document.getElementById('pillMounjaroLevel');
+      if (pillMounjaroLevel) {
+        pillMounjaroLevel.textContent = `${mjInfo.activeMg.toFixed(2)}mg`;
+      }
+
+      renderTodayView(rec, cycleInfo, totalWorkoutMin, nutTotals);
+      renderMounjaroView(rec, mjInfo);
+      renderCycleView(rec, cycleInfo);
+      renderCalendarView();
+      renderStatsView();
+    }
+
+    function renderDischargeGridHtml(selectedId) {
+      return DISCHARGE_ITEMS.map(item => {
+        const active = selectedId === item.id;
+        return `
+          <button type="button" onclick="selectCervicalDischarge('${item.id}')" class="p-2.5 rounded-xl border text-left transition flex flex-col justify-between ${active ? 'chip-selected-purple' : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'}">
+            <div class="text-xs font-bold">${active ? '✓ ' : ''}${item.label}</div>
+            <div class="text-[10px] opacity-75 mt-1">${item.phaseHint}</div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderTodayView(rec, cycleInfo, totalWorkoutMin, nutTotals) {
+      // Morning Meds & Supplements
+      const medCount = (rec.psychMedTaken ? 1 : 0) + (rec.supplementTaken ? 1 : 0);
+      const medCheckBadge = document.getElementById('medCheckBadge');
+      if (medCheckBadge) medCheckBadge.textContent = `${medCount} / 2 완료`;
+
+      const psychBtn = document.getElementById('psychMedToggleBtn');
+      const psychSub = document.getElementById('psychMedSubText');
+      const psychIcon = document.getElementById('psychMedIcon');
+      if (psychBtn) {
+        psychBtn.className = `p-3.5 rounded-xl border text-left transition flex items-center justify-between ${rec.psychMedTaken ? 'chip-selected-teal' : 'border-stone-200 bg-white hover:bg-stone-50'}`;
+      }
+      if (psychSub) psychSub.textContent = rec.psychMedTaken ? `${rec.medTime || '아침'} 복용 완료` : '터치하여 복용 체크';
+      if (psychIcon) psychIcon.textContent = rec.psychMedTaken ? '✅' : '⬜';
+
+      const suppBtn = document.getElementById('supplementToggleBtn');
+      const suppSub = document.getElementById('supplementSubText');
+      const suppIcon = document.getElementById('supplementIcon');
+      if (suppBtn) {
+        suppBtn.className = `p-3.5 rounded-xl border text-left transition flex items-center justify-between ${rec.supplementTaken ? 'chip-selected-teal' : 'border-stone-200 bg-white hover:bg-stone-50'}`;
+      }
+      if (suppSub) suppSub.textContent = rec.supplementTaken ? '오늘 복용 완료' : '터치하여 복용 체크';
+      if (suppIcon) suppIcon.textContent = rec.supplementTaken ? '✅' : '⬜';
+
+      const medTimeInput = document.getElementById('medTimeInput');
+      const medNoteInput = document.getElementById('medNoteInput');
+      if (medTimeInput && document.activeElement !== medTimeInput) medTimeInput.value = rec.medTime || '09:00';
+      if (medNoteInput && document.activeElement !== medNoteInput) medNoteInput.value = rec.medNote || '';
+
+      // Bedtime, Wake time & Sleep Quality
+      const bedTimeInput = document.getElementById('bedTimeInput');
+      const wakeTimeInput = document.getElementById('wakeTimeInput');
+      const sleepRange = document.getElementById('sleepHoursRange');
+      const sleepLabel = document.getElementById('sleepHoursLabel');
+      const sleepSummaryBadge = document.getElementById('sleepSummaryBadge');
+
+      if (bedTimeInput && document.activeElement !== bedTimeInput) bedTimeInput.value = rec.bedTime || '00:30';
+      if (wakeTimeInput && document.activeElement !== wakeTimeInput) wakeTimeInput.value = rec.wakeTime || '08:00';
+      if (sleepRange) sleepRange.value = rec.sleepHours ?? 7.5;
+      if (sleepLabel) sleepLabel.textContent = `${Number(rec.sleepHours ?? 7.5).toFixed(1)}시간`;
+      if (sleepSummaryBadge) {
+        sleepSummaryBadge.textContent = `${rec.bedTime || '00:30'} 취침 · ${Number(rec.sleepHours ?? 7.5).toFixed(1)}h (${rec.sleepQuality || '무난·보통'})`;
+      }
+
+      Object.keys(SLEEP_QUALITY_MAP).forEach(qLabel => {
+        const btn = document.getElementById(SLEEP_QUALITY_MAP[qLabel]);
+        if (!btn) return;
+        if ((rec.sleepQuality || '무난·보통') === qLabel) {
+          btn.classList.add('chip-selected-indigo');
+          btn.classList.remove('border-stone-200');
+        } else {
+          btn.classList.remove('chip-selected-indigo');
+          btn.classList.add('border-stone-200');
+        }
+      });
+
+      // Daily Calorie & Macro Totals
+      const kcalEl = document.getElementById('dailyTotalKcalText');
+      const carbEl = document.getElementById('dailyTotalCarbText');
+      const proEl = document.getElementById('dailyTotalProteinText');
+      const fatEl = document.getElementById('dailyTotalFatText');
+      const barC = document.getElementById('macroBarCarb');
+      const barP = document.getElementById('macroBarProtein');
+      const barF = document.getElementById('macroBarFat');
+
+      if (kcalEl) kcalEl.textContent = `${nutTotals.kcal.toLocaleString()} kcal`;
+      if (carbEl) carbEl.textContent = `${nutTotals.carb}`;
+      if (proEl) proEl.textContent = `${nutTotals.protein}`;
+      if (fatEl) fatEl.textContent = `${nutTotals.fat}`;
+
+      const macroGramSum = nutTotals.carb + nutTotals.protein + nutTotals.fat;
+      if (barC && barP && barF) {
+        if (macroGramSum > 0) {
+          barC.style.width = `${Math.round((nutTotals.carb / macroGramSum) * 100)}%`;
+          barP.style.width = `${Math.round((nutTotals.protein / macroGramSum) * 100)}%`;
+          barF.style.width = `${Math.max(0, 100 - Math.round((nutTotals.carb / macroGramSum) * 100) - Math.round((nutTotals.protein / macroGramSum) * 100))}%`;
+        } else {
+          barC.style.width = '33%';
+          barP.style.width = '34%';
+          barF.style.width = '33%';
+        }
+      }
+
+      // Water
+      const waterBadge = document.getElementById('waterCounterBadge');
+      const waterText = document.getElementById('waterCountText');
+      if (waterBadge) waterBadge.textContent = `💧 수분 ${rec.waterCups || 0}컵 (${(rec.waterCups || 0) * 250}ml)`;
+      if (waterText) waterText.textContent = `${rec.waterCups || 0}컵`;
+
+      // Meals List
+      const mealList = document.getElementById('mealListContainer');
+      if (mealList) {
+        if (rec.meals.length === 0) {
+          mealList.innerHTML = `
+            <div class="text-center py-6 px-3 rounded-xl border border-dashed border-stone-200 text-xs text-stone-400">
+              아직 오늘 기록한 식사나 간식이 없어요.<br>먹은 시간과 메뉴를 입력하면 칼로리·탄단지가 함께 저장됩니다!
+            </div>`;
+        } else {
+          mealList.innerHTML = rec.meals.map(m => {
+            const hasNut = (Number(m.kcal) || 0) > 0 || (Number(m.protein) || 0) > 0;
+            return `
+              <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-stone-50/80 border border-stone-200/70">
+                <div class="flex items-start gap-2.5 min-w-0">
+                  <span class="px-2 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold shrink-0 mt-0.5">${escapeHtml(m.time)}</span>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="px-1.5 py-0.5 rounded bg-white border border-stone-200 text-[10px] font-semibold text-stone-600">${escapeHtml(m.type)}</span>
+                      <span class="text-xs md:text-sm font-semibold text-stone-800 truncate">${escapeHtml(m.menu)}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 flex-wrap mt-1">
+                      ${hasNut ? `<span class="text-[11px] font-bold text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded">${Number(m.kcal || 0)}kcal</span>` : ''}
+                      ${hasNut ? `<span class="text-[10px] text-stone-600 bg-white border border-stone-200 px-1.5 py-0.5 rounded">탄 ${Number(m.carb || 0)}g · 단 ${Number(m.protein || 0)}g · 지 ${Number(m.fat || 0)}g</span>` : ''}
+                      <span class="text-[11px] text-stone-500">${escapeHtml(m.fullness)}</span>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" onclick="deleteMealEntry('${m.id}')" class="text-xs text-stone-400 hover:text-rose-600 px-2 py-1 shrink-0 transition" title="삭제">✕</button>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // Bowels List
+      const bowelBadge = document.getElementById('bowelStatusBadge');
+      if (bowelBadge) bowelBadge.textContent = `오늘 ${rec.bowels.length}회`;
+
+      const bowelList = document.getElementById('bowelListContainer');
+      if (bowelList) {
+        if (rec.bowels.length === 0) {
+          bowelList.innerHTML = `
+            <div class="text-center py-6 px-3 rounded-xl border border-dashed border-stone-200 text-xs text-stone-400">
+              오늘 화장실 다녀오셨나요? 형태와 쾌변도를 선택하고 기록해 보세요.
+            </div>`;
+        } else {
+          bowelList.innerHTML = rec.bowels.map(b => {
+            const meta = BRISTOL_META[b.bristol] || BRISTOL_META[4];
+            return `
+              <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-stone-50/80 border border-stone-200/70">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold shrink-0">${escapeHtml(b.time)}</span>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="text-xs font-bold text-stone-800">${escapeHtml(b.feeling)}</span>
+                      <span class="text-[11px] px-2 py-0.5 rounded-full font-semibold ${meta.badge}">${meta.name}</span>
+                    </div>
+                    ${b.note ? `<div class="text-[11px] text-stone-500 mt-0.5 truncate">${escapeHtml(b.note)}</div>` : ''}
+                  </div>
+                </div>
+                <button type="button" onclick="deleteBowelEntry('${b.id}')" class="text-xs text-stone-400 hover:text-rose-600 px-2 py-1 shrink-0 transition">✕</button>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 2-Split Stretch Checklist
+      const stretchLabel = document.getElementById('stretchCountLabel');
+      if (stretchLabel) stretchLabel.textContent = `${rec.stretches.length} / ${STRETCH_ITEMS.length} 완료`;
+
+      const stretchGrid = document.getElementById('stretchChecklistGrid');
+      if (stretchGrid) {
+        stretchGrid.innerHTML = STRETCH_ITEMS.map(item => {
+          const checked = rec.stretches.includes(item.id);
+          return `
+            <button type="button" onclick="toggleStretchItem('${item.id}')" class="flex items-center justify-between gap-2 p-3 rounded-xl border text-xs transition text-left ${checked ? 'chip-selected-teal' : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'}">
+              <span class="font-bold">${item.label}</span>
+              <span class="text-base shrink-0">${checked ? '✅' : '⬜'}</span>
+            </button>
+          `;
+        }).join('');
+      }
+
+      // Workouts List
+      const workoutBadge = document.getElementById('workoutTotalBadge');
+      if (workoutBadge) workoutBadge.textContent = `운동 ${totalWorkoutMin}분`;
+
+      const workoutList = document.getElementById('workoutListContainer');
+      if (workoutList) {
+        if (rec.workouts.length === 0) {
+          workoutList.innerHTML = `
+            <div class="text-center py-5 px-3 rounded-xl border border-dashed border-stone-200 text-xs text-stone-400">
+              오늘 한 운동(웨이트, 천국의 계단, 홈트, 산책 등)을 기록해 보세요!
+            </div>`;
+        } else {
+          workoutList.innerHTML = rec.workouts.map(w => `
+            <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-stone-50/80 border border-stone-200/70">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="px-2.5 py-1 rounded-lg bg-indigo-100 text-indigo-800 text-xs font-bold shrink-0">${w.minutes}분</span>
+                <div class="min-w-0">
+                  <div class="text-xs md:text-sm font-semibold text-stone-800 truncate">${escapeHtml(w.name)}</div>
+                  <div class="text-[11px] text-stone-500">강도: ${escapeHtml(w.intensity)}</div>
+                </div>
+              </div>
+              <button type="button" onclick="deleteWorkoutEntry('${w.id}')" class="text-xs text-stone-400 hover:text-rose-600 px-2 py-1 shrink-0 transition">✕</button>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Mood Picker
+      [1, 2, 3, 4, 5].forEach(lvl => {
+        const btn = document.getElementById(`moodBtn-${lvl}`);
+        if (!btn) return;
+        if (rec.moodLevel === lvl) {
+          btn.classList.add('chip-selected');
+          btn.classList.remove('border-stone-200');
+        } else {
+          btn.classList.remove('chip-selected');
+          btn.classList.add('border-stone-200');
+        }
+      });
+
+      // Emotion Tags
+      const emotionGrid = document.getElementById('emotionTagGrid');
+      if (emotionGrid) {
+        emotionGrid.innerHTML = EMOTION_TAGS.map(tag => {
+          const active = rec.emotionTags.includes(tag);
+          return `
+            <button type="button" onclick="toggleEmotionTag('${tag}')" class="px-2.5 py-1 rounded-full border text-xs transition ${active ? 'chip-selected-indigo' : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'}">
+              ${tag}
+            </button>
+          `;
+        }).join('');
+      }
+
+      // Energy Slider
+      const energyRange = document.getElementById('energyLevelRange');
+      const energyLabel = document.getElementById('energyLevelLabel');
+      if (energyRange) energyRange.value = rec.energyLevel ?? 3;
+      if (energyLabel) energyLabel.textContent = `${rec.energyLevel ?? 3} / 5`;
+
+      const moodTextarea = document.getElementById('moodNoteTextarea');
+      if (moodTextarea && document.activeElement !== moodTextarea) {
+        moodTextarea.value = rec.moodNote || '';
+      }
+
+      // Bottom Cycle & Cervical Discharge Banner in Today View
+      const todayCyclePhasePill = document.getElementById('todayCyclePhasePill');
+      const todayCycleDesc = document.getElementById('todayCycleDesc');
+      const quickTogglePeriodBtn = document.getElementById('quickTogglePeriodBtn');
+      if (todayCyclePhasePill) {
+        todayCyclePhasePill.textContent = `${cycleInfo.phaseName} · 주기 ${cycleInfo.cycleDay}일차 (예정일 D-${cycleInfo.daysUntilNext})`;
+      }
+      if (todayCycleDesc) {
+        todayCycleDesc.textContent = cycleInfo.shortAdvice;
+      }
+      if (quickTogglePeriodBtn) {
+        if (cycleInfo.isActualPeriod) {
+          quickTogglePeriodBtn.textContent = '✓ 오늘 생리 중 체크됨 (해제)';
+          quickTogglePeriodBtn.className = 'px-4 py-2.5 rounded-xl text-xs font-bold bg-stone-800 hover:bg-stone-700 text-white shadow-xs transition';
+        } else {
+          quickTogglePeriodBtn.textContent = '🩸 오늘 생리 중 체크';
+          quickTogglePeriodBtn.className = 'px-4 py-2.5 rounded-xl text-xs font-bold bg-rose-500 hover:bg-rose-600 text-white shadow-xs transition';
+        }
+      }
+
+      const todayDischargeGrid = document.getElementById('todayDischargeGrid');
+      const todayDischargeBadge = document.getElementById('todayDischargeBadge');
+      const todayDischargeGuideText = document.getElementById('todayDischargeGuideText');
+
+      if (todayDischargeGrid) {
+        todayDischargeGrid.innerHTML = renderDischargeGridHtml(rec.cervicalDischarge);
+      }
+
+      const selectedDischargeObj = DISCHARGE_ITEMS.find(d => d.id === rec.cervicalDischarge);
+      if (todayDischargeBadge) {
+        todayDischargeBadge.textContent = selectedDischargeObj ? selectedDischargeObj.label : '미체크';
+      }
+      if (todayDischargeGuideText) {
+        if (selectedDischargeObj) {
+          todayDischargeGuideText.innerHTML = `<strong>선택한 상태 (${selectedDischargeObj.label}):</strong> ${selectedDischargeObj.guide} <span class="text-rose-600 font-medium">(${cycleInfo.phaseName} 평균 패턴: ${cycleInfo.expectedDischarge})</span>`;
+        } else {
+          todayDischargeGuideText.innerHTML = `<strong>현재 ${cycleInfo.phaseName} 예상 분비물 패턴:</strong> ${cycleInfo.expectedDischarge}`;
+        }
+      }
+    }
+
+    function renderMounjaroView(rec, mjInfo) {
+      const shotDateInput = document.getElementById('mjShotDateInput');
+      if (shotDateInput && !shotDateInput.value) {
+        shotDateInput.value = state.selectedDate;
+      }
+
+      const activeMgEl = document.getElementById('mjCurrentActiveMg');
+      const phaseEl = document.getElementById('mjCurrentPhaseText');
+      const elapsedEl = document.getElementById('mjElapsedTimeText');
+      const lastDoseEl = document.getElementById('mjLastDoseSummary');
+      const nextDateEl = document.getElementById('mjNextShotDateText');
+      const nextSiteEl = document.getElementById('mjNextRecommendedSite');
+      const totalShotsEl = document.getElementById('mjTotalShotsText');
+      const weightEl = document.getElementById('mjLatestWeightText');
+      const adviceBanner = document.getElementById('mjPkAdviceBanner');
+
+      if (activeMgEl) activeMgEl.textContent = `${mjInfo.activeMg.toFixed(2)} mg`;
+      if (phaseEl) phaseEl.textContent = mjInfo.phaseLabel;
+      if (elapsedEl) elapsedEl.textContent = mjInfo.elapsedText;
+      if (lastDoseEl) lastDoseEl.textContent = mjInfo.lastDoseSummary;
+      if (nextDateEl) nextDateEl.textContent = mjInfo.nextShotDate;
+      if (nextSiteEl) nextSiteEl.textContent = mjInfo.recommendedSite;
+      if (totalShotsEl) totalShotsEl.textContent = `${mjInfo.totalShots}회 투여`;
+      if (weightEl) weightEl.textContent = `최근 기록 체중: ${mjInfo.latestWeight}`;
+      if (adviceBanner) adviceBanner.textContent = mjInfo.adviceText;
+
+      const btnActual = document.getElementById('mjModeBtn-actual');
+      const btnPreview = document.getElementById('mjModeBtn-preview');
+      const modeLabel = document.getElementById('mjCurveModeLabel');
+
+      if (btnActual && btnPreview) {
+        if (state.mounjaroCurveMode === 'preview') {
+          btnPreview.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-700 text-white transition';
+          btnActual.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200 transition';
+        } else {
+          btnActual.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-white transition';
+          btnPreview.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition';
+        }
+      }
+      if (modeLabel) {
+        modeLabel.textContent = state.mounjaroCurveMode === 'preview'
+          ? '2.5mg 주1회 4주 누적 시뮬레이션'
+          : (mjInfo.hasShots ? '내 실제 투약 기록 곡선' : '투약 기록 대기 중 (시뮬레이션 버튼을 눌러보세요)');
+      }
+
+      renderMounjaroPkCurveSvg();
+
+      const histEl = document.getElementById('mjShotHistoryList');
+      if (histEl) {
+        const shots = state.mounjaroShots || [];
+        if (shots.length === 0) {
+          histEl.innerHTML = `
+            <div class="text-center py-6 px-3 rounded-xl border border-dashed border-stone-200 text-xs text-stone-400">
+              아직 등록된 마운자로 주사 기록이 없어요.<br>첫 투약을 시작하면 위에서 일시·용량·부위를 저장해 보세요!
+            </div>`;
+        } else {
+          histEl.innerHTML = shots.map(s => `
+            <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-stone-50/90 border border-stone-200/80">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-xs font-bold">${Number(s.dose).toFixed(1)} mg</span>
+                  <span class="text-xs font-bold text-stone-800">${escapeHtml(s.date)} ${escapeHtml(s.time || '')}</span>
+                  <span class="text-[11px] px-2 py-0.5 rounded-full bg-white border border-stone-200 text-stone-600">${escapeHtml(s.site)}</span>
+                  ${s.weight ? `<span class="text-[11px] font-semibold text-indigo-700">${Number(s.weight).toFixed(1)}kg</span>` : ''}
+                </div>
+                ${s.note ? `<div class="text-[11px] text-stone-500 mt-1 truncate">${escapeHtml(s.note)}</div>` : ''}
+              </div>
+              <button type="button" onclick="deleteMounjaroShot('${s.id}')" class="text-xs text-stone-400 hover:text-rose-600 px-2 py-1 shrink-0">✕</button>
+            </div>
+          `).join('');
+        }
+      }
+
+      const dateLabel = document.getElementById('mjSideEffectDateLabel');
+      if (dateLabel) dateLabel.textContent = state.selectedDate;
+
+      const seCountBadge = document.getElementById('mjSideEffectCountBadge');
+      if (seCountBadge) seCountBadge.textContent = `체크 항목 ${rec.mjSideEffects.length}개`;
+
+      const appRange = document.getElementById('mjAppetiteRange');
+      const appLabel = document.getElementById('mjAppetiteLabel');
+      const sevRange = document.getElementById('mjSeverityRange');
+      const sevLabel = document.getElementById('mjSeverityLabel');
+      const seNoteInput = document.getElementById('mjSideEffectNoteInput');
+
+      if (appRange) appRange.value = rec.mjAppetite ?? 3;
+      if (appLabel) appLabel.textContent = MJ_APPETITE_TEXT[rec.mjAppetite ?? 3] || '3 / 5';
+      if (sevRange) sevRange.value = rec.mjSeverity ?? 0;
+      if (sevLabel) sevLabel.textContent = MJ_SEVERITY_TEXT[rec.mjSeverity ?? 0] || '없음 (0/4)';
+      if (seNoteInput && document.activeElement !== seNoteInput) {
+        seNoteInput.value = rec.mjNote || '';
+      }
+
+      const seGrid = document.getElementById('mjSideEffectsGrid');
+      if (seGrid) {
+        seGrid.innerHTML = MJ_SIDE_EFFECT_ITEMS.map(item => {
+          const active = rec.mjSideEffects.includes(item.id);
+          return `
+            <button type="button" onclick="toggleMounjaroSideEffect('${item.id}')" class="p-2.5 rounded-xl border text-xs text-left transition flex items-center justify-between ${active ? 'chip-selected-amber' : 'bg-stone-50/70 border-stone-200 text-stone-700 hover:bg-stone-100'}">
+              <span class="truncate">${item.label}</span>
+              <span class="ml-1 shrink-0">${active ? '✓' : ''}</span>
+            </button>
+          `;
+        }).join('');
+      }
+    }
+
+    function renderMounjaroPkCurveSvg() {
+      const svg = document.getElementById('mjPkCurveSvg');
+      if (!svg) return;
+
+      const shotsToPlot = state.mounjaroCurveMode === 'preview'
+        ? getPreviewSimulatedShots(state.selectedDate)
+        : (state.mounjaroShots || []);
+
+      const startDateStr = addDays(state.selectedDate, -14);
+      const startMs = dateTimeToMs(startDateStr, '00:00');
+      const totalDays = 28;
+      const totalHours = totalDays * 24;
+      const stepHours = 4;
+      const numSteps = Math.floor(totalHours / stepHours);
+
+      const width = 760;
+      const height = 220;
+      const padLeft = 46;
+      const padRight = 20;
+      const padTop = 22;
+      const padBottom = 34;
+      const plotW = width - padLeft - padRight;
+      const plotH = height - padTop - padBottom;
+
+      const points = [];
+      let maxMg = 3.5;
+
+      for (let i = 0; i <= numSteps; i++) {
+        const h = i * stepHours;
+        const ms = startMs + h * 3600 * 1000;
+        const mg = getTotalActiveMgAtMs(ms, shotsToPlot);
+        if (mg > maxMg) maxMg = mg * 1.15;
+        points.push({ h, mg });
+      }
+
+      const xOfH = h => padLeft + (h / totalHours) * plotW;
+      const yOfMg = mg => padTop + plotH - (Math.min(mg, maxMg) / maxMg) * plotH;
+
+      let gridHtml = '';
+      const yTicks = [0, maxMg * 0.5, maxMg];
+      yTicks.forEach(val => {
+        const y = yOfMg(val);
+        gridHtml += `
+          <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${width - padRight}" y2="${y.toFixed(1)}" stroke="#e7e5e4" stroke-dasharray="3 3" />
+          <text x="${padLeft - 6}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="#78716c">${val.toFixed(1)}mg</text>
+        `;
+      });
+
+      for (let d = 0; d <= totalDays; d += 7) {
+        const x = xOfH(d * 24);
+        const labelDate = addDays(startDateStr, d).slice(5);
+        gridHtml += `
+          <line x1="${x.toFixed(1)}" y1="${padTop}" x2="${x.toFixed(1)}" y2="${padTop + plotH}" stroke="#f5f5f4" />
+          <text x="${x.toFixed(1)}" y="${height - 10}" text-anchor="middle" font-size="10" fill="#78716c">${labelDate}</text>
+        `;
+      }
+
+      const selHours = 14 * 24 + 14;
+      const selX = xOfH(selHours);
+      const selMg = getTotalActiveMgAtMs(startMs + selHours * 3600 * 1000, shotsToPlot);
+      const selY = yOfMg(selMg);
+
+      const pathD = points.map((pt, idx) => `${idx === 0 ? 'M' : 'L'} ${xOfH(pt.h).toFixed(1)} ${yOfMg(pt.mg).toFixed(1)}`).join(' ');
+      const areaD = `${pathD} L ${xOfH(totalHours).toFixed(1)} ${(padTop + plotH).toFixed(1)} L ${padLeft} ${(padTop + plotH).toFixed(1)} Z`;
+
+      let shotMarkersHtml = '';
+      shotsToPlot.forEach(s => {
+        const sMs = dateTimeToMs(s.date, s.time || '10:00');
+        const h = (sMs - startMs) / (1000 * 3600);
+        if (h >= 0 && h <= totalHours) {
+          const sx = xOfH(h);
+          shotMarkersHtml += `
+            <line x1="${sx.toFixed(1)}" y1="${padTop}" x2="${sx.toFixed(1)}" y2="${padTop + plotH}" stroke="#10b981" stroke-width="1" stroke-dasharray="2 2" />
+            <text x="${sx.toFixed(1)}" y="${padTop - 6}" text-anchor="middle" font-size="9" font-weight="bold" fill="#047857">💉${s.dose}mg</text>
+          `;
+        }
+      });
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="mjAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.32" />
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.02" />
+          </linearGradient>
+        </defs>
+        ${gridHtml}
+        <path d="${areaD}" fill="url(#mjAreaGrad)" />
+        <path d="${pathD}" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" />
+        ${shotMarkersHtml}
+        <line x1="${selX.toFixed(1)}" y1="${padTop}" x2="${selX.toFixed(1)}" y2="${padTop + plotH}" stroke="#e11d48" stroke-width="1.5" />
+        <circle cx="${selX.toFixed(1)}" cy="${selY.toFixed(1)}" r="4.5" fill="#e11d48" stroke="#ffffff" stroke-width="1.5" />
+        <text x="${(selX + 6).toFixed(1)}" y="${Math.max(padTop + 12, selY - 6).toFixed(1)}" font-size="10" font-weight="bold" fill="#be123c">선택일 (${selMg.toFixed(2)}mg)</text>
+      `;
+    }
+
+    function renderCycleView(rec, cycleInfo) {
+      const nextDateEl = document.getElementById('cycleNextDateText');
+      const nextDdayEl = document.getElementById('cycleNextDdayText');
+      const curDayEl = document.getElementById('cycleCurrentDayText');
+      const phaseNameEl = document.getElementById('cyclePhaseNameText');
+      const ovuDateEl = document.getElementById('cycleOvulationDateText');
+      const avgSummaryEl = document.getElementById('cycleAvgSummaryText');
+      const barMarkerEl = document.getElementById('cycleBarMarkerText');
+      const symDateEl = document.getElementById('cycleSymptomDateLabel');
+      const tipBoxEl = document.getElementById('cycleCareTipBox');
+
+      if (nextDateEl) nextDateEl.textContent = cycleInfo.nextStartDate;
+      if (nextDdayEl) nextDdayEl.textContent = cycleInfo.daysUntilNext === 0 ? '오늘 예정일' : `${cycleInfo.daysUntilNext}일 남음 (D-${cycleInfo.daysUntilNext})`;
+      if (curDayEl) curDayEl.textContent = `주기 ${cycleInfo.cycleDay}일차`;
+      if (phaseNameEl) phaseNameEl.textContent = cycleInfo.phaseName;
+      if (ovuDateEl) ovuDateEl.textContent = cycleInfo.ovulationDate;
+      if (avgSummaryEl) avgSummaryEl.textContent = `${cycleInfo.cycleLen}일 / ${cycleInfo.periodLen}일`;
+      if (barMarkerEl) barMarkerEl.textContent = `현재: ${cycleInfo.cycleDay}일차 (${cycleInfo.phaseName})`;
+      if (symDateEl) symDateEl.textContent = state.selectedDate;
+      if (tipBoxEl) tipBoxEl.innerHTML = cycleInfo.detailedTip;
+
+      const lastStartInput = document.getElementById('cycleLastStartInput');
+      const cycleLenInput = document.getElementById('cycleLengthInput');
+      const periodLenInput = document.getElementById('periodLengthInput');
+      if (lastStartInput) lastStartInput.value = state.cycleConfig.lastStartDate;
+      if (cycleLenInput) cycleLenInput.value = state.cycleConfig.cycleLength;
+      if (periodLenInput) periodLenInput.value = state.cycleConfig.periodLength;
+
+      [0, 1, 2, 3, 4].forEach(lvl => {
+        const btn = document.getElementById(`flowBtn-${lvl}`);
+        if (!btn) return;
+        if ((rec.flowLevel || 0) === lvl) {
+          btn.classList.add('chip-selected');
+          btn.classList.remove('border-stone-200');
+        } else {
+          btn.classList.remove('chip-selected');
+          btn.classList.add('border-stone-200');
+        }
+      });
+
+      const cycleDischargeGrid = document.getElementById('cycleDischargeGrid');
+      if (cycleDischargeGrid) {
+        cycleDischargeGrid.innerHTML = renderDischargeGridHtml(rec.cervicalDischarge);
+      }
+
+      const symGrid = document.getElementById('cycleSymptomGrid');
+      if (symGrid) {
+        symGrid.innerHTML = CYCLE_SYMPTOMS.map(sym => {
+          const active = rec.cycleSymptoms.includes(sym);
+          return `
+            <button type="button" onclick="toggleCycleSymptom('${sym}')" class="px-3 py-1.5 rounded-xl border text-xs transition ${active ? 'chip-selected' : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'}">
+              ${active ? '✓ ' : ''}${sym}
+            </button>
+          `;
+        }).join('');
+      }
+
+      const histList = document.getElementById('cycleHistoryList');
+      if (histList) {
+        const dates = state.cycleConfig.historyStartDates || [];
+        if (dates.length === 0) {
+          histList.innerHTML = `<div class="text-xs text-stone-400 py-2">기록된 시작일이 없습니다.</div>`;
+        } else {
+          histList.innerHTML = dates.map((d, idx) => {
+            const nextOlder = dates[idx + 1];
+            const gap = nextOlder ? `${diffDays(d, nextOlder)}일 주기` : '기준 시작일';
+            return `
+              <div class="flex items-center justify-between px-3 py-1.5 rounded-lg bg-stone-50 border border-stone-200/70 text-xs">
+                <div>
+                  <span class="font-bold text-stone-800">🩸 ${d}</span>
+                  <span class="text-stone-500 ml-2">(${gap})</span>
+                </div>
+                <button type="button" onclick="deleteCycleHistoryDate('${d}')" class="text-stone-400 hover:text-rose-600">✕</button>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    }
+
+    function renderCalendarView() {
+      const titleEl = document.getElementById('calendarMonthTitle');
+      const gridEl = document.getElementById('calendarGridContainer');
+      if (!gridEl) return;
+
+      const y = state.calendarYear;
+      const m = state.calendarMonth;
+      if (titleEl) titleEl.textContent = `${y}년 ${m}월`;
+
+      const firstDayOfMonth = new Date(Date.UTC(y, m - 1, 1));
+      const startDow = firstDayOfMonth.getUTCDay();
+      const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
+
+      let cellsHtml = '';
+      for (let i = 0; i < startDow; i++) {
+        cellsHtml += `<div class="h-20 md:h-24 rounded-xl bg-stone-50/40 border border-transparent"></div>`;
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const rec = state.days[dateStr];
+        const cInfo = calculateCycleInfo(dateStr);
+
+        const isSelected = dateStr === state.selectedDate;
+        const isActualPeriod = rec && (rec.isPeriod || rec.flowLevel > 0);
+        const isPredictedPeriod = !isActualPeriod && cInfo.cycleDay <= cInfo.periodLen;
+        const isOvulationWindow = Math.abs(cInfo.cycleDay - cInfo.ovulationDayInCycle) <= 1;
+        const mjShotOnDay = (state.mounjaroShots || []).find(s => s.date === dateStr);
+
+        let borderClass = isSelected ? 'ring-2 ring-stone-800 border-stone-800 bg-amber-50/30' : 'border-stone-200/80 bg-white hover:bg-stone-50';
+        if (isActualPeriod) borderClass += ' bg-rose-50/70 border-rose-300';
+        else if (isPredictedPeriod) borderClass += ' bg-rose-50/30 border-rose-200 border-dashed';
+
+        const hasMed = rec && (rec.psychMedTaken || rec.supplementTaken);
+        const hasMeal = rec && rec.meals && rec.meals.length > 0;
+        const hasBowel = rec && rec.bowels && rec.bowels.length > 0;
+        const hasWorkout = rec && ((rec.workouts && rec.workouts.length > 0) || (rec.stretches && rec.stretches.length > 0));
+        const moodEmoji = rec && rec.moodLevel && MOOD_META[rec.moodLevel] ? MOOD_META[rec.moodLevel].emoji : '';
+
+        cellsHtml += `
+          <button type="button" onclick="selectDateFromCalendar('${dateStr}')" class="h-20 md:h-24 p-1.5 md:p-2 rounded-xl border text-left flex flex-col justify-between transition ${borderClass}">
+            <div class="flex items-center justify-between w-full">
+              <span class="text-xs font-bold ${isActualPeriod ? 'text-rose-600' : 'text-stone-700'}">${day}</span>
+              <span class="text-xs">${moodEmoji}</span>
+            </div>
+            <div class="space-y-0.5 w-full">
+              ${mjShotOnDay ? `<div class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-600 text-white font-semibold truncate">💉 ${mjShotOnDay.dose}mg</div>` : ''}
+              ${isActualPeriod ? `<div class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500 text-white font-semibold truncate">🩸 생리일</div>` : ''}
+              ${!isActualPeriod && isPredictedPeriod ? `<div class="text-[10px] px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-medium truncate">예정일</div>` : ''}
+              ${!isActualPeriod && !isPredictedPeriod && isOvulationWindow ? `<div class="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-medium truncate">배란기</div>` : ''}
+              <div class="flex items-center gap-0.5 text-[11px] pt-0.5 flex-wrap">
+                ${hasMed ? '<span>💊</span>' : ''}
+                ${hasMeal ? '<span>🍽️</span>' : ''}
+                ${hasBowel ? '<span>🚽</span>' : ''}
+                ${hasWorkout ? '<span>💪</span>' : ''}
+              </div>
+            </div>
+          </button>
+        `;
+      }
+
+      gridEl.innerHTML = cellsHtml;
+    }
+
+    function renderStatsView() {
+      let bowelDays = 0;
+      let workoutTotalMin = 0;
+      let stretchDays = 0;
+      let moodSum = 0;
+      let moodCount = 0;
+      let sleepSum = 0;
+      let sleepCount = 0;
+      let mealTotal = 0;
+      let waterSum = 0;
+      let kcalSum = 0;
+      let kcalDays = 0;
+
+      const rowsHtml = [];
+
+      for (let i = 0; i < 7; i++) {
+        const dStr = addDays(state.selectedDate, -i);
+        const rec = state.days[dStr];
+        const mjDayInfo = analyzeMounjaroStatus(dStr);
+        const dayNut = getDayNutritionTotals(rec);
+
+        const meals = rec ? rec.meals || [] : [];
+        const bowels = rec ? rec.bowels || [] : [];
+        const stretches = rec ? rec.stretches || [] : [];
+        const workouts = rec ? rec.workouts || [] : [];
+        const wMin = workouts.reduce((s, w) => s + (Number(w.minutes) || 0), 0);
+
+        if (bowels.length > 0) bowelDays += 1;
+        workoutTotalMin += wMin;
+        if (stretches.length > 0) stretchDays += 1;
+        if (rec && rec.moodLevel) {
+          moodSum += rec.moodLevel;
+          moodCount += 1;
+        }
+        if (rec && rec.sleepHours) {
+          sleepSum += Number(rec.sleepHours);
+          sleepCount += 1;
+        }
+        mealTotal += meals.length;
+        waterSum += rec ? (rec.waterCups || 0) : 0;
+        if (dayNut.kcal > 0) {
+          kcalSum += dayNut.kcal;
+          kcalDays += 1;
+        }
+
+        const medParts = [];
+        if (rec && rec.psychMedTaken) medParts.push('정신과약✅');
+        if (rec && rec.supplementTaken) medParts.push('영양제✅');
+        const medSummary = medParts.length > 0
+          ? medParts.join(' · ')
+          : '<span class="text-stone-400">미체크</span>';
+
+        const sleepSummary = rec && (rec.bedTime || rec.sleepQuality)
+          ? `${rec.bedTime || '00:30'} 취침 (${rec.sleepHours || 7.5}h · ${rec.sleepQuality || '보통'})`
+          : '<span class="text-stone-400">-</span>';
+
+        const mealSummary = meals.length > 0
+          ? `<strong>${dayNut.kcal}kcal</strong> (탄${dayNut.carb}/단${dayNut.protein}/지${dayNut.fat}g) · ${meals.map(m => m.menu).join(', ')}`
+          : '<span class="text-stone-400">-</span>';
+
+        const bowelSummary = bowels.length > 0
+          ? bowels.map(b => `${b.time} (${b.feeling})`).join(', ')
+          : '<span class="text-stone-400">미기록</span>';
+
+        const stretchNames = [];
+        if (stretches.includes('upper')) stretchNames.push('상체');
+        if (stretches.includes('lower')) stretchNames.push('하체');
+        const moveSummary = (wMin > 0 || stretchNames.length > 0)
+          ? `${stretchNames.length > 0 ? stretchNames.join('+') + ' 스트레칭' : '스트레칭 없음'} · 운동 ${wMin}분`
+          : '<span class="text-stone-400">-</span>';
+
+        const seCount = rec && rec.mjSideEffects ? rec.mjSideEffects.length : 0;
+        const mjSummary = (mjDayInfo.hasShots || seCount > 0)
+          ? `${mjDayInfo.activeMg.toFixed(2)}mg${seCount > 0 ? ' · 부작용 ' + seCount + '개' : ''}`
+          : '<span class="text-stone-400">-</span>';
+
+        const dischargeObj = rec && rec.cervicalDischarge
+          ? DISCHARGE_ITEMS.find(d => d.id === rec.cervicalDischarge)
+          : null;
+        const moodPart = rec && rec.moodLevel && MOOD_META[rec.moodLevel]
+          ? `${MOOD_META[rec.moodLevel].emoji} ${MOOD_META[rec.moodLevel].label}`
+          : '-';
+        const moodAndDischarge = (moodPart !== '-' || dischargeObj)
+          ? `${moodPart}${dischargeObj ? ' · 💧' + dischargeObj.label : ''}`
+          : '<span class="text-stone-400">-</span>';
+
+        rowsHtml.push(`
+          <tr class="hover:bg-stone-50/80 cursor-pointer" onclick="selectDateFromCalendar('${dStr}')">
+            <td class="py-2.5 px-3 font-bold text-stone-800 whitespace-nowrap">${dStr}</td>
+            <td class="py-2.5 px-3 text-stone-700 whitespace-nowrap">${medSummary}</td>
+            <td class="py-2.5 px-3 text-stone-700 whitespace-nowrap">${sleepSummary}</td>
+            <td class="py-2.5 px-3 text-stone-700 max-w-xs truncate">${mealSummary}</td>
+            <td class="py-2.5 px-3 text-stone-700 whitespace-nowrap">${bowelSummary}</td>
+            <td class="py-2.5 px-3 text-stone-700 whitespace-nowrap">${moveSummary}</td>
+            <td class="py-2.5 px-3 text-emerald-800 font-medium whitespace-nowrap">${mjSummary}</td>
+            <td class="py-2.5 px-3 text-stone-700 whitespace-nowrap">${moodAndDischarge}</td>
+          </tr>
+        `);
+      }
+
+      const statBowelDays = document.getElementById('statBowelDays');
+      const statWorkoutTotal = document.getElementById('statWorkoutTotal');
+      const statStretchDays = document.getElementById('statStretchDays');
+      const statAvgMood = document.getElementById('statAvgMood');
+      const statAvgSleep = document.getElementById('statAvgSleep');
+      const statMealCount = document.getElementById('statMealCount');
+      const statWaterAvg = document.getElementById('statWaterAvg');
+      const tableBody = document.getElementById('weeklyReportTableBody');
+
+      if (statBowelDays) statBowelDays.textContent = `${bowelDays} / 7일`;
+      if (statWorkoutTotal) statWorkoutTotal.textContent = `${workoutTotalMin}분`;
+      if (statStretchDays) statStretchDays.textContent = `${stretchDays}`;
+      if (statAvgMood) {
+        if (moodCount > 0) {
+          const avg = Math.round(moodSum / moodCount);
+          statAvgMood.textContent = `${MOOD_META[avg].emoji} ${(moodSum / moodCount).toFixed(1)}점`;
+        } else {
+          statAvgMood.textContent = '기록 전';
+        }
+      }
+      if (statAvgSleep) {
+        statAvgSleep.textContent = sleepCount > 0
+          ? `평균 수면 ${(sleepSum / sleepCount).toFixed(1)}시간`
+          : '평균 수면 7.5시간';
+      }
+      if (statMealCount) {
+        statMealCount.textContent = kcalDays > 0
+          ? `일평균 ${Math.round(kcalSum / kcalDays)}kcal`
+          : `${mealTotal}회`;
+      }
+      if (statWaterAvg) statWaterAvg.textContent = `최근 7일 ${mealTotal}끼 · 일평균 수분 ${(waterSum / 7).toFixed(1)}컵`;
+      if (tableBody) tableBody.innerHTML = rowsHtml.join('');
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // --- Initialize App ---
+    window.addEventListener('DOMContentLoaded', function () {
+      loadStateFromStorage();
+      selectBristolType(state.selectedBristol || 4);
+      renderAll();
+    });
+  </script>
+  <!-- PWA: 오프라인 캐시용 서비스 워커 등록 (기존 앱 로직과 무관) -->
+  <script>
+    if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function () {});
+      });
+    }
+  </script>
+</body>
+</html>
