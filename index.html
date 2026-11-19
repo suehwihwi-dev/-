@@ -42,61 +42,84 @@
       background: #d6d0c4;
       border-radius: 9999px;
     }
+    .border-dashed {
+      border-style: solid !important;
+      border-color: #f5f5f4 !important;
+    }
+    /* ===== 선택·활성 상태: 흑색 덩어리 대신 밝은 톤 + 또렷한 글씨 ===== */
     .chip-selected,
     .chip-selected-teal,
     .chip-selected-amber,
     .chip-selected-indigo,
     .chip-selected-purple,
     .chip-selected-emerald {
-      background-color: #1c1917 !important;
-      border-color: #1c1917 !important;
-      color: #ffffff !important;
-      font-weight: 500 !important;
-    }
-    .border-dashed {
+      border-width: 1.5px !important;
       border-style: solid !important;
-      border-color: #f5f5f4 !important;
-    }
-    .tab-active {
-      background-color: #292524;
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(41, 37, 36, 0.15);
+      font-weight: 600 !important;
     }
     .chip-selected {
-      background-color: #fff1f2;
-      border-color: #f43f5e;
-      color: #be123c;
-      font-weight: 600;
+      background-color: #f1f5f9 !important;
+      border-color: #9ca3af !important;
+      color: #111827 !important;
+    }
+    .chip-selected:active {
+      background-color: #e2e8f0 !important;
     }
     .chip-selected-teal {
-      background-color: #f0fdfa;
-      border-color: #0d9488;
-      color: #0f766e;
-      font-weight: 600;
+      background-color: #f0fdfa !important;
+      border-color: #5eead4 !important;
+      color: #0f766e !important;
+    }
+    .chip-selected-teal:active {
+      background-color: #ccfbf1 !important;
     }
     .chip-selected-amber {
-      background-color: #fffbeb;
-      border-color: #d97706;
-      color: #b45309;
-      font-weight: 600;
+      background-color: #fffbeb !important;
+      border-color: #fcd34d !important;
+      color: #92400e !important;
     }
     .chip-selected-indigo {
-      background-color: #eef2ff;
-      border-color: #6366f1;
-      color: #4338ca;
-      font-weight: 600;
+      background-color: #eef2ff !important;
+      border-color: #a5b4fc !important;
+      color: #3730a3 !important;
+    }
+    .chip-selected-indigo:active {
+      background-color: #e0e7ff !important;
     }
     .chip-selected-purple {
-      background-color: #faf5ff;
-      border-color: #9333ea;
-      color: #6b21a8;
-      font-weight: 600;
+      background-color: #faf5ff !important;
+      border-color: #d8b4fe !important;
+      color: #6b21a8 !important;
     }
     .chip-selected-emerald {
-      background-color: #ecfdf5;
-      border-color: #10b981;
-      color: #047857;
+      background-color: #ecfdf5 !important;
+      border-color: #6ee7b7 !important;
+      color: #047857 !important;
+    }
+    /* 선택된 카드·칩 안의 보조 글씨도 밝은 배경 위에서 읽히도록 */
+    [class*="chip-selected"] :is(.text-stone-300, .text-stone-400, .text-stone-500, .text-stone-600, .text-stone-700) {
+      color: #57534e !important;
+    }
+    .tab-active {
+      background-color: #e7e5e4;
+      color: #1c1917;
       font-weight: 600;
+      box-shadow: inset 0 0 0 1px #d6d0c4;
+    }
+    .tab-active:active {
+      background-color: #dcd8d1;
+    }
+    /* 아이폰 Safari 터치 시 순간적으로 덮이던 흑색 하이라이트 제거 */
+    html,
+    body,
+    header,
+    main,
+    button,
+    label,
+    summary,
+    a,
+    [role="button"] {
+      -webkit-tap-highlight-color: transparent;
     }
     /* ===== PWA 풀스크린(iPhone 홈 화면) 안전 영역 보정 ===== */
     html {
@@ -296,7 +319,7 @@
               <input type="number" id="mealKcalInput" min="0" max="5000" step="10" placeholder="0" class="w-24 px-2 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-900 focus:outline-none focus:border-stone-400" />
               <span class="text-[11px] text-stone-400">kcal</span>
               <button type="button" onclick="triggerManualNutritionEstimate()" class="ml-auto text-[11px] text-stone-400 hover:text-stone-700">다시 추정</button>
-              <button type="button" onclick="addMealEntry()" class="px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium shrink-0 transition">기록</button>
+              <button type="button" onclick="addMealEntry()" class="px-3 py-1.5 rounded-lg bg-stone-600 hover:bg-stone-700 text-white text-xs font-medium shrink-0 transition">기록</button>
             </div>
 
             <p id="mealEstimateHint" class="text-[11px] text-stone-400">메뉴를 적으면 칼로리를 자동으로 추정해요.</p>
@@ -336,7 +359,7 @@
               </div>
               <div class="flex gap-2">
                 <input type="text" id="bowelNoteInput" placeholder="메모 (선택)" onkeydown="if(event.key==='Enter'){addBowelEntry();}" class="flex-1 px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs text-stone-800 focus:outline-none focus:border-stone-400" />
-                <button type="button" onclick="addBowelEntry()" class="px-3 py-2 rounded-lg bg-stone-900 text-white text-xs font-medium shrink-0">기록</button>
+                <button type="button" onclick="addBowelEntry()" class="px-3 py-2 rounded-lg bg-stone-600 hover:bg-stone-700 text-white text-xs font-medium shrink-0">기록</button>
               </div>
             </div>
 
@@ -376,7 +399,7 @@
                   <option value="고강도">강하게</option>
                 </select>
               </div>
-              <button type="button" onclick="addWorkoutEntry()" class="w-full py-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium transition">운동 추가</button>
+              <button type="button" onclick="addWorkoutEntry()" class="w-full py-2 rounded-lg bg-stone-600 hover:bg-stone-700 text-white text-xs font-medium transition">운동 추가</button>
             </div>
 
             <div id="workoutListContainer" class="space-y-2 max-h-48 overflow-y-auto custom-scroll pr-1"></div>
@@ -428,7 +451,7 @@
             <span id="todayCyclePhasePill" class="text-xs text-stone-500 truncate">주기 분석</span>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" id="quickTogglePeriodBtn" onclick="togglePeriodOnSelectedDate()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-900 text-white transition">생리 중 체크</button>
+            <button type="button" id="quickTogglePeriodBtn" onclick="togglePeriodOnSelectedDate()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-600 hover:bg-stone-700 text-white transition">생리 중 체크</button>
             <button type="button" onclick="switchMainTab('cycle')" class="px-3 py-1.5 rounded-lg text-xs text-stone-500 border border-stone-200 transition">자세히</button>
           </div>
         </div>
@@ -444,7 +467,7 @@
             <p id="cycleSummaryText" class="text-sm text-stone-500 mt-1">-</p>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" id="cyclePeriodToggleBtn" onclick="togglePeriodOnSelectedDate()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-900 text-white transition">오늘 생리 중</button>
+            <button type="button" id="cyclePeriodToggleBtn" onclick="togglePeriodOnSelectedDate()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-600 hover:bg-stone-700 text-white transition">오늘 생리 중</button>
             <button type="button" onclick="setLastPeriodToSelectedDate()" class="px-3 py-1.5 rounded-lg text-xs text-stone-500 border border-stone-200 transition">시작일로 설정</button>
           </div>
         </div>
@@ -1844,7 +1867,7 @@
             <div class="flex items-center gap-1.5">
               <input type="number" id="customFoodKcalInput" min="0" max="5000" step="5" placeholder="1인분 kcal" class="w-24 px-2 py-1 rounded-md border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-stone-400" onkeydown="if(event.key==='Enter'){event.preventDefault();saveCustomFoodFromForm();}" />
               <span class="text-[10px] text-stone-400">1인분 기준</span>
-              <button type="button" onclick="saveCustomFoodFromForm()" class="ml-auto px-2.5 py-1 rounded-md bg-stone-900 text-white text-[11px] font-medium">저장</button>
+              <button type="button" onclick="saveCustomFoodFromForm()" class="ml-auto px-2.5 py-1 rounded-md bg-stone-600 hover:bg-stone-700 text-white text-[11px] font-medium">저장</button>
               <button type="button" onclick="cancelCustomFoodRegister()" class="px-1.5 py-1 text-[11px] text-stone-400">취소</button>
             </div>
           </div>`;
@@ -3003,7 +3026,7 @@
           quickTogglePeriodBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium border border-stone-300 text-stone-700 transition';
         } else {
           quickTogglePeriodBtn.textContent = '생리 중 체크';
-          quickTogglePeriodBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-900 text-white transition';
+          quickTogglePeriodBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-600 hover:bg-stone-700 text-white transition';
         }
       }
 
@@ -3040,7 +3063,7 @@
         toggleBtn.textContent = cycleInfo.isActualPeriod ? '생리 중 · 해제' : '오늘 생리 중';
         toggleBtn.className = cycleInfo.isActualPeriod
           ? 'px-3 py-1.5 rounded-lg text-xs font-medium border border-stone-300 text-stone-700 transition'
-          : 'px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-900 text-white transition';
+          : 'px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-600 hover:bg-stone-700 text-white transition';
       }
 
       [0, 1, 2, 3].forEach(lvl => {
