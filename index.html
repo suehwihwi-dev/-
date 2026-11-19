@@ -148,9 +148,8 @@
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-lg md:text-xl font-bold tracking-tight text-stone-800">나만의 데일리 케어</h1>
             <span id="cycleHeaderBadge" class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-rose-100 text-rose-700">주기 계산 중</span>
-            <span id="mounjaroHeaderBadge" class="text-xs px-2.5 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-800">💉 마운자로 준비</span>
           </div>
-          <p class="text-xs text-stone-500">식단(칼로리·탄단지) · 배변 · 스트레칭/운동 · 수면 · 약/영양제 · 마운자로 · 생리/분비물 기록장</p>
+          <p class="text-xs text-stone-500">식단(칼로리) · 배변 · 스트레칭/운동 · 수면 · 약/영양제 · 생리/분비물 기록장</p>
         </div>
       </div>
 
@@ -185,9 +184,6 @@
         <button type="button" id="tabBtn-today" onclick="switchMainTab('today')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold transition whitespace-nowrap tab-active">
           오늘의 기록
         </button>
-        <button type="button" id="tabBtn-mounjaro" onclick="switchMainTab('mounjaro')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold text-stone-600 hover:bg-stone-200/60 transition whitespace-nowrap">
-          💉 마운자로 · 혈중농도/부작용
-        </button>
         <button type="button" id="tabBtn-cycle" onclick="switchMainTab('cycle')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold text-stone-600 hover:bg-stone-200/60 transition whitespace-nowrap">
           생리주기 · 호르몬 케어
         </button>
@@ -218,13 +214,12 @@
             <span id="summaryDateLabel" class="text-base md:text-lg font-bold text-stone-800">2026년 11월 17일 (화)</span>
             <span id="summaryPeriodTag" class="hidden text-xs px-2.5 py-0.5 rounded-full font-semibold bg-rose-500 text-white">생리 중</span>
             <span id="summaryMedTag" class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-sky-50 text-sky-700 border border-sky-200">💊 약/영양제 미체크</span>
-            <span id="summaryMounjaroTag" class="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">💉 마운자로 투약 전</span>
           </div>
-          <p id="summaryStatusText" class="text-xs md:text-sm text-stone-500">아침 약·영양제, 취침·수면 질, 식단(칼로리·탄단지 자동추정), 배변, 상하체 스트레칭·운동, 마운자로, 생리/분비물을 한곳에서 관리하세요.</p>
+          <p id="summaryStatusText" class="text-xs md:text-sm text-stone-500">아침 약·영양제, 취침·수면 질, 식단(칼로리 자동추정), 배변, 상하체 스트레칭·운동, 생리/분비물을 한곳에서 관리하세요.</p>
         </div>
 
-        <!-- 8 Quick Status Pills -->
-        <div class="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+        <!-- Quick Status Pills -->
+        <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
           <div class="px-2 py-2 rounded-xl bg-sky-50/70 border border-sky-100 text-center">
             <div class="text-[10px] text-stone-500">아침약/영양제</div>
             <div id="pillMedStatus" class="text-xs font-bold text-sky-700 mt-0.5">0/2</div>
@@ -252,10 +247,6 @@
           <div class="px-2 py-2 rounded-xl bg-rose-50/70 border border-rose-100 text-center">
             <div class="text-[10px] text-stone-500">생리주기</div>
             <div id="pillCycleDay" class="text-xs font-bold text-rose-700 mt-0.5">D-?</div>
-          </div>
-          <div class="px-2 py-2 rounded-xl bg-lime-50/80 border border-lime-200 text-center cursor-pointer hover:bg-lime-100/70 transition" onclick="switchMainTab('mounjaro')">
-            <div class="text-[10px] text-stone-500">체내 마운자로</div>
-            <div id="pillMounjaroLevel" class="text-xs font-bold text-emerald-800 mt-0.5">0.00mg</div>
           </div>
         </div>
       </div>
@@ -375,41 +366,28 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <!-- CARD 1: MEALS, SNACKS & NUTRITION (CALORIES / MACROS) -->
+        <!-- CARD 1: MEALS, SNACKS & CALORIES -->
         <section class="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
                 <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">🍽️</span>
                 <div>
-                  <h2 class="text-base font-bold text-stone-800">식사 & 간식 · 영양성분 기록</h2>
-                  <p class="text-xs text-stone-500">메뉴를 입력하면 대략적인 칼로리·탄단지가 자동 추정되며 직접 수정도 가능해요</p>
+                  <h2 class="text-base font-bold text-stone-800">식사 & 간식 · 칼로리 기록</h2>
+                  <p class="text-xs text-stone-500">메뉴를 입력하면 대략적인 칼로리가 자동 추정되며 직접 수정도 가능해요</p>
                 </div>
               </div>
             </div>
 
-            <!-- Daily Calorie & Macro Totals Bar -->
-            <div class="mb-3 p-3 rounded-xl bg-amber-50/60 border border-amber-100 space-y-2">
+            <!-- Daily Calorie Total -->
+            <div class="mb-3 p-3 rounded-xl bg-amber-50/60 border border-amber-100">
               <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-xs font-bold text-stone-700">오늘 총 섭취량</span>
-                  <span id="dailyTotalKcalText" class="text-sm font-bold text-amber-800">0 kcal</span>
-                </div>
-                <div class="flex items-center gap-2 text-[11px] font-semibold">
-                  <span class="px-2 py-0.5 rounded bg-white border border-amber-200 text-amber-800">탄 <span id="dailyTotalCarbText">0</span>g</span>
-                  <span class="px-2 py-0.5 rounded bg-white border border-emerald-200 text-emerald-800">단 <span id="dailyTotalProteinText">0</span>g</span>
-                  <span class="px-2 py-0.5 rounded bg-white border border-rose-200 text-rose-800">지 <span id="dailyTotalFatText">0</span>g</span>
-                </div>
-              </div>
-              <!-- Macro Ratio Progress Bar -->
-              <div class="w-full h-2 rounded-full bg-stone-200 overflow-hidden flex">
-                <div id="macroBarCarb" class="bg-amber-400 h-full transition-all" style="width: 33%"></div>
-                <div id="macroBarProtein" class="bg-emerald-500 h-full transition-all" style="width: 34%"></div>
-                <div id="macroBarFat" class="bg-rose-400 h-full transition-all" style="width: 33%"></div>
+                <span class="text-xs font-bold text-stone-700">오늘 총 섭취 칼로리</span>
+                <span id="dailyTotalKcalText" class="text-base font-bold text-amber-800">0 kcal</span>
               </div>
             </div>
 
-            <!-- Meal Input Form with Calorie & Macro Auto-Estimate -->
+            <!-- Meal Input Form with Calorie Auto-Estimate -->
             <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80 space-y-2.5 mb-4">
               <div class="grid grid-cols-12 gap-2">
                 <div class="col-span-4 sm:col-span-3">
@@ -441,7 +419,7 @@
               <!-- Menu Input + Auto-Estimate Trigger -->
               <div class="flex gap-1.5 items-stretch">
                 <textarea id="mealMenuInput" rows="2" placeholder="먹은 메뉴를 자유롭게 (예: 간장게장 3개, 밥 세숟갈 / 라면 1봉+삶은달걀 2개)" oninput="onMealMenuInputType(this.value)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addMealEntry();}" class="flex-1 px-3 py-2 rounded-lg border border-stone-200 bg-white text-xs md:text-sm text-stone-800 focus:outline-none focus:border-amber-500 resize-none leading-snug"></textarea>
-                <button type="button" onclick="triggerManualNutritionEstimate()" class="px-2.5 py-2 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-bold shrink-0 transition" title="메뉴 이름으로 칼로리와 탄단지 다시 추정">
+                <button type="button" onclick="triggerManualNutritionEstimate()" class="px-2.5 py-2 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-bold shrink-0 transition" title="메뉴 이름으로 칼로리 다시 추정">
                   ✨ 영양 추정
                 </button>
               </div>
@@ -449,28 +427,14 @@
               <!-- 항목별 세분화 영양 추정 내역 -->
               <div id="mealBreakdown" class="hidden rounded-lg border border-amber-200 bg-amber-50/60 p-2.5 text-[11px] text-stone-700 space-y-1"></div>
 
-              <!-- Editable Calorie & Macro Fields -->
-              <div class="grid grid-cols-4 gap-2 pt-0.5">
-                <div>
-                  <label class="block text-[10px] font-semibold text-stone-500 mb-0.5">칼로리 (kcal)</label>
-                  <input type="number" id="mealKcalInput" min="0" max="5000" step="10" placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-bold text-amber-800 focus:outline-none focus:border-amber-500" />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-semibold text-stone-500 mb-0.5">탄수화물 (g)</label>
-                  <input type="number" id="mealCarbInput" min="0" max="500" step="1" placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-700 focus:outline-none focus:border-amber-500" />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-semibold text-stone-500 mb-0.5">단백질 (g)</label>
-                  <input type="number" id="mealProteinInput" min="0" max="500" step="1" placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-emerald-700 focus:outline-none focus:border-emerald-500" />
-                </div>
-                <div>
-                  <label class="block text-[10px] font-semibold text-stone-500 mb-0.5">지방 (g)</label>
-                  <input type="number" id="mealFatInput" min="0" max="500" step="1" placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-rose-700 focus:outline-none focus:border-rose-500" />
-                </div>
+              <!-- Editable Calorie Field -->
+              <div class="pt-0.5">
+                <label class="block text-[10px] font-semibold text-stone-500 mb-0.5">칼로리 (kcal)</label>
+                <input type="number" id="mealKcalInput" min="0" max="5000" step="10" placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-stone-200 bg-white text-xs font-bold text-amber-800 focus:outline-none focus:border-amber-500" />
               </div>
 
               <div class="flex items-center justify-between gap-2 pt-0.5">
-                <span id="mealEstimateHint" class="text-[11px] text-stone-500">메뉴명·수량을 적으면 영양성분이 자동 계산돼요 (직접 수정 가능)</span>
+                <span id="mealEstimateHint" class="text-[11px] text-stone-500">메뉴명·수량을 적으면 칼로리가 자동 계산돼요 (직접 수정 가능)</span>
                 <button type="button" onclick="addMealEntry()" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shrink-0 transition">
                   + 기록 추가
                 </button>
@@ -687,224 +651,6 @@
           <p id="todayDischargeGuideText" class="text-xs text-stone-600 mt-2.5 pt-2 border-t border-stone-100"></p>
         </div>
       </section>
-    </div>
-
-    <!-- TAB 2: MOUNJARO (TIRZEPATIDE) HALF-LIFE PK & SIDE EFFECTS -->
-    <div id="view-mounjaro" class="hidden space-y-6">
-      <section class="bg-white rounded-2xl p-5 md:p-6 border border-stone-200/90 shadow-xs space-y-5">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-4">
-          <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Mounjaro (Tirzepatide) Pharmacokinetics & Care</span>
-            <h2 class="text-lg md:text-xl font-bold text-stone-800 mt-0.5">💉 마운자로 반감기(5일/120h) 혈중 농도 & 부작용 트래커</h2>
-            <p class="text-xs text-stone-500 mt-0.5">피하주사 후 약 24~48시간에 최고 농도(Tmax)에 도달하고, 반감기 약 5일(120시간) 주기로 완만하게 대사되는 체내 잔류량을 계산합니다.</p>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button type="button" id="mjModeBtn-actual" onclick="setMounjaroCurveMode('actual')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-white transition">
-              내 투약 기록 기준
-            </button>
-            <button type="button" id="mjModeBtn-preview" onclick="setMounjaroCurveMode('preview')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition">
-              2.5mg 4주 투약 시뮬레이션 미리보기
-            </button>
-          </div>
-        </div>
-
-        <!-- 4 Pharmacokinetic Readout Cards -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-100">
-            <div class="text-xs text-stone-500">선택일 추정 체내 활성량</div>
-            <div id="mjCurrentActiveMg" class="text-lg md:text-xl font-bold text-emerald-800 mt-1">0.00 mg</div>
-            <div id="mjCurrentPhaseText" class="text-xs font-semibold text-emerald-600 mt-0.5">투약 기록 대기 중</div>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-teal-50/70 border border-teal-100">
-            <div class="text-xs text-stone-500">최근 투여 후 경과 시간</div>
-            <div id="mjElapsedTimeText" class="text-base md:text-lg font-bold text-teal-800 mt-1">-</div>
-            <div id="mjLastDoseSummary" class="text-xs text-teal-600 mt-0.5">반감기 120시간 기준</div>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-100">
-            <div class="text-xs text-stone-500">다음 권장 투여일 (7일 주기)</div>
-            <div id="mjNextShotDateText" class="text-base md:text-lg font-bold text-indigo-800 mt-1">-</div>
-            <div id="mjNextRecommendedSite" class="text-xs font-semibold text-indigo-600 mt-0.5">주사 부위 순환 추천</div>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-100">
-            <div class="text-xs text-stone-500">누적 투여 횟수 · 최근 체중</div>
-            <div id="mjTotalShotsText" class="text-base md:text-lg font-bold text-amber-800 mt-1">0회</div>
-            <div id="mjLatestWeightText" class="text-xs text-amber-700 mt-0.5">약 4주 후 항정상태(1.7배) 도달</div>
-          </div>
-        </div>
-
-        <!-- Interactive SVG Pharmacokinetic Concentration Curve -->
-        <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2">
-          <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div class="font-bold text-stone-800 flex items-center gap-2">
-              <span>📈 체내 혈중 약물 농도 변화 곡선 (28일 타임라인)</span>
-              <span id="mjCurveModeLabel" class="px-2 py-0.5 rounded-full text-[11px] bg-emerald-100 text-emerald-800 font-semibold">내 투약 기록</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <span class="text-[11px] text-stone-500">🔍 확대</span>
-              <button type="button" id="mjZoomBtn-1" onclick="setMounjaroChartZoom(1)" class="px-2 py-0.5 rounded-lg border text-[11px] font-bold transition" title="기본 크기">1x</button>
-              <button type="button" id="mjZoomBtn-1.5" onclick="setMounjaroChartZoom(1.5)" class="px-2 py-0.5 rounded-lg border text-[11px] font-bold transition" title="1.5배 확대">1.5x</button>
-              <button type="button" id="mjZoomBtn-2" onclick="setMounjaroChartZoom(2)" class="px-2 py-0.5 rounded-lg border text-[11px] font-bold transition" title="2배 확대">2x</button>
-            </div>
-          </div>
-          <div class="text-[11px] text-stone-500">흡수 피크(Tmax ~24-48h) · 반감기(t½ = 5일/120h) 1-컴파트먼트 약동학 모델 · 확대 후에는 그래프를 옆으로 밀어서 보세요</div>
-
-          <div id="mjChartScroll" class="w-full overflow-x-auto rounded-xl">
-            <svg id="mjPkCurveSvg" viewBox="0 0 760 260" class="bg-white rounded-xl border border-stone-200/70" style="width:100%;min-width:760px;height:260px;"></svg>
-          </div>
-
-          <p id="mjPkAdviceBanner" class="text-xs text-stone-600 pt-1 leading-relaxed"></p>
-        </div>
-      </section>
-
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- Injection Dose Logger (5 cols) -->
-        <section class="lg:col-span-5 bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between space-y-4">
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2">
-                <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">💉</span>
-                <div>
-                  <h3 class="text-base font-bold text-stone-800">마운자로 주사 투약 기록하기</h3>
-                  <p class="text-xs text-stone-500">주 1회 투여 일시·용량·주사 부위를 기록하면 농도 곡선에 즉시 반영됩니다</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200/80 space-y-3 mb-4">
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">투여 날짜</label>
-                  <input type="date" id="mjShotDateInput" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-bold text-stone-800 focus:outline-none focus:border-emerald-500" />
-                </div>
-                <div>
-                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">투여 시각</label>
-                  <input type="time" id="mjShotTimeInput" value="10:00" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-bold text-stone-800 focus:outline-none focus:border-emerald-500" />
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">용량 (mg)</label>
-                  <select id="mjShotDoseSelect" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-bold text-emerald-800 focus:outline-none focus:border-emerald-500">
-                    <option value="2.5" selected>2.5 mg (시작 용량)</option>
-                    <option value="5.0">5.0 mg</option>
-                    <option value="7.5">7.5 mg</option>
-                    <option value="10.0">10.0 mg</option>
-                    <option value="12.5">12.5 mg</option>
-                    <option value="15.0">15.0 mg (최대 용량)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">주사 부위 (매주 순환)</label>
-                  <select id="mjShotSiteSelect" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs font-semibold text-stone-800 focus:outline-none focus:border-emerald-500">
-                    <option value="복부 왼쪽">복부 왼쪽 (배꼽 5cm 외곽)</option>
-                    <option value="복부 오른쪽">복부 오른쪽 (배꼽 5cm 외곽)</option>
-                    <option value="허벅지 왼쪽">허벅지(대퇴부) 왼쪽</option>
-                    <option value="허벅지 오른쪽">허벅지(대퇴부) 오른쪽</option>
-                    <option value="상완 왼쪽">팔뚝 뒤쪽(상완) 왼쪽</option>
-                    <option value="상완 오른쪽">팔뚝 뒤쪽(상완) 오른쪽</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-12 gap-2">
-                <div class="col-span-5">
-                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">현재 체중 (kg, 선택)</label>
-                  <input type="number" id="mjShotWeightInput" step="0.1" placeholder="예: 54.5" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs text-stone-800 focus:outline-none focus:border-emerald-500" />
-                </div>
-                <div class="col-span-7">
-                  <label class="block text-[11px] font-semibold text-stone-600 mb-1">투약 메모 (선택)</label>
-                  <input type="text" id="mjShotNoteInput" placeholder="예: 1주차 첫 투약, 통증 거의 없음" onkeydown="if(event.key==='Enter'){addMounjaroShot();}" class="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-white text-xs text-stone-800 focus:outline-none focus:border-emerald-500" />
-                </div>
-              </div>
-
-              <button type="button" onclick="addMounjaroShot()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition">
-                + 마운자로 주사 투약 기록 저장
-              </button>
-            </div>
-
-            <div>
-              <div class="flex items-center justify-between mb-2 gap-2">
-                <span class="text-xs font-bold text-stone-700">나의 투약 히스토리</span>
-                <button type="button" onclick="confirmClearAllMounjaroShots()" class="text-[11px] px-2 py-1 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 font-semibold hover:bg-rose-100 transition" title="예시 기록을 포함한 마운자로 기록 전체 삭제">
-                  🧹 전체 초기화
-                </button>
-              </div>
-              <div id="mjShotHistoryList" class="space-y-2 max-h-56 overflow-y-auto custom-scroll pr-1"></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Daily Side Effects & Appetite Suppression Check (7 cols) -->
-        <section class="lg:col-span-7 bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs flex flex-col justify-between space-y-4">
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2">
-                <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">🩺</span>
-                <div>
-                  <h3 class="text-base font-bold text-stone-800">선택일 (<span id="mjSideEffectDateLabel"></span>) 부작용 & 식욕 억제 체감 기록</h3>
-                  <p class="text-xs text-stone-500">혈중 농도 변화에 따라 나타나는 위장관·전신 부작용과 포만감 지속도를 체크해요</p>
-                </div>
-              </div>
-              <span id="mjSideEffectCountBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">부작용 0개</span>
-            </div>
-
-            <!-- Appetite Suppression & Nausea/GI Severity Sliders -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 p-3.5 rounded-xl bg-stone-50 border border-stone-200/80">
-              <div>
-                <div class="flex justify-between text-xs mb-1">
-                  <span class="font-semibold text-stone-700">🍽️ 식욕 억제 · 조기 포만감 체감</span>
-                  <span id="mjAppetiteLabel" class="font-bold text-emerald-700">3 / 5 (적당함)</span>
-                </div>
-                <input type="range" id="mjAppetiteRange" min="1" max="5" step="1" value="3" oninput="updateMounjaroDailyMetrics()" class="w-full accent-emerald-600 cursor-pointer" />
-                <div class="flex justify-between text-[10px] text-stone-400 mt-0.5">
-                  <span>1: 식욕 평소같음</span>
-                  <span>3: 적당한 포만감</span>
-                  <span>5: 음식생각 전혀없음</span>
-                </div>
-              </div>
-
-              <div>
-                <div class="flex justify-between text-xs mb-1">
-                  <span class="font-semibold text-stone-700">🌊 전반적 부작용 불편감 정도</span>
-                  <span id="mjSeverityLabel" class="font-bold text-amber-700">없음 (0/4)</span>
-                </div>
-                <input type="range" id="mjSeverityRange" min="0" max="4" step="1" value="0" oninput="updateMounjaroDailyMetrics()" class="w-full accent-amber-500 cursor-pointer" />
-                <div class="flex justify-between text-[10px] text-stone-400 mt-0.5">
-                  <span>0: 편안함</span>
-                  <span>2: 약간 신경쓰임</span>
-                  <span>4: 일상 힘들정도</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Side Effects Multi-Select Checklist -->
-            <div class="mb-4">
-              <div class="text-xs font-semibold text-stone-600 mb-2">오늘 겪은 부작용 · 신체 반응 체크 (다중 선택)</div>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="mjSideEffectsGrid"></div>
-            </div>
-
-            <!-- Side Effect Daily Memo -->
-            <div>
-              <label class="block text-xs font-semibold text-stone-600 mb-1.5">부작용 대처 & 몸 반응 메모</label>
-              <textarea id="mjSideEffectNoteInput" rows="2" oninput="updateMounjaroDailyMetrics()" placeholder="예: 주사 다음날이라 오전엔 살짝 울렁거렸지만 따뜻한 물 마시니 괜찮아짐, 저녁엔 소량만 먹어도 배부름..." class="w-full p-3 rounded-xl border border-stone-200 bg-stone-50/60 text-xs md:text-sm text-stone-800 focus:bg-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
-            </div>
-          </div>
-
-          <!-- Pharmacokinetic Safety & Care Tips Box -->
-          <div class="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-100 text-xs text-stone-700 leading-relaxed">
-            <div class="font-bold text-emerald-900 mb-1">💡 마운자로 약동학 & 부작용 케어 가이드</div>
-            <ul class="space-y-1 text-[11px] text-stone-600">
-              <li>• <strong>투여 후 24~48시간 (Tmax 피크 구간):</strong> 혈중 농도가 가장 높아 메스꺼움·더부룩함·트림이 나타나기 쉬워요. 식사량을 평소의 절반으로 나누어 천천히 씹어 드시고, 기름지거나 매운 음식은 피해 주세요.</li>
-              <li>• <strong>근손실 & 변비 예방:</strong> 식욕이 줄어들수록 <strong>식사 카드의 단백질(g)</strong> 섭취량과 하루 수분 6~8컵 이상, 식이섬유를 꼭 챙기고 <strong>장 건강 & 배변 기록</strong>과 함께 모니터링하세요.</li>
-              <li>• <strong>투여일 변경·누락 기준:</strong> 예정일로부터 4일(96시간) 이내라면 생각난 즉시 투여하고, 4일이 지났다면 건너뛰고 다음 예정일에 투여합니다 (최소 투여 간격 72시간 이상 유지).</li>
-            </ul>
-          </div>
-        </section>
-
-      </div>
     </div>
 
     <!-- TAB 3: MENSTRUAL CYCLE & HORMONE TRACKER -->
@@ -1315,48 +1061,6 @@
       { keywords: ['와인'], kcal: 120, carb: 4, protein: 0, fat: 0, grams: 150, unit: '잔' }
     ];
 
-    // Mounjaro (Tirzepatide) Pharmacokinetic Constants (FDA Label & PopPK PMC10962491)
-    const MJ_HALF_LIFE_HOURS = 120.0;
-    const MJ_KE = Math.LN2 / MJ_HALF_LIFE_HOURS;
-    const MJ_KA = 0.115;
-    const MJ_TMAX_HOURS = Math.log(MJ_KA / MJ_KE) / (MJ_KA - MJ_KE);
-    const MJ_PEAK_NORM = (MJ_KA / (MJ_KA - MJ_KE)) * (Math.exp(-MJ_KE * MJ_TMAX_HOURS) - Math.exp(-MJ_KA * MJ_TMAX_HOURS));
-
-    const MJ_SITES = [
-      '복부 왼쪽', '복부 오른쪽', '허벅지 왼쪽', '허벅지 오른쪽', '상완 왼쪽', '상완 오른쪽'
-    ];
-
-    const MJ_SIDE_EFFECT_ITEMS = [
-      { id: 'nausea', label: '🤢 메스꺼움 · 오심' },
-      { id: 'dyspepsia', label: '🫃 소화불량 · 더부룩함' },
-      { id: 'reflux', label: '🫧 트림 · 위산역류(속쓰림)' },
-      { id: 'constipation', label: '🪨 변비 · 장운동 저하' },
-      { id: 'diarrhea', label: '⚡ 설사 · 묽은변' },
-      { id: 'fatigue', label: '🥱 피로감 · 무기력' },
-      { id: 'dizziness', label: '💫 어지러움 · 저혈당감' },
-      { id: 'chills', label: '🥶 오한 · 추위타기' },
-      { id: 'site_pain', label: '💉 주사부위 뻐근함/홍반' },
-      { id: 'dry_mouth', label: '💧 입마름 · 갈증' },
-      { id: 'hair', label: '💇‍♀️ 모발 빠짐 체크' },
-      { id: 'food_noise_off', label: '✨ 푸드노이즈(음식생각) 소멸' }
-    ];
-
-    const MJ_APPETITE_TEXT = {
-      1: '1 / 5 (평소와 비슷함)',
-      2: '2 / 5 (약간 덜 당김)',
-      3: '3 / 5 (적당한 조기 포만감)',
-      4: '4 / 5 (식욕 확실히 억제됨)',
-      5: '5 / 5 (음식 생각 전혀 안 남)'
-    };
-
-    const MJ_SEVERITY_TEXT = {
-      0: '없음 · 편안함 (0/4)',
-      1: '미세함 · 일상 무리없음 (1/4)',
-      2: '보통 · 조금 신경쓰임 (2/4)',
-      3: '심함 · 컨디션 저하 (3/4)',
-      4: '매우 심함 · 휴식/진료 필요 (4/4)'
-    };
-
     // 2-Split Stretching (Upper body / Lower body)
     const STRETCH_ITEMS = [
       { id: 'upper', label: '🙆‍♀️ 상체 스트레칭 (목·승모근·어깨·가슴·척추)' },
@@ -1433,9 +1137,6 @@
       selectedDate: getTodayKey(),
       activeTab: 'today',
       reportMonth: getTodayKey().slice(0, 7),
-      mounjaroCurveMode: 'actual',
-      mjChartZoom: 1,
-      mounjaroShots: [],
       cycleConfig: {
         lastStartDate: '2026-10-26',
         cycleLength: 28,
@@ -1463,8 +1164,6 @@
                 historyStartDates: ['2026-10-26', '2026-09-28', '2026-08-31']
               };
             }
-            if (!Array.isArray(state.mounjaroShots)) state.mounjaroShots = [];
-            if (!state.mounjaroCurveMode) state.mounjaroCurveMode = 'actual';
             if (!state.days) state.days = {};
           }
         }
@@ -1502,11 +1201,7 @@
           isPeriod: false,
           flowLevel: 0,
           cervicalDischarge: '',
-          cycleSymptoms: [],
-          mjAppetite: 3,
-          mjSeverity: 0,
-          mjSideEffects: [],
-          mjNote: ''
+          cycleSymptoms: []
         };
       }
       const d = state.days[dateStr];
@@ -1520,10 +1215,6 @@
       if (typeof d.cervicalDischarge !== 'string') d.cervicalDischarge = '';
       if (!Array.isArray(d.stretches)) d.stretches = [];
       d.stretches = d.stretches.filter(id => id === 'upper' || id === 'lower');
-      if (typeof d.mjAppetite !== 'number') d.mjAppetite = 3;
-      if (typeof d.mjSeverity !== 'number') d.mjSeverity = 0;
-      if (!Array.isArray(d.mjSideEffects)) d.mjSideEffects = [];
-      if (typeof d.mjNote !== 'string') d.mjNote = '';
       if (!Array.isArray(d.meals)) d.meals = [];
       return d;
     }
@@ -1679,9 +1370,6 @@
         label: (entry.keywords && entry.keywords[0] ? entry.keywords[0] : '음식') + '(' + qtyText + ')',
         qtyText: qtyText,
         kcal: Math.max(0, Math.round(kcalRaw / 5) * 5),
-        carb: Math.max(0, Math.round(entry.carb * count)),
-        protein: Math.max(0, Math.round(entry.protein * count)),
-        fat: Math.max(0, Math.round(entry.fat * count)),
         matched: true
       };
     }
@@ -1741,28 +1429,22 @@
         // 아는 메뉴가 하나도 없으면 식사 분류에 맞는 기본 1인분 추정치
         const typeEl = document.getElementById('mealTypeSelect');
         const mType = typeEl ? typeEl.value : '점심';
-        let base = { kcal: 380, carb: 38, protein: 22, fat: 15 };
-        if (mType === '음료/차') base = { kcal: 45, carb: 6, protein: 1, fat: 1.5 };
-        else if (mType === '간식') base = { kcal: 150, carb: 15, protein: 6, fat: 7 };
+        let baseKcal = 380;
+        if (mType === '음료/차') baseKcal = 45;
+        else if (mType === '간식') baseKcal = 150;
         return {
-          kcal: base.kcal, carb: base.carb, protein: base.protein, fat: base.fat,
+          kcal: baseKcal,
           matched: false, items: [], unmatched: unmatched
         };
       }
 
       const total = items.reduce((acc, it) => {
         acc.kcal += it.kcal;
-        acc.carb += it.carb;
-        acc.protein += it.protein;
-        acc.fat += it.fat;
         return acc;
-      }, { kcal: 0, carb: 0, protein: 0, fat: 0 });
+      }, { kcal: 0 });
 
       return {
         kcal: Math.round(total.kcal / 5) * 5,
-        carb: Math.round(total.carb),
-        protein: Math.round(total.protein),
-        fat: Math.round(total.fat),
         matched: true,
         items: items,
         unmatched: unmatched
@@ -1781,20 +1463,20 @@
       const rows = (est.items || []).map(it => `
         <div class="flex items-start justify-between gap-2">
           <span class="min-w-0 truncate text-stone-700">• ${escapeHtml(it.label)}</span>
-          <span class="shrink-0 font-semibold text-amber-800">${it.kcal}kcal · 탄${it.carb}/단${it.protein}/지${it.fat}</span>
+          <span class="shrink-0 font-semibold text-amber-800">${it.kcal}kcal</span>
         </div>
       `).join('');
 
       const totalRow = (est.items && est.items.length > 1) ? `
         <div class="flex items-center justify-between gap-2 pt-1 mt-1 border-t border-amber-200/70 font-bold text-amber-900">
           <span>합계</span>
-          <span>${est.kcal}kcal · 탄${est.carb}/단${est.protein}/지${est.fat}</span>
+          <span>${est.kcal}kcal</span>
         </div>
       ` : '';
 
       const unknownRow = (est.unmatched && est.unmatched.length) ? `
         <div class="pt-1 mt-1 border-t border-amber-200/70 text-[10.5px] text-rose-700">
-          ❓ 인식 못 한 항목: ${escapeHtml(est.unmatched.join(' / '))} — 위 칼로리·탄단지 칸에 직접 더해 주세요
+          ❓ 인식 못 한 항목: ${escapeHtml(est.unmatched.join(' / '))} — 위 칼로리 칸에 직접 더해 주세요
         </div>
       ` : '';
 
@@ -1809,29 +1491,20 @@
     function onMealMenuInputType(val) {
       const est = estimateNutritionFromMenuText(val);
       const kcalEl = document.getElementById('mealKcalInput');
-      const carbEl = document.getElementById('mealCarbInput');
-      const proEl = document.getElementById('mealProteinInput');
-      const fatEl = document.getElementById('mealFatInput');
       const hintEl = document.getElementById('mealEstimateHint');
 
       if (!est) {
         if (kcalEl) kcalEl.value = '';
-        if (carbEl) carbEl.value = '';
-        if (proEl) proEl.value = '';
-        if (fatEl) fatEl.value = '';
-        if (hintEl) hintEl.textContent = '메뉴명·수량을 적으면 영양성분이 자동 계산돼요 (직접 수정 가능)';
+        if (hintEl) hintEl.textContent = '메뉴명·수량을 적으면 칼로리가 자동 계산돼요 (직접 수정 가능)';
         renderMealBreakdown(null);
         return;
       }
 
       if (kcalEl) kcalEl.value = est.kcal;
-      if (carbEl) carbEl.value = est.carb;
-      if (proEl) proEl.value = est.protein;
-      if (fatEl) fatEl.value = est.fat;
       if (hintEl) {
         if (est.matched) {
           const names = (est.items || []).map(it => it.label).join(' + ');
-          hintEl.textContent = `✨ ${names} → 약 ${est.kcal}kcal (탄 ${est.carb}g · 단 ${est.protein}g · 지 ${est.fat}g)`;
+          hintEl.textContent = `✨ ${names} → 약 ${est.kcal}kcal`;
         } else {
           hintEl.textContent = '✨ 기본 1인분 추정치 입력됨 (실제 양에 맞게 숫자를 자유롭게 수정하세요)';
         }
@@ -1847,22 +1520,16 @@
         return;
       }
       onMealMenuInputType(menuEl.value);
-      showToast('메뉴 이름을 바탕으로 대략적인 칼로리와 탄단지를 추정했어요!');
+      showToast('메뉴 이름을 바탕으로 대략적인 칼로리를 추정했어요!');
     }
 
     function getDayNutritionTotals(rec) {
       const meals = (rec && rec.meals) ? rec.meals : [];
       let kcal = 0;
-      let carb = 0;
-      let protein = 0;
-      let fat = 0;
       meals.forEach(m => {
         kcal += Number(m.kcal) || 0;
-        carb += Number(m.carb) || 0;
-        protein += Number(m.protein) || 0;
-        fat += Number(m.fat) || 0;
       });
-      return { kcal: Math.round(kcal), carb: Math.round(carb), protein: Math.round(protein), fat: Math.round(fat) };
+      return { kcal: Math.round(kcal) };
     }
 
     // --- Date & Time Math Utilities ---
@@ -1922,116 +1589,6 @@
       return Math.max(2, Math.min(14, hours));
     }
 
-    // --- Mounjaro Pharmacokinetic Concentration Engine ---
-    function singleDoseActiveMg(doseMg, deltaHours) {
-      if (deltaHours <= 0 || deltaHours > 24 * 35) return 0;
-      const raw = (MJ_KA / (MJ_KA - MJ_KE)) * (Math.exp(-MJ_KE * deltaHours) - Math.exp(-MJ_KA * deltaHours));
-      return Math.max(0, (doseMg * raw) / MJ_PEAK_NORM);
-    }
-
-    function getTotalActiveMgAtMs(targetMs, shotsList) {
-      let total = 0;
-      const list = shotsList || state.mounjaroShots || [];
-      for (let i = 0; i < list.length; i++) {
-        const s = list[i];
-        const shotMs = dateTimeToMs(s.date, s.time || '10:00');
-        const deltaHours = (targetMs - shotMs) / (1000 * 60 * 60);
-        if (deltaHours > 0) {
-          total += singleDoseActiveMg(Number(s.dose) || 2.5, deltaHours);
-        }
-      }
-      return total;
-    }
-
-    function getPreviewSimulatedShots(anchorDateStr) {
-      const startBase = addDays(anchorDateStr, -14);
-      return [
-        { id: 'sim1', date: startBase, time: '10:00', dose: 2.5, site: '복부 왼쪽' },
-        { id: 'sim2', date: addDays(startBase, 7), time: '10:00', dose: 2.5, site: '복부 오른쪽' },
-        { id: 'sim3', date: addDays(startBase, 14), time: '10:00', dose: 2.5, site: '허벅지 왼쪽' },
-        { id: 'sim4', date: addDays(startBase, 21), time: '10:00', dose: 2.5, site: '허벅지 오른쪽' }
-      ];
-    }
-
-    function analyzeMounjaroStatus(targetDateStr) {
-      const targetMs = dateTimeToMs(targetDateStr, '14:00');
-      const sortedShots = (state.mounjaroShots || []).slice().sort((a, b) => {
-        return dateTimeToMs(b.date, b.time) - dateTimeToMs(a.date, a.time);
-      });
-
-      const activeMg = getTotalActiveMgAtMs(targetMs, sortedShots);
-      const priorShots = sortedShots.filter(s => dateTimeToMs(s.date, s.time) <= targetMs);
-      const lastShot = priorShots.length > 0 ? priorShots[0] : (sortedShots[0] || null);
-
-      if (!lastShot) {
-        return {
-          hasShots: false,
-          activeMg: 0,
-          phaseLabel: '투약 시작 예정 (기록 없음)',
-          elapsedText: '첫 주사 기록 전',
-          lastDoseSummary: '주사 기록 시 반감기(120h) 자동 계산',
-          nextShotDate: targetDateStr,
-          recommendedSite: '복부 왼쪽 (추천 첫 부위)',
-          totalShots: 0,
-          latestWeight: '-',
-          adviceText: '아직 등록된 마운자로 투약 기록이 없어요. 상단의 [2.5mg 4주 투약 시뮬레이션 미리보기] 버튼을 눌러 투여 후 혈중 농도가 어떻게 오르고 반감기(5일)로 줄어드는지 미리 확인해 보세요!'
-        };
-      }
-
-      const lastShotMs = dateTimeToMs(lastShot.date, lastShot.time || '10:00');
-      const elapsedHours = (targetMs - lastShotMs) / (1000 * 60 * 60);
-      const nextShotDate = addDays(lastShot.date, 7);
-
-      const lastSiteIdx = MJ_SITES.indexOf(lastShot.site);
-      const nextSite = MJ_SITES[(lastSiteIdx >= 0 ? lastSiteIdx + 1 : 0) % MJ_SITES.length];
-
-      const withWeight = sortedShots.find(s => s.weight && Number(s.weight) > 0);
-      const latestWeight = withWeight ? `${Number(withWeight.weight).toFixed(1)} kg` : '체중 미입력';
-
-      let phaseLabel = '';
-      let adviceText = '';
-
-      if (elapsedHours < 0) {
-        phaseLabel = '투약 예정일 이전';
-        adviceText = `최근 기록된 투약일(${lastShot.date}) 이전 날짜를 조회 중입니다.`;
-      } else if (elapsedHours <= 16) {
-        phaseLabel = '피하 흡수 초기 (0~16h)';
-        adviceText = '주사 부위에서 혈중으로 약물이 서서히 흡수되는 단계예요. 오늘은 과식을 피하고 수분을 충분히 섭취해 주세요.';
-      } else if (elapsedHours <= 52) {
-        phaseLabel = '최고 농도 피크 구간 (Tmax 24~48h 🔥)';
-        adviceText = '혈중 약물 농도가 가장 높은 피크 구간이에요! 포만감이 가장 강하게 느껴지며 오심·더부룩함·트림이 생길 수 있으니 소량씩 천천히 드세요.';
-      } else if (elapsedHours <= 120) {
-        phaseLabel = '안정적 약효 유지기 (3~5일차 ✨)';
-        adviceText = '피크를 지나 반감기(120시간)까지 혈중 농도가 안정적으로 유지되는 황금 구간이에요. 식욕 억제와 컨디션 밸런스가 가장 좋습니다.';
-      } else if (elapsedHours <= 168) {
-        phaseLabel = '반감기 경과 · 차기 투여 준비기 (6~7일차)';
-        adviceText = '반감기(5일/120시간)가 지나 체내 약물 농도가 절반 이하로 내려가는 시기예요. 식욕이 살짝 돌아올 수 있으니 단백질과 구운 채소로 포만감을 채워주세요.';
-      } else {
-        const daysOver = Math.floor(elapsedHours / 24);
-        phaseLabel = `투여 후 ${daysOver}일 경과 (약물 감쇠기)`;
-        adviceText = '마지막 주사 후 7일 이상 경과하여 혈중 농도가 서서히 감소 중입니다 (완전 배출까지는 약 25일 소요).';
-      }
-
-      const elapsedDays = Math.floor(Math.max(0, elapsedHours) / 24);
-      const remHours = Math.round(Math.max(0, elapsedHours) % 24);
-      const elapsedText = elapsedHours >= 0
-        ? `${elapsedDays}일 ${remHours}시간 경과`
-        : `${Math.abs(Math.round(elapsedHours))}시간 후 투여`;
-
-      return {
-        hasShots: true,
-        activeMg,
-        phaseLabel,
-        elapsedText,
-        lastDoseSummary: `최근 ${lastShot.date} (${lastShot.dose}mg · ${lastShot.site})`,
-        nextShotDate,
-        recommendedSite: `다음 추천: ${nextSite}`,
-        totalShots: sortedShots.length,
-        latestWeight,
-        adviceText
-      };
-    }
-
     // --- Toast & Modal Helpers ---
     function showToast(message, tone) {
       const container = document.getElementById('toastContainer');
@@ -2081,7 +1638,7 @@
     // --- Navigation & Date Switching ---
     function switchMainTab(tabName) {
       state.activeTab = tabName;
-      const tabs = ['today', 'mounjaro', 'cycle', 'stats'];
+      const tabs = ['today', 'cycle', 'stats'];
       tabs.forEach(t => {
         const viewEl = document.getElementById(`view-${t}`);
         const btnEl = document.getElementById(`tabBtn-${t}`);
@@ -2177,9 +1734,6 @@
       const fullnessSelect = document.getElementById('mealFullnessSelect');
       const menuInput = document.getElementById('mealMenuInput');
       const kcalInput = document.getElementById('mealKcalInput');
-      const carbInput = document.getElementById('mealCarbInput');
-      const proInput = document.getElementById('mealProteinInput');
-      const fatInput = document.getElementById('mealFatInput');
 
       const menu = (menuInput ? menuInput.value : '').trim();
       if (!menu) {
@@ -2189,12 +1743,9 @@
       }
 
       // If nutrition fields are blank, auto-estimate once before saving
-      const autoEst = estimateNutritionFromMenuText(menu) || { kcal: 0, carb: 0, protein: 0, fat: 0, items: [] };
+      const autoEst = estimateNutritionFromMenuText(menu) || { kcal: 0, items: [] };
       const itemDetail = (autoEst.items || []).map(it => it.label + ' ' + it.kcal + 'kcal');
       const kcal = kcalInput && kcalInput.value !== '' ? Math.max(0, Number(kcalInput.value) || 0) : autoEst.kcal;
-      const carb = carbInput && carbInput.value !== '' ? Math.max(0, Number(carbInput.value) || 0) : autoEst.carb;
-      const protein = proInput && proInput.value !== '' ? Math.max(0, Number(proInput.value) || 0) : autoEst.protein;
-      const fat = fatInput && fatInput.value !== '' ? Math.max(0, Number(fatInput.value) || 0) : autoEst.fat;
 
       const rec = getDayRecord(state.selectedDate);
       rec.meals.push({
@@ -2204,20 +1755,14 @@
         fullness: fullnessSelect ? fullnessSelect.value : '딱 좋음 (80%)',
         menu: menu,
         items: itemDetail,
-        kcal: Math.round(kcal),
-        carb: Math.round(carb),
-        protein: Math.round(protein),
-        fat: Math.round(fat)
+        kcal: Math.round(kcal)
       });
 
       rec.meals.sort((a, b) => a.time.localeCompare(b.time));
       if (menuInput) menuInput.value = '';
       if (kcalInput) kcalInput.value = '';
-      if (carbInput) carbInput.value = '';
-      if (proInput) proInput.value = '';
-      if (fatInput) fatInput.value = '';
       const hintEl = document.getElementById('mealEstimateHint');
-      if (hintEl) hintEl.textContent = '메뉴명·수량을 적으면 영양성분이 자동 계산돼요 (직접 수정 가능)';
+      if (hintEl) hintEl.textContent = '메뉴명·수량을 적으면 칼로리가 자동 계산돼요 (직접 수정 가능)';
       renderMealBreakdown(null);
 
       saveStateToStorage();
@@ -2355,74 +1900,6 @@
         saveStateToStorage();
         if (badgeEl) badgeEl.textContent = '자동 저장됨';
       }, 350);
-    }
-
-    // --- Mounjaro Shot & Side Effects Functions ---
-    function setMounjaroCurveMode(mode) {
-      state.mounjaroCurveMode = mode === 'preview' ? 'preview' : 'actual';
-      saveStateToStorage();
-      renderAll();
-    }
-
-    function addMounjaroShot() {
-      const dateInput = document.getElementById('mjShotDateInput');
-      const timeInput = document.getElementById('mjShotTimeInput');
-      const doseSelect = document.getElementById('mjShotDoseSelect');
-      const siteSelect = document.getElementById('mjShotSiteSelect');
-      const weightInput = document.getElementById('mjShotWeightInput');
-      const noteInput = document.getElementById('mjShotNoteInput');
-
-      const shotDate = (dateInput && dateInput.value) ? dateInput.value : state.selectedDate;
-      const shotTime = (timeInput && timeInput.value) ? timeInput.value : '10:00';
-      const dose = parseFloat(doseSelect ? doseSelect.value : '2.5') || 2.5;
-      const site = siteSelect ? siteSelect.value : '복부 왼쪽';
-      const weight = weightInput && weightInput.value ? parseFloat(weightInput.value) : null;
-      const note = (noteInput ? noteInput.value : '').trim();
-
-      state.mounjaroShots.push({
-        id: 'mj_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-        date: shotDate,
-        time: shotTime,
-        dose: dose,
-        site: site,
-        weight: weight,
-        note: note
-      });
-
-      state.mounjaroShots.sort((a, b) => dateTimeToMs(b.date, b.time) - dateTimeToMs(a.date, a.time));
-      state.mounjaroCurveMode = 'actual';
-      if (noteInput) noteInput.value = '';
-      saveStateToStorage();
-      renderAll();
-      showToast(`💉 마운자로 ${dose}mg (${site}) 투약 기록이 저장되었어요!`, 'emerald');
-    }
-
-    function deleteMounjaroShot(shotId) {
-      state.mounjaroShots = (state.mounjaroShots || []).filter(s => s.id !== shotId);
-      saveStateToStorage();
-      renderAll();
-      showToast('마운자로 투약 기록을 삭제했어요.');
-    }
-
-    function toggleMounjaroSideEffect(effectId) {
-      const rec = getDayRecord(state.selectedDate);
-      const idx = rec.mjSideEffects.indexOf(effectId);
-      if (idx >= 0) rec.mjSideEffects.splice(idx, 1);
-      else rec.mjSideEffects.push(effectId);
-      saveStateToStorage();
-      renderAll();
-    }
-
-    function updateMounjaroDailyMetrics() {
-      const rec = getDayRecord(state.selectedDate);
-      const appEl = document.getElementById('mjAppetiteRange');
-      const sevEl = document.getElementById('mjSeverityRange');
-      const noteEl = document.getElementById('mjSideEffectNoteInput');
-      if (appEl) rec.mjAppetite = parseInt(appEl.value, 10) || 3;
-      if (sevEl) rec.mjSeverity = parseInt(sevEl.value, 10) || 0;
-      if (noteEl) rec.mjNote = noteEl.value;
-      saveStateToStorage();
-      renderAll();
     }
 
     // --- Menstrual Cycle & Cervical Discharge Calculations ---
@@ -2598,28 +2075,6 @@
       const ok = confirm('예시 기록을 채우면 일부 날짜의 기존 기록이 덮어써질 수 있어요. 계속할까요?');
       if (!ok) return;
 
-      state.mounjaroShots = [
-        {
-          id: 'mj_sample_2',
-          date: '2026-11-16',
-          time: '10:00',
-          dose: 2.5,
-          site: '복부 오른쪽',
-          weight: 54.2,
-          note: '2주차 투약 완료, 통증 거의 없음'
-        },
-        {
-          id: 'mj_sample_1',
-          date: '2026-11-09',
-          time: '10:00',
-          dose: 2.5,
-          site: '복부 왼쪽',
-          weight: 55.0,
-          note: '마운자로 2.5mg 첫 시작!'
-        }
-      ];
-      state.mounjaroCurveMode = 'actual';
-
       const sampleDays = {
         '2026-11-17': {
           psychMedTaken: true,
@@ -2631,9 +2086,9 @@
           sleepHours: 8.0,
           sleepQuality: '꿀잠·개운함',
           meals: [
-            { id: 'm1', type: '아침', time: '08:50', fullness: '가벼움 (70%)', menu: '방탄말차 1잔 & 삶은 달걀 2개', kcal: 310, carb: 4, protein: 14, fat: 26 },
-            { id: 'm2', type: '점심', time: '12:40', fullness: '딱 좋음 (80%)', menu: '부채살 스테이크 & 구운 알배추', kcal: 430, carb: 14, protein: 41, fat: 24 },
-            { id: 'm3', type: '간식', time: '16:15', fullness: '가벼움 (70%)', menu: '그릭요거트 & 호두 소량', kcal: 175, carb: 7, protein: 10, fat: 12 }
+            { id: 'm1', type: '아침', time: '08:50', fullness: '가벼움 (70%)', menu: '방탄말차 1잔 & 삶은 달걀 2개', kcal: 310 },
+            { id: 'm2', type: '점심', time: '12:40', fullness: '딱 좋음 (80%)', menu: '부채살 스테이크 & 구운 알배추', kcal: 430 },
+            { id: 'm3', type: '간식', time: '16:15', fullness: '가벼움 (70%)', menu: '그릭요거트 & 호두 소량', kcal: 175 }
           ],
           bowels: [
             { id: 'b1', time: '09:20', feeling: '✨ 완전 개운·쾌변!', note: '수분 섭취 늘리고 유산균 챙겨서 쾌변 성공' }
@@ -2645,15 +2100,11 @@
           ],
           moodLevel: 5,
           emotionTags: ['✨ 상쾌함', '🔥 집중잘됨', '💪 활력넘침'],
-          moodNote: '어제 주사 맞고 28시간 지나 피크 구간이라 음식 생각이 싹 사라졌다! 단백질 위주로 든든히 챙기고 운동도 개운하게 완료.',
+          moodNote: '컨디션이 가볍고 음식 생각이 별로 없던 하루. 단백질 위주로 든든히 챙기고 운동도 개운하게 완료.',
           isPeriod: false,
           flowLevel: 0,
           cervicalDischarge: 'sticky',
-          cycleSymptoms: [],
-          mjAppetite: 5,
-          mjSeverity: 1,
-          mjSideEffects: ['dyspepsia', 'food_noise_off'],
-          mjNote: '투여 2일차 혈중 농도 피크(Tmax) 구간이라 조기 포만감이 엄청 강함! 물 자주 마시기.'
+          cycleSymptoms: []
         },
         '2026-11-16': {
           psychMedTaken: true,
@@ -2665,9 +2116,9 @@
           sleepHours: 8.0,
           sleepQuality: '무난·보통',
           meals: [
-            { id: 'm21', type: '아침', time: '09:10', fullness: '가벼움 (70%)', menu: '따뜻한 차 & 구운 계란 2개', kcal: 160, carb: 4, protein: 12, fat: 10 },
-            { id: 'm22', type: '점심', time: '13:00', fullness: '든든함 (100%)', menu: '오야코동 소량', kcal: 350, carb: 42, protein: 21, fat: 10 },
-            { id: 'm23', type: '저녁', time: '18:30', fullness: '딱 좋음 (80%)', menu: '구운 두부 & 미소시루', kcal: 195, carb: 10, protein: 19, fat: 10 }
+            { id: 'm21', type: '아침', time: '09:10', fullness: '가벼움 (70%)', menu: '따뜻한 차 & 구운 계란 2개', kcal: 160 },
+            { id: 'm22', type: '점심', time: '13:00', fullness: '든든함 (100%)', menu: '오야코동 소량', kcal: 350 },
+            { id: 'm23', type: '저녁', time: '18:30', fullness: '딱 좋음 (80%)', menu: '구운 두부 & 미소시루', kcal: 195 }
           ],
           bowels: [
             { id: 'b21', time: '10:00', feeling: '🙂 무난하게 성공', note: '' }
@@ -2678,15 +2129,11 @@
           ],
           moodLevel: 4,
           emotionTags: ['🌿 차분함', '🔥 집중잘됨'],
-          moodNote: '오전 10시에 마운자로 2주차 오른쪽 복부 주사 완료! 저녁부터 서서히 배가 안 고프다.',
+          moodNote: '오전엔 차분하게 공부에 집중하고, 저녁엔 배가 크게 안 고파서 가볍게 먹고 마무리.',
           isPeriod: false,
           flowLevel: 0,
           cervicalDischarge: 'sticky',
-          cycleSymptoms: [],
-          mjAppetite: 4,
-          mjSeverity: 0,
-          mjSideEffects: ['food_noise_off'],
-          mjNote: '오전 10시 2주차 주사 투여 완료. 주사 부위 통증 없음.'
+          cycleSymptoms: []
         },
         '2026-11-15': {
           psychMedTaken: true,
@@ -2698,9 +2145,9 @@
           sleepHours: 8.0,
           sleepQuality: '꿀잠·개운함',
           meals: [
-            { id: 'm31', type: '점심', time: '12:20', fullness: '딱 좋음 (80%)', menu: '규동 & 양배추 샐러드', kcal: 645, carb: 78, protein: 30, fat: 22 },
-            { id: 'm32', type: '간식', time: '15:30', fullness: '가벼움 (70%)', menu: '알룰로스 저당 디저트', kcal: 110, carb: 8, protein: 4, fat: 7 },
-            { id: 'm33', type: '저녁', time: '18:40', fullness: '딱 좋음 (80%)', menu: '구운 알배추 & 닭가슴살', kcal: 235, carb: 13, protein: 34, fat: 5.5 }
+            { id: 'm31', type: '점심', time: '12:20', fullness: '딱 좋음 (80%)', menu: '규동 & 양배추 샐러드', kcal: 645 },
+            { id: 'm32', type: '간식', time: '15:30', fullness: '가벼움 (70%)', menu: '알룰로스 저당 디저트', kcal: 110 },
+            { id: 'm33', type: '저녁', time: '18:40', fullness: '딱 좋음 (80%)', menu: '구운 알배추 & 닭가슴살', kcal: 235 }
           ],
           bowels: [
             { id: 'b31', time: '09:40', feeling: '✨ 완전 개운·쾌변!', note: '구운 배추 덕분인지 쾌변!' }
@@ -2711,15 +2158,11 @@
           ],
           moodLevel: 4,
           emotionTags: ['🥰 행복함', '🌿 차분함'],
-          moodNote: '1주차 투여 6일차라 반감기가 지나 식욕이 살짝 돌아왔지만 구운 알배추로 든든하게 방어 성공!',
+          moodNote: '식욕이 살짝 돌아온 날이었지만 구운 알배추로 든든하게 방어 성공!',
           isPeriod: false,
           flowLevel: 0,
           cervicalDischarge: 'creamy',
-          cycleSymptoms: [],
-          mjAppetite: 3,
-          mjSeverity: 0,
-          mjSideEffects: [],
-          mjNote: '투여 6일차(반감기 5일 경과 후)라 부작용 전혀 없고 컨디션 가벼움.'
+          cycleSymptoms: []
         }
       };
 
@@ -2729,22 +2172,18 @@
       state.selectedDate = '2026-11-17';
       saveStateToStorage();
       renderAll();
-      showToast('칼로리·탄단지 영양성분이 포함된 예시 기록이 채워졌어요! ✨', 'emerald');
+      showToast('칼로리 기록이 포함된 예시 기록이 채워졌어요! ✨', 'emerald');
     }
 
     function confirmClearCurrentDay() {
       openAppModal(
         '선택한 날짜 기록 초기화',
-        `${state.selectedDate}일의 약·수면·식사·배변·운동·기분·분비물 기록과 이 날짜의 마운자로 투약·부작용 기록을 비우시겠어요?`,
+        `${state.selectedDate}일의 약·수면·식사·배변·운동·기분·분비물 기록을 비우시겠어요?`,
         function () {
           delete state.days[state.selectedDate];
-          const removed = (state.mounjaroShots || []).filter(s => s.date === state.selectedDate).length;
-          state.mounjaroShots = (state.mounjaroShots || []).filter(s => s.date !== state.selectedDate);
           saveStateToStorage();
           renderAll();
-          showToast(removed > 0
-            ? `선택한 날짜의 기록과 마운자로 투약 ${removed}건을 초기화했어요.`
-            : '선택한 날짜의 기록을 초기화했어요.');
+          showToast('선택한 날짜의 기록을 초기화했어요.');
         }
       );
     }
@@ -2793,7 +2232,6 @@
 
       const rec = getDayRecord(state.selectedDate);
       const cycleInfo = calculateCycleInfo(state.selectedDate);
-      const mjInfo = analyzeMounjaroStatus(state.selectedDate);
       const nutTotals = getDayNutritionTotals(rec);
 
       // Header & Top Summary Pills
@@ -2803,13 +2241,6 @@
       const cycleHeaderBadge = document.getElementById('cycleHeaderBadge');
       if (cycleHeaderBadge) {
         cycleHeaderBadge.textContent = `${cycleInfo.phaseName.split(' ')[0]} · 주기 ${cycleInfo.cycleDay}일차`;
-      }
-
-      const mounjaroHeaderBadge = document.getElementById('mounjaroHeaderBadge');
-      if (mounjaroHeaderBadge) {
-        mounjaroHeaderBadge.textContent = mjInfo.hasShots
-          ? `💉 체내 약 ${mjInfo.activeMg.toFixed(2)}mg`
-          : '💉 마운자로 준비';
       }
 
       const summaryPeriodTag = document.getElementById('summaryPeriodTag');
@@ -2830,15 +2261,6 @@
         } else {
           summaryMedTag.textContent = '💊 약/영양제 미체크';
           summaryMedTag.className = 'text-xs px-2.5 py-0.5 rounded-full font-semibold bg-sky-50 text-sky-700 border border-sky-200';
-        }
-      }
-
-      const summaryMounjaroTag = document.getElementById('summaryMounjaroTag');
-      if (summaryMounjaroTag) {
-        if (mjInfo.hasShots) {
-          summaryMounjaroTag.textContent = `💉 마운자로 ${mjInfo.activeMg.toFixed(2)}mg (${mjInfo.phaseLabel.split(' ')[0]})`;
-        } else {
-          summaryMounjaroTag.textContent = '💉 마운자로 투약 예정';
         }
       }
 
@@ -2886,13 +2308,7 @@
           : `D-${cycleInfo.daysUntilNext}`;
       }
 
-      const pillMounjaroLevel = document.getElementById('pillMounjaroLevel');
-      if (pillMounjaroLevel) {
-        pillMounjaroLevel.textContent = `${mjInfo.activeMg.toFixed(2)}mg`;
-      }
-
       renderTodayView(rec, cycleInfo, totalWorkoutMin, nutTotals);
-      renderMounjaroView(rec, mjInfo);
       renderCycleView(rec, cycleInfo);
       renderMonthlyReportView();
     }
@@ -2965,32 +2381,9 @@
         }
       });
 
-      // Daily Calorie & Macro Totals
+      // Daily Calorie Total
       const kcalEl = document.getElementById('dailyTotalKcalText');
-      const carbEl = document.getElementById('dailyTotalCarbText');
-      const proEl = document.getElementById('dailyTotalProteinText');
-      const fatEl = document.getElementById('dailyTotalFatText');
-      const barC = document.getElementById('macroBarCarb');
-      const barP = document.getElementById('macroBarProtein');
-      const barF = document.getElementById('macroBarFat');
-
       if (kcalEl) kcalEl.textContent = `${nutTotals.kcal.toLocaleString()} kcal`;
-      if (carbEl) carbEl.textContent = `${nutTotals.carb}`;
-      if (proEl) proEl.textContent = `${nutTotals.protein}`;
-      if (fatEl) fatEl.textContent = `${nutTotals.fat}`;
-
-      const macroGramSum = nutTotals.carb + nutTotals.protein + nutTotals.fat;
-      if (barC && barP && barF) {
-        if (macroGramSum > 0) {
-          barC.style.width = `${Math.round((nutTotals.carb / macroGramSum) * 100)}%`;
-          barP.style.width = `${Math.round((nutTotals.protein / macroGramSum) * 100)}%`;
-          barF.style.width = `${Math.max(0, 100 - Math.round((nutTotals.carb / macroGramSum) * 100) - Math.round((nutTotals.protein / macroGramSum) * 100))}%`;
-        } else {
-          barC.style.width = '33%';
-          barP.style.width = '34%';
-          barF.style.width = '33%';
-        }
-      }
 
       // Water 표시·에너지 슬라이더는 삭제됨 (기존 저장 필드는 무시)
 
@@ -3000,11 +2393,11 @@
         if (rec.meals.length === 0) {
           mealList.innerHTML = `
             <div class="text-center py-6 px-3 rounded-xl border border-dashed border-stone-200 text-xs text-stone-400">
-              아직 오늘 기록한 식사나 간식이 없어요.<br>먹은 시간과 메뉴를 입력하면 칼로리·탄단지가 함께 저장됩니다!
+              아직 오늘 기록한 식사나 간식이 없어요.<br>먹은 시간과 메뉴를 입력하면 칼로리가 함께 저장됩니다!
             </div>`;
         } else {
           mealList.innerHTML = rec.meals.map(m => {
-            const hasNut = (Number(m.kcal) || 0) > 0 || (Number(m.protein) || 0) > 0;
+            const hasNut = (Number(m.kcal) || 0) > 0;
             return `
               <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-stone-50/80 border border-stone-200/70">
                 <div class="flex items-start gap-2.5 min-w-0">
@@ -3016,7 +2409,6 @@
                     </div>
                     <div class="flex items-center gap-1.5 flex-wrap mt-1">
                       ${hasNut ? `<span class="text-[11px] font-bold text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded">${Number(m.kcal || 0)}kcal</span>` : ''}
-                      ${hasNut ? `<span class="text-[10px] text-stone-600 bg-white border border-stone-200 px-1.5 py-0.5 rounded">탄 ${Number(m.carb || 0)}g · 단 ${Number(m.protein || 0)}g · 지 ${Number(m.fat || 0)}g</span>` : ''}
                       <span class="text-[11px] text-stone-500">${escapeHtml(m.fullness)}</span>
                     </div>
                     ${Array.isArray(m.items) && m.items.length ? `<div class="text-[10px] text-amber-700/80 mt-0.5 truncate">${escapeHtml(m.items.join(' · '))}</div>` : ''}
@@ -3176,272 +2568,6 @@
       }
     }
 
-    function renderMounjaroView(rec, mjInfo) {
-      const shotDateInput = document.getElementById('mjShotDateInput');
-      if (shotDateInput && !shotDateInput.value) {
-        shotDateInput.value = state.selectedDate;
-      }
-
-      const activeMgEl = document.getElementById('mjCurrentActiveMg');
-      const phaseEl = document.getElementById('mjCurrentPhaseText');
-      const elapsedEl = document.getElementById('mjElapsedTimeText');
-      const lastDoseEl = document.getElementById('mjLastDoseSummary');
-      const nextDateEl = document.getElementById('mjNextShotDateText');
-      const nextSiteEl = document.getElementById('mjNextRecommendedSite');
-      const totalShotsEl = document.getElementById('mjTotalShotsText');
-      const weightEl = document.getElementById('mjLatestWeightText');
-      const adviceBanner = document.getElementById('mjPkAdviceBanner');
-
-      if (activeMgEl) activeMgEl.textContent = `${mjInfo.activeMg.toFixed(2)} mg`;
-      if (phaseEl) phaseEl.textContent = mjInfo.phaseLabel;
-      if (elapsedEl) elapsedEl.textContent = mjInfo.elapsedText;
-      if (lastDoseEl) lastDoseEl.textContent = mjInfo.lastDoseSummary;
-      if (nextDateEl) nextDateEl.textContent = mjInfo.nextShotDate;
-      if (nextSiteEl) nextSiteEl.textContent = mjInfo.recommendedSite;
-      if (totalShotsEl) totalShotsEl.textContent = `${mjInfo.totalShots}회 투여`;
-      if (weightEl) weightEl.textContent = `최근 기록 체중: ${mjInfo.latestWeight}`;
-      if (adviceBanner) adviceBanner.textContent = mjInfo.adviceText;
-
-      const btnActual = document.getElementById('mjModeBtn-actual');
-      const btnPreview = document.getElementById('mjModeBtn-preview');
-      const modeLabel = document.getElementById('mjCurveModeLabel');
-
-      if (btnActual && btnPreview) {
-        if (state.mounjaroCurveMode === 'preview') {
-          btnPreview.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-700 text-white transition';
-          btnActual.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200 transition';
-        } else {
-          btnActual.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-white transition';
-          btnPreview.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition';
-        }
-      }
-      if (modeLabel) {
-        modeLabel.textContent = state.mounjaroCurveMode === 'preview'
-          ? '2.5mg 주1회 4주 누적 시뮬레이션'
-          : (mjInfo.hasShots ? '내 실제 투약 기록 곡선' : '투약 기록 대기 중 (시뮬레이션 버튼을 눌러보세요)');
-      }
-
-      renderMounjaroPkCurveSvg();
-
-      const histEl = document.getElementById('mjShotHistoryList');
-      if (histEl) {
-        const shots = state.mounjaroShots || [];
-        if (shots.length === 0) {
-          histEl.innerHTML = `
-            <div class="text-center py-6 px-3 rounded-xl border border-dashed border-stone-200 text-xs text-stone-400">
-              아직 등록된 마운자로 주사 기록이 없어요.<br>첫 투약을 시작하면 위에서 일시·용량·부위를 저장해 보세요!
-            </div>`;
-        } else {
-          histEl.innerHTML = shots.map(s => `
-            <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-stone-50/90 border border-stone-200/80">
-              <div class="min-w-0">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-xs font-bold">${Number(s.dose).toFixed(1)} mg</span>
-                  <span class="text-xs font-bold text-stone-800">${escapeHtml(s.date)} ${escapeHtml(s.time || '')}</span>
-                  <span class="text-[11px] px-2 py-0.5 rounded-full bg-white border border-stone-200 text-stone-600">${escapeHtml(s.site)}</span>
-                  ${s.weight ? `<span class="text-[11px] font-semibold text-indigo-700">${Number(s.weight).toFixed(1)}kg</span>` : ''}
-                </div>
-                ${s.note ? `<div class="text-[11px] text-stone-500 mt-1 truncate">${escapeHtml(s.note)}</div>` : ''}
-              </div>
-              <button type="button" onclick="deleteMounjaroShot('${s.id}')" class="text-xs text-stone-400 hover:text-rose-600 px-2 py-1 shrink-0">✕</button>
-            </div>
-          `).join('');
-        }
-      }
-
-      const dateLabel = document.getElementById('mjSideEffectDateLabel');
-      if (dateLabel) dateLabel.textContent = state.selectedDate;
-
-      const seCountBadge = document.getElementById('mjSideEffectCountBadge');
-      if (seCountBadge) seCountBadge.textContent = `체크 항목 ${rec.mjSideEffects.length}개`;
-
-      const appRange = document.getElementById('mjAppetiteRange');
-      const appLabel = document.getElementById('mjAppetiteLabel');
-      const sevRange = document.getElementById('mjSeverityRange');
-      const sevLabel = document.getElementById('mjSeverityLabel');
-      const seNoteInput = document.getElementById('mjSideEffectNoteInput');
-
-      if (appRange) appRange.value = rec.mjAppetite ?? 3;
-      if (appLabel) appLabel.textContent = MJ_APPETITE_TEXT[rec.mjAppetite ?? 3] || '3 / 5';
-      if (sevRange) sevRange.value = rec.mjSeverity ?? 0;
-      if (sevLabel) sevLabel.textContent = MJ_SEVERITY_TEXT[rec.mjSeverity ?? 0] || '없음 (0/4)';
-      if (seNoteInput && document.activeElement !== seNoteInput) {
-        seNoteInput.value = rec.mjNote || '';
-      }
-
-      const seGrid = document.getElementById('mjSideEffectsGrid');
-      if (seGrid) {
-        seGrid.innerHTML = MJ_SIDE_EFFECT_ITEMS.map(item => {
-          const active = rec.mjSideEffects.includes(item.id);
-          return `
-            <button type="button" onclick="toggleMounjaroSideEffect('${item.id}')" class="p-2.5 rounded-xl border text-xs text-left transition flex items-center justify-between ${active ? 'chip-selected-amber' : 'bg-stone-50/70 border-stone-200 text-stone-700 hover:bg-stone-100'}">
-              <span class="truncate">${item.label}</span>
-              <span class="ml-1 shrink-0">${active ? '✓' : ''}</span>
-            </button>
-          `;
-        }).join('');
-      }
-    }
-
-    function renderMounjaroPkCurveSvg() {
-      const svg = document.getElementById('mjPkCurveSvg');
-      if (!svg) return;
-
-      const shotsToPlot = state.mounjaroCurveMode === 'preview'
-        ? getPreviewSimulatedShots(state.selectedDate)
-        : (state.mounjaroShots || []);
-
-      const startDateStr = addDays(state.selectedDate, -14);
-      const startMs = dateTimeToMs(startDateStr, '00:00');
-      const totalDays = 28;
-      const totalHours = totalDays * 24;
-      const stepHours = 4;
-      const numSteps = Math.floor(totalHours / stepHours);
-
-      const width = 760;
-      const height = 260;
-      const padLeft = 52;
-      const padRight = 20;
-      const padTop = 26;
-      const padBottom = 40;
-      const plotW = width - padLeft - padRight;
-      const plotH = height - padTop - padBottom;
-
-      const points = [];
-      let maxMg = 3.5;
-
-      for (let i = 0; i <= numSteps; i++) {
-        const h = i * stepHours;
-        const ms = startMs + h * 3600 * 1000;
-        const mg = getTotalActiveMgAtMs(ms, shotsToPlot);
-        if (mg > maxMg) maxMg = mg * 1.15;
-        points.push({ h, mg });
-      }
-
-      const xOfH = h => padLeft + (h / totalHours) * plotW;
-      const yOfMg = mg => padTop + plotH - (Math.min(mg, maxMg) / maxMg) * plotH;
-
-      let gridHtml = '';
-      const yTicks = [0, maxMg * 0.5, maxMg];
-      yTicks.forEach(val => {
-        const y = yOfMg(val);
-        gridHtml += `
-          <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${width - padRight}" y2="${y.toFixed(1)}" stroke="#e7e5e4" stroke-dasharray="3 3" />
-          <text x="${padLeft - 6}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="13" font-weight="600" fill="#57534e">${val.toFixed(1)}mg</text>
-        `;
-      });
-
-      for (let d = 0; d <= totalDays; d += 7) {
-        const x = xOfH(d * 24);
-        const labelDate = addDays(startDateStr, d).slice(5);
-        gridHtml += `
-          <line x1="${x.toFixed(1)}" y1="${padTop}" x2="${x.toFixed(1)}" y2="${padTop + plotH}" stroke="#f5f5f4" />
-          <text x="${x.toFixed(1)}" y="${height - 12}" text-anchor="middle" font-size="12" font-weight="600" fill="#57534e">${labelDate}</text>
-        `;
-      }
-
-      const selHours = 14 * 24 + 14;
-      const selX = xOfH(selHours);
-      const selMg = getTotalActiveMgAtMs(startMs + selHours * 3600 * 1000, shotsToPlot);
-      const selY = yOfMg(selMg);
-
-      const pathD = points.map((pt, idx) => `${idx === 0 ? 'M' : 'L'} ${xOfH(pt.h).toFixed(1)} ${yOfMg(pt.mg).toFixed(1)}`).join(' ');
-      const areaD = `${pathD} L ${xOfH(totalHours).toFixed(1)} ${(padTop + plotH).toFixed(1)} L ${padLeft} ${(padTop + plotH).toFixed(1)} Z`;
-
-      let shotMarkersHtml = '';
-      shotsToPlot.forEach(s => {
-        const sMs = dateTimeToMs(s.date, s.time || '10:00');
-        const h = (sMs - startMs) / (1000 * 3600);
-        if (h >= 0 && h <= totalHours) {
-          const sx = xOfH(h);
-          shotMarkersHtml += `
-            <line x1="${sx.toFixed(1)}" y1="${padTop}" x2="${sx.toFixed(1)}" y2="${padTop + plotH}" stroke="#10b981" stroke-width="1" stroke-dasharray="2 2" />
-            <text x="${sx.toFixed(1)}" y="${padTop - 8}" text-anchor="middle" font-size="11" font-weight="bold" fill="#047857">💉${s.dose}mg</text>
-          `;
-        }
-      });
-
-      svg.innerHTML = `
-        <defs>
-          <linearGradient id="mjAreaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#10b981" stop-opacity="0.32" />
-            <stop offset="100%" stop-color="#10b981" stop-opacity="0.02" />
-          </linearGradient>
-        </defs>
-        ${gridHtml}
-        <path d="${areaD}" fill="url(#mjAreaGrad)" />
-        <path d="${pathD}" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" />
-        ${shotMarkersHtml}
-        <line x1="${selX.toFixed(1)}" y1="${padTop}" x2="${selX.toFixed(1)}" y2="${padTop + plotH}" stroke="#e11d48" stroke-width="2" />
-        <circle cx="${selX.toFixed(1)}" cy="${selY.toFixed(1)}" r="5" fill="#e11d48" stroke="#ffffff" stroke-width="1.5" />
-        <text x="${(selX + 8).toFixed(1)}" y="${Math.max(padTop + 14, selY - 8).toFixed(1)}" font-size="12" font-weight="bold" fill="#be123c">선택일 (${selMg.toFixed(2)}mg)</text>
-      `;
-
-      applyMounjaroChartZoom();
-    }
-
-    function setMounjaroChartZoom(zoom) {
-      state.mjChartZoom = Number(zoom) || 1;
-      saveStateToStorage();
-      applyMounjaroChartZoom();
-    }
-
-    function applyMounjaroChartZoom() {
-      const svg = document.getElementById('mjPkCurveSvg');
-      const box = document.getElementById('mjChartScroll');
-      if (svg) {
-        const zoom = Number(state.mjChartZoom) || 1;
-        const boxW = box ? box.clientWidth : 0;
-        const baseW = Math.max(boxW || 0, 760);
-        const renderW = Math.round(baseW * zoom);
-        const renderH = Math.round(renderW * (260 / 760));
-        svg.setAttribute('viewBox', '0 0 760 260');
-        svg.style.width = renderW + 'px';
-        svg.style.height = renderH + 'px';
-        svg.style.minWidth = renderW + 'px';
-      }
-      [1, 1.5, 2].forEach(z => {
-        const btn = document.getElementById('mjZoomBtn-' + z);
-        if (!btn) return;
-        const active = Math.abs((Number(state.mjChartZoom) || 1) - z) < 0.01;
-        btn.className = active
-          ? 'px-2 py-0.5 rounded-lg border border-emerald-600 bg-emerald-600 text-white text-[11px] font-bold transition'
-          : 'px-2 py-0.5 rounded-lg border border-stone-300 bg-white text-stone-600 text-[11px] font-bold hover:bg-stone-100 transition';
-      });
-    }
-
-    function confirmClearAllMounjaroShots() {
-      const shotCount = (state.mounjaroShots || []).length;
-      const hasSideEffectData = Object.keys(state.days || {}).some(d => {
-        const r = state.days[d];
-        if (!r) return false;
-        return (Array.isArray(r.mjSideEffects) && r.mjSideEffects.length > 0) || !!r.mjNote || (r.mjSeverity || 0) > 0;
-      });
-      if (shotCount === 0 && !hasSideEffectData) {
-        showToast('지울 마운자로 기록이 없어요.');
-        return;
-      }
-      openAppModal(
-        '마운자로 기록 전체 초기화',
-        `투약 기록 ${shotCount}건과 모든 날짜의 마운자로 부작용·식욕 체감 기록을 삭제할까요? (예시 기록 포함, 되돌릴 수 없어요)`,
-        function () {
-          state.mounjaroShots = [];
-          state.mounjaroCurveMode = 'actual';
-          Object.keys(state.days || {}).forEach(d => {
-            const r = state.days[d];
-            if (!r) return;
-            r.mjSideEffects = [];
-            r.mjAppetite = 3;
-            r.mjSeverity = 0;
-            r.mjNote = '';
-          });
-          saveStateToStorage();
-          renderAll();
-          showToast('마운자로 투약·부작용 기록을 모두 초기화했어요.', 'emerald');
-        }
-      );
-    }
-
     function renderCycleView(rec, cycleInfo) {
       const nextDateEl = document.getElementById('cycleNextDateText');
       const nextDdayEl = document.getElementById('cycleNextDdayText');
@@ -3580,7 +2706,7 @@
       return has(rec.meals) || has(rec.workouts) || has(rec.stretches) || has(rec.bowels) ||
         has(rec.cycleSymptoms) || !!rec.moodLevel || !!rec.psychMedTaken || !!rec.supplementTaken ||
         !!rec.cervicalDischarge || !!rec.isPeriod || Number(rec.flowLevel) > 0 ||
-        !!(rec.medNote && String(rec.medNote).trim()) || !!(rec.mjNote && String(rec.mjNote).trim());
+        !!(rec.medNote && String(rec.medNote).trim());
     }
 
     // 수면을 실제로 기록한 날인지 (기본값 00:30 취침·08:00 기상·7.5시간은 기록으로 치지 않음)
@@ -3630,7 +2756,7 @@
         sleepDays: 0, sleepSum: 0, greatSleepDays: 0,
         medDays: 0, medRateSum: 0, medFullDays: 0,
         workoutMin: 0, workoutSessions: 0, stretchFullDays: 0,
-        mealDays: 0, kcalSum: 0, proteinSum: 0,
+        mealDays: 0, kcalSum: 0,
         moodDays: 0, moodSum: 0, moodCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
         emotionCounts: {}, dischargeCounts: {}, bowelDays: 0
       };
@@ -3664,7 +2790,6 @@
           const nut = getDayNutritionTotals(rec);
           m.mealDays += 1;
           m.kcalSum += nut.kcal;
-          m.proteinSum += nut.protein;
         }
 
         if (rec.moodLevel && MOOD_META[rec.moodLevel]) {
@@ -3693,7 +2818,6 @@
         medRate: m.medDays ? (m.medRateSum / m.medDays) * 100 : null,
         stretchRate: ratioPercent(m.stretchFullDays, m.recordedDays),
         avgKcal: m.mealDays ? m.kcalSum / m.mealDays : null,
-        avgProtein: m.mealDays ? m.proteinSum / m.mealDays : null,
         moodAvg: m.moodDays ? m.moodSum / m.moodDays : null,
         posRatio: ratioPercent(posDays, m.moodDays),
         negRatio: ratioPercent(negDays, m.moodDays),
@@ -3911,7 +3035,6 @@
       check(cur.medRate, prev.medRate, 5, '%p', 0, true, '아침 약·영양제 복용률', '%');
       check(cur.workoutMin, prev.workoutMin, 10, '분', 0, true, '월 운동 시간');
       check(cur.stretchRate, prev.stretchRate, 10, '%p', 0, true, '상·하체 스트레칭 달성률', '%');
-      check(cur.avgProtein, prev.avgProtein, 5, 'g', 0, true, '일평균 단백질');
       check(cur.posRatio, prev.posRatio, 5, '%p', 0, true, '긍정 기분 비율', '%');
       check(cur.negRatio, prev.negRatio, 5, '%p', 0, false, '지침·예민 비율', '%');
 
@@ -3959,7 +3082,7 @@
       // 전월(또는 이번 달)에 기록이 아예 없으면 0과 비교한 가짜 증감을 만들지 않는다
       const EMPTY_METRICS = {
         sleepAvg: null, greatSleepRatio: null, medRate: null, workoutMin: null,
-        stretchRate: null, avgKcal: null, avgProtein: null, moodAvg: null,
+        stretchRate: null, avgKcal: null, moodAvg: null,
         posRatio: null, negRatio: null
       };
       const curCmp = cur.recordedDays > 0 ? cur : EMPTY_METRICS;
@@ -3979,7 +3102,6 @@
         const workoutDelta = buildDelta(curCmp.workoutMin, prevCmp.workoutMin, { label: '운동 시간', unit: '분', digits: 0, better: 'up' });
         const stretchDelta = buildDelta(curCmp.stretchRate, prevCmp.stretchRate, { label: '스트레칭 달성률', unit: '%p', digits: 0, better: 'up' });
         const kcalDelta = buildDelta(curCmp.avgKcal, prevCmp.avgKcal, { label: '칼로리', unit: 'kcal', digits: 0, better: 'neutral' });
-        const proteinDelta = buildDelta(curCmp.avgProtein, prevCmp.avgProtein, { label: '단백질', unit: 'g', digits: 0, better: 'up' });
         const moodDelta = buildDelta(curCmp.moodAvg, prevCmp.moodAvg, { label: '평균 기분', unit: '점', digits: 1, better: 'up' });
         const posDelta = buildDelta(curCmp.posRatio, prevCmp.posRatio, { label: '긍정 비율', unit: '%p', digits: 0, better: 'up' });
 
@@ -4032,11 +3154,11 @@
             iconBg: 'bg-amber-100 text-amber-700',
             valueCls: 'text-amber-700',
             main: cur.avgKcal !== null ? `${formatFixed(cur.avgKcal, 0)} kcal` : '기록 없음',
-            deltas: prevHasData ? [kcalDelta, proteinDelta] : [],
+            deltas: prevHasData ? [kcalDelta] : [],
             note: noPrevNote,
             subs: [
-              `단백질 ${cur.avgProtein !== null ? formatFixed(cur.avgProtein, 0) : '-'}g · 탄수·지방 포함 총합 평균`,
-              `식사 기록한 날 ${cur.mealDays}일`
+              `식사 기록한 날 ${cur.mealDays}일`,
+              `이번 달 총 섭취 ${Math.round(cur.kcalSum).toLocaleString()} kcal`
             ]
           }),
           metricCard({
