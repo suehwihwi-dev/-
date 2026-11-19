@@ -2898,17 +2898,15 @@
         } else {
           bowelList.innerHTML = rec.bowels.map(b => {
             return `
-              <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-stone-50/80 border border-stone-200/70">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <span class="px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold shrink-0">${escapeHtml(b.time)}</span>
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="text-xs font-bold text-stone-800">${escapeHtml(b.feeling)}</span>
-                    </div>
-                    ${b.note ? `<div class="text-[11px] text-stone-500 mt-0.5 truncate">${escapeHtml(b.note)}</div>` : ''}
+              <div class="flex items-center justify-between gap-2 py-2.5 border-b border-stone-100 last:border-0">
+                <div class="min-w-0">
+                  <div class="flex items-baseline gap-2 flex-wrap">
+                    <span class="text-[11px] text-stone-400 shrink-0">${escapeHtml(b.time)}</span>
+                    <span class="text-xs font-medium text-stone-800">${escapeHtml(b.feeling)}</span>
                   </div>
+                  ${b.note ? `<div class="text-[11px] text-stone-400 mt-0.5 truncate">${escapeHtml(b.note)}</div>` : ''}
                 </div>
-                <button type="button" onclick="deleteBowelEntry('${b.id}')" class="text-xs text-stone-400 hover:text-rose-600 px-2 py-1 shrink-0 transition">✕</button>
+                <button type="button" onclick="deleteBowelEntry('${b.id}')" class="text-xs text-stone-300 hover:text-rose-600 px-1 shrink-0 transition">✕</button>
               </div>
             `;
           }).join('');
@@ -2924,9 +2922,9 @@
         stretchGrid.innerHTML = STRETCH_ITEMS.map(item => {
           const checked = rec.stretches.includes(item.id);
           return `
-            <button type="button" onclick="toggleStretchItem('${item.id}')" class="flex items-center justify-between gap-2 p-3 rounded-xl border text-xs transition text-left ${checked ? 'chip-selected-teal' : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'}">
-              <span class="font-bold">${item.label}</span>
-              <span class="text-base shrink-0">${checked ? '✅' : '⬜'}</span>
+            <button type="button" onclick="toggleStretchItem('${item.id}')" class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg border text-xs transition text-left ${checked ? 'chip-selected' : 'border-stone-200 text-stone-600 hover:bg-stone-50'}">
+              <span class="font-medium">${item.label}</span>
+              <span class="text-[11px] shrink-0">${checked ? '✓' : ''}</span>
             </button>
           `;
         }).join('');
@@ -2945,15 +2943,14 @@
             </div>`;
         } else {
           workoutList.innerHTML = rec.workouts.map(w => `
-            <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-stone-50/80 border border-stone-200/70">
-              <div class="flex items-center gap-2.5 min-w-0">
-                <span class="px-2.5 py-1 rounded-lg bg-indigo-100 text-indigo-800 text-xs font-bold shrink-0">${w.minutes}분</span>
-                <div class="min-w-0">
-                  <div class="text-xs md:text-sm font-semibold text-stone-800 truncate">${escapeHtml(w.name)}</div>
-                  <div class="text-[11px] text-stone-500">강도: ${escapeHtml(w.intensity)}</div>
+            <div class="flex items-center justify-between gap-2 py-2.5 border-b border-stone-100 last:border-0">
+              <div class="min-w-0">
+                <div class="flex items-baseline gap-2 flex-wrap">
+                  <span class="text-xs font-medium text-stone-800 truncate">${escapeHtml(w.name)}</span>
+                  <span class="text-[11px] text-stone-400">${w.minutes}분 · ${escapeHtml(w.intensity)}</span>
                 </div>
               </div>
-              <button type="button" onclick="deleteWorkoutEntry('${w.id}')" class="text-xs text-stone-400 hover:text-rose-600 px-2 py-1 shrink-0 transition">✕</button>
+              <button type="button" onclick="deleteWorkoutEntry('${w.id}')" class="text-xs text-stone-300 hover:text-rose-600 px-1 shrink-0 transition">✕</button>
             </div>
           `).join('');
         }
