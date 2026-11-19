@@ -468,7 +468,7 @@
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             <button type="button" id="cyclePeriodToggleBtn" onclick="togglePeriodOnSelectedDate()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-600 hover:bg-stone-700 text-white transition">오늘 생리 중</button>
-            <button type="button" onclick="setLastPeriodToSelectedDate()" class="px-3 py-1.5 rounded-lg text-xs text-stone-500 border border-stone-200 transition">시작일로 설정</button>
+            <button type="button" onclick="setLastPeriodToSelectedDate()" title="이 날을 새 주기 1일차(생리 시작일)로 설정" class="px-3 py-1.5 rounded-lg text-xs text-stone-500 border border-stone-200 transition">새 주기 시작</button>
           </div>
         </div>
 
@@ -1328,6 +1328,7 @@
               };
             }
             if (!state.days) state.days = {};
+            if (!Array.isArray(state.cycleConfig.historyStartDates)) state.cycleConfig.historyStartDates = [];
           }
         }
       } catch (err) {
@@ -1336,6 +1337,7 @@
     }
 
     function saveStateToStorage() {
+      periodDayCacheDirty = true;
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch (err) {
@@ -2384,21 +2386,92 @@
       }
     }
 
+    // ── 생리 연속 일수 계산 (v8) ──
+    // 실제로 찍은 생리 기록을 날짜로 이어 붙여 '이번 생리 시작일'을 찾는다.
+    // 직전 생리 기록과 15일 이상 벌어지면 새 주기 1일차, 그 안이면 같은 생리로 이어 센다.
+    const NEW_CYCLE_MIN_GAP = 15;
+    let periodDayCacheDirty = true;
+    let periodDayCacheList = null;
+
+    function getPeriodDayList() {
+      if (!periodDayCacheDirty && periodDayCacheList) return periodDayCacheList;
+      const days = state.days || {};
+      periodDayCacheList = Object.keys(days)
+        .filter(d => {
+          const rec = days[d];
+          return !!(rec && (rec.isPeriod || Number(rec.flowLevel) > 0));
+        })
+        .sort();
+      periodDayCacheDirty = false;
+      return periodDayCacheList;
+    }
+
+    function isPeriodDay(dateStr) {
+      const rec = state.days && state.days[dateStr];
+      return !!(rec && (rec.isPeriod || Number(rec.flowLevel) > 0));
+    }
+
+    // targetDate 기준 '이번 주기 시작일'을 찾는다.
+    // 1) target 이전(당일 포함) 마지막 생리 기록일에서 거슬러 올라가며
+    //    NEW_CYCLE_MIN_GAP(15일) 안에 이어진 기록의 첫날을 시작일로 잡는다.
+    // 2) 사용자가 '새 주기 시작'으로 직접 지정한 날(manualStartDate)이 더 뒤면 그 날을 쓴다.
+    // 3) 생리 기록이 하나도 없으면 주기 설정의 최근 시작일을 쓴다.
+    function resolveCycleDates(targetDateStr) {
+      const cfg = state.cycleConfig || {};
+      const periodDays = getPeriodDayList();
+
+      let lastPeriodDay = null;
+      for (let i = periodDays.length - 1; i >= 0; i--) {
+        if (diffDays(targetDateStr, periodDays[i]) >= 0) { lastPeriodDay = periodDays[i]; break; }
+      }
+
+      let start = null;
+      if (lastPeriodDay) {
+        start = lastPeriodDay;
+        let idx = periodDays.indexOf(lastPeriodDay);
+        while (idx > 0 && diffDays(start, periodDays[idx - 1]) < NEW_CYCLE_MIN_GAP) {
+          start = periodDays[idx - 1];
+          idx -= 1;
+        }
+      }
+
+      const manual = cfg.manualStartDate;
+      if (manual && diffDays(targetDateStr, manual) >= 0) {
+        if (!start || diffDays(manual, start) > 0) start = manual;
+      }
+      if (!start) start = cfg.lastStartDate || '2026-10-26';
+
+      return { start, lastPeriodDay };
+    }
+
+    function formatShortDate(dateStr) {
+      const p = parseDateParts(dateStr);
+      return `${p.month}/${p.day}`;
+    }
+
     function calculateCycleInfo(targetDateStr) {
       const cfg = state.cycleConfig;
-      const lastStart = cfg.lastStartDate || '2026-10-26';
       const cycleLen = Math.max(20, Math.min(45, parseInt(cfg.cycleLength, 10) || 28));
       const periodLen = Math.max(2, Math.min(10, parseInt(cfg.periodLength, 10) || 5));
 
-      const rawDiff = diffDays(targetDateStr, lastStart);
-      let modDiff = rawDiff % cycleLen;
-      if (modDiff < 0) modDiff += cycleLen;
-      const cycleDay = modDiff + 1;
+      const resolved = resolveCycleDates(targetDateStr);
+      const cycleStart = resolved.start;
+      const rawDiff = diffDays(targetDateStr, cycleStart);
 
-      let cyclesElapsed = Math.floor(rawDiff / cycleLen);
-      if (rawDiff >= 0) cyclesElapsed += 1;
-      else cyclesElapsed = 0;
-      const nextStartDate = addDays(lastStart, cyclesElapsed * cycleLen);
+      const rec = getDayRecord(targetDateStr);
+      const isActualPeriod = !!(rec.isPeriod || Number(rec.flowLevel) > 0);
+
+      let cycleDay = rawDiff + 1;
+      let baseStart = cycleStart;
+      if (!isActualPeriod && rawDiff >= cycleLen) {
+        // 생리 기록이 오래 없으면 주기 길이만큼 넘겨 예상 주기를 이어서 보여준다
+        const cyclesElapsed = Math.floor(rawDiff / cycleLen);
+        baseStart = addDays(cycleStart, cyclesElapsed * cycleLen);
+        cycleDay = diffDays(targetDateStr, baseStart) + 1;
+      }
+      if (cycleDay < 1) cycleDay = 1;
+
+      const nextStartDate = addDays(baseStart, cycleLen);
       const daysUntilNext = diffDays(nextStartDate, targetDateStr);
 
       const ovulationDayInCycle = Math.max(8, cycleLen - 14);
@@ -2408,9 +2481,6 @@
       let expectedDischarge = '';
       let shortAdvice = '';
       let detailedTip = '';
-
-      const rec = getDayRecord(targetDateStr);
-      const isActualPeriod = rec.isPeriod || rec.flowLevel > 0;
 
       if (isActualPeriod || cycleDay <= periodLen) {
         phaseName = '월경기 (생리 기간)';
@@ -2434,10 +2504,14 @@
         detailedTip = '• <strong>추천 스트레칭·운동:</strong> 상·하체 2분할 스트레칭, 폼롤러 릴리즈, 가벼운 홈트<br>• <strong>호르몬·분비물 특징:</strong> 점액이 탁하고 끈적해지거나 줄어들며, 생리 전 면역력이 떨어지면 분비물 이상이나 가려움이 생기기 쉬워요.<br>• <strong>셀프 케어:</strong> 호르몬 변화로 수면이 얕아지거나 예민해질 수 있으니 자정 전후 취침 루틴을 편안하게 유지해 주세요.';
       }
 
+      const dayLabel = isActualPeriod ? `생리 ${cycleDay}일차` : `주기 ${cycleDay}일차`;
+
       return {
         cycleDay,
         cycleLen,
         periodLen,
+        cycleStartDate: baseStart,
+        anchorStart: cycleStart,
         nextStartDate,
         daysUntilNext,
         ovulationDate,
@@ -2446,7 +2520,8 @@
         expectedDischarge,
         shortAdvice,
         detailedTip,
-        isActualPeriod
+        isActualPeriod,
+        dayLabel
       };
     }
 
@@ -2456,8 +2531,15 @@
       if (rec.isPeriod && rec.flowLevel === 0) rec.flowLevel = 2;
       if (!rec.isPeriod) rec.flowLevel = 0;
       saveStateToStorage();
+      const info = calculateCycleInfo(state.selectedDate);
       renderAll();
-      showToast(rec.isPeriod ? '오늘 생리 중으로 체크했어요 🩸' : '생리 체크를 해제했어요.');
+      showToast(
+        rec.isPeriod
+          ? (info.cycleDay === 1
+              ? '새 주기 1일차로 기록했어요 🩸'
+              : `이어서 생리 ${info.cycleDay}일차로 기록했어요 🩸`)
+          : '생리 체크를 해제했어요.'
+      );
     }
 
     function setFlowLevel(level) {
@@ -2484,6 +2566,7 @@
 
       if (startEl && startEl.value) {
         state.cycleConfig.lastStartDate = startEl.value;
+        state.cycleConfig.manualStartDate = startEl.value;
         if (!state.cycleConfig.historyStartDates.includes(startEl.value)) {
           state.cycleConfig.historyStartDates.push(startEl.value);
           state.cycleConfig.historyStartDates.sort().reverse();
@@ -2499,6 +2582,7 @@
 
     function setLastPeriodToSelectedDate() {
       state.cycleConfig.lastStartDate = state.selectedDate;
+      state.cycleConfig.manualStartDate = state.selectedDate;
       if (!state.cycleConfig.historyStartDates.includes(state.selectedDate)) {
         state.cycleConfig.historyStartDates.push(state.selectedDate);
         state.cycleConfig.historyStartDates.sort().reverse();
@@ -2508,7 +2592,7 @@
       if (rec.flowLevel === 0) rec.flowLevel = 2;
       saveStateToStorage();
       renderAll();
-      showToast(`${state.selectedDate}일을 최근 생리 시작일로 설정했어요!`, 'rose');
+      showToast(`${state.selectedDate}을 새 주기 1일차로 설정했어요!`, 'rose');
     }
 
     function addCycleStartDateHistory() {
@@ -2522,6 +2606,7 @@
         state.cycleConfig.historyStartDates.push(val);
         state.cycleConfig.historyStartDates.sort().reverse();
         state.cycleConfig.lastStartDate = state.cycleConfig.historyStartDates[0];
+        state.cycleConfig.manualStartDate = state.cycleConfig.lastStartDate;
       }
       input.value = '';
       saveStateToStorage();
@@ -2533,6 +2618,11 @@
       state.cycleConfig.historyStartDates = state.cycleConfig.historyStartDates.filter(d => d !== dateStr);
       if (state.cycleConfig.historyStartDates.length > 0) {
         state.cycleConfig.lastStartDate = state.cycleConfig.historyStartDates[0];
+        if (state.cycleConfig.manualStartDate === dateStr) {
+          state.cycleConfig.manualStartDate = state.cycleConfig.historyStartDates[0];
+        }
+      } else if (state.cycleConfig.manualStartDate === dateStr) {
+        state.cycleConfig.manualStartDate = null;
       }
       saveStateToStorage();
       renderAll();
@@ -2661,7 +2751,7 @@
     function exportAllData() {
       const payload = Object.assign({}, state, {
         customFoods: getCustomFoods(),
-        appVersion: 'v6',
+        appVersion: 'v8',
         exportedAt: new Date().toISOString()
       });
       const dataStr = JSON.stringify(payload, null, 2);
@@ -2732,7 +2822,7 @@
 
       const cycleHeaderBadge = document.getElementById('cycleHeaderBadge');
       if (cycleHeaderBadge) {
-        cycleHeaderBadge.textContent = `${cycleInfo.phaseName.split(' ')[0]} · 주기 ${cycleInfo.cycleDay}일차`;
+        cycleHeaderBadge.textContent = `${cycleInfo.phaseName.split(' ')[0]} · ${cycleInfo.dayLabel}`;
       }
 
       const summaryPeriodTag = document.getElementById('summaryPeriodTag');
@@ -2796,7 +2886,7 @@
       const pillCycleDay = document.getElementById('pillCycleDay');
       if (pillCycleDay) {
         pillCycleDay.textContent = cycleInfo.isActualPeriod
-          ? `주기 ${cycleInfo.cycleDay}일차`
+          ? cycleInfo.dayLabel
           : `D-${cycleInfo.daysUntilNext}`;
       }
 
@@ -3015,7 +3105,7 @@
       const todayCycleDesc = document.getElementById('todayCycleDesc');
       const quickTogglePeriodBtn = document.getElementById('quickTogglePeriodBtn');
       if (todayCyclePhasePill) {
-        todayCyclePhasePill.textContent = `${cycleInfo.phaseName} · 주기 ${cycleInfo.cycleDay}일차 · 예정 D-${cycleInfo.daysUntilNext}`;
+        todayCyclePhasePill.textContent = `${cycleInfo.phaseName} · ${cycleInfo.dayLabel} · 예정 D-${cycleInfo.daysUntilNext}`;
       }
       if (todayCycleDesc) {
         todayCycleDesc.textContent = cycleInfo.shortAdvice;
@@ -3054,8 +3144,10 @@
     function renderCycleView(rec, cycleInfo) {
       const summaryEl = document.getElementById('cycleSummaryText');
       if (summaryEl) {
-        const periodLabel = cycleInfo.isActualPeriod ? '생리 중' : `생리까지 ${cycleInfo.daysUntilNext}일`;
-        summaryEl.textContent = `주기 ${cycleInfo.cycleDay}일차 · ${periodLabel} · 다음 예정일 ${cycleInfo.nextStartDate}`;
+        const periodLabel = cycleInfo.isActualPeriod
+          ? '생리 중'
+          : (cycleInfo.cycleDay <= cycleInfo.periodLen ? '생리 예정' : `생리까지 ${cycleInfo.daysUntilNext}일`);
+        summaryEl.textContent = `${cycleInfo.dayLabel} · ${periodLabel} · 시작 ${formatShortDate(cycleInfo.cycleStartDate)} · 다음 예정 ${formatShortDate(cycleInfo.nextStartDate)}`;
       }
 
       const toggleBtn = document.getElementById('cyclePeriodToggleBtn');
@@ -3093,7 +3185,7 @@
       const lastStartInput = document.getElementById('cycleLastStartInput');
       const cycleLenInput = document.getElementById('cycleLengthInput');
       const periodLenInput = document.getElementById('periodLengthInput');
-      if (lastStartInput) lastStartInput.value = state.cycleConfig.lastStartDate;
+      if (lastStartInput) lastStartInput.value = (cycleInfo && cycleInfo.anchorStart) || state.cycleConfig.lastStartDate;
       if (cycleLenInput) cycleLenInput.value = state.cycleConfig.cycleLength;
       if (periodLenInput) periodLenInput.value = state.cycleConfig.periodLength;
     }
@@ -3171,16 +3263,16 @@
     // 주기 단계 계산 — day 레코드를 만들지 않고 설정값만으로 계산
     function getCyclePhaseKey(dateStr) {
       const cfg = state.cycleConfig || {};
-      const lastStart = cfg.lastStartDate || '2026-10-26';
       const cycleLen = Math.max(20, Math.min(45, parseInt(cfg.cycleLength, 10) || 28));
       const periodLen = Math.max(2, Math.min(10, parseInt(cfg.periodLength, 10) || 5));
-      const rawDiff = diffDays(dateStr, lastStart);
-      let modDiff = rawDiff % cycleLen;
-      if (modDiff < 0) modDiff += cycleLen;
-      const cycleDay = modDiff + 1;
-      const ovulationDayInCycle = Math.max(8, cycleLen - 14);
+      const start = resolveCycleDates(dateStr).start;
+      const rawDiff = diffDays(dateStr, start);
       const rec = state.days[dateStr];
       const actualPeriod = !!(rec && (rec.isPeriod || Number(rec.flowLevel) > 0));
+      let cycleDay = rawDiff + 1;
+      if (!actualPeriod && rawDiff >= cycleLen) cycleDay = (rawDiff % cycleLen) + 1;
+      if (cycleDay < 1) cycleDay = 1;
+      const ovulationDayInCycle = Math.max(8, cycleLen - 14);
       if (actualPeriod || cycleDay <= periodLen) return 'menstrual';
       if (cycleDay < ovulationDayInCycle - 2) return 'follicular';
       if (cycleDay <= ovulationDayInCycle + 2) return 'ovulation';
@@ -3663,7 +3755,7 @@
       if (phaseMonthLabel) phaseMonthLabel.textContent = `· ${formatMonthLabel(curKey)}`;
       const cfg = state.cycleConfig || {};
       if (phaseNote) {
-        phaseNote.innerHTML = `주기 설정(최근 시작일 ${escapeHtml(cfg.lastStartDate || '-')} · ${parseInt(cfg.cycleLength, 10) || 28}일 주기 · 생리 ${parseInt(cfg.periodLength, 10) || 5}일)으로 이 달의 날짜별 단계를 계산해 집계했어요. 실제 생리 기록이 있는 날은 월경기로 우선 반영합니다.`;
+        phaseNote.innerHTML = `생리 기록(연속된 생리 시작일 기준)과 주기 설정(${parseInt(cfg.cycleLength, 10) || 28}일 주기 · 생리 ${parseInt(cfg.periodLength, 10) || 5}일)으로 이 달의 날짜별 단계를 계산해 집계했어요. 실제 생리 기록이 있는 날은 월경기로 우선 반영합니다.`;
       }
       if (phaseBadge) {
         phaseBadge.textContent = `기분 ${cur.moodDays}일 · 분비물 ${Object.keys(cur.dischargeCounts).reduce((s, k) => s + cur.dischargeCounts[k], 0)}일 기록`;
