@@ -2773,7 +2773,7 @@
       const pillCycleDay = document.getElementById('pillCycleDay');
       if (pillCycleDay) {
         pillCycleDay.textContent = cycleInfo.isActualPeriod
-          ? `생리 중`
+          ? `주기 ${cycleInfo.cycleDay}일차`
           : `D-${cycleInfo.daysUntilNext}`;
       }
 
