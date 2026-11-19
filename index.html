@@ -1236,8 +1236,8 @@
 
     // 2-Split Stretching (Upper body / Lower body)
     const STRETCH_ITEMS = [
-      { id: 'upper', label: '🙆‍♀️ 상체 스트레칭 (목·승모근·어깨·가슴·척추)' },
-      { id: 'lower', label: '🧘‍♀️ 하체 스트레칭 (골반·고관절·햄스트링·종아리)' }
+      { id: 'upper', label: '상체 스트레칭' },
+      { id: 'lower', label: '하체 스트레칭' }
     ];
 
     // Cervical Discharge (간단 4단계)
@@ -2862,7 +2862,7 @@
         if (rec.meals.length === 0) {
           mealList.innerHTML = `
             <div class="text-center py-6 px-3 rounded-xl border border-dashed border-stone-200 text-xs text-stone-400">
-              아직 오늘 기록한 식사나 간식이 없어요.<br>먹은 시간과 메뉴를 입력하면 칼로리가 함께 저장됩니다!
+              기록한 식사가 없어요.
             </div>`;
         } else {
           mealList.innerHTML = rec.meals.map(m => {
@@ -2878,7 +2878,7 @@
                     </div>
                     <div class="flex items-center gap-1.5 flex-wrap mt-1">
                       ${hasNut ? `<span class="text-[11px] font-bold text-amber-800 bg-amber-100/70 px-1.5 py-0.5 rounded">${Number(m.kcal || 0)}kcal</span>` : ''}
-                      <span class="text-[11px] text-stone-500">${escapeHtml(m.fullness)}</span>
+
                     </div>
                     ${Array.isArray(m.items) && m.items.length ? `<div class="text-[10px] text-amber-700/80 mt-0.5 truncate">${escapeHtml(m.items.join(' · '))}</div>` : ''}
                   </div>
@@ -2899,7 +2899,7 @@
         if (rec.bowels.length === 0) {
           bowelList.innerHTML = `
             <div class="text-center py-6 px-3 rounded-xl border border-dashed border-stone-200 text-xs text-stone-400">
-              오늘 화장실 다녀오셨다면 시간과 쾌변 만족도를 가볍게 남겨보세요.
+              기록한 배변이 없어요.
             </div>`;
         } else {
           bowelList.innerHTML = rec.bowels.map(b => {
@@ -2947,7 +2947,7 @@
         if (rec.workouts.length === 0) {
           workoutList.innerHTML = `
             <div class="text-center py-5 px-3 rounded-xl border border-dashed border-stone-200 text-xs text-stone-400">
-              오늘 한 운동(웨이트, 천국의 계단, 홈트, 산책 등)을 기록해 보세요!
+              기록한 운동이 없어요.
             </div>`;
         } else {
           workoutList.innerHTML = rec.workouts.map(w => `
